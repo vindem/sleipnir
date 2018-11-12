@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>at.ac.tuwien.ec</groupId>
+  <artifactId>sleipnir</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Sleipnir</name>
+  
+	<dependencies>
+		<dependency>
+		<groupId>org.apache.spark</groupId>
+		<artifactId>spark-core_2.10</artifactId>
+		<version>2.0.0</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.jgrapht</groupId>
+  			<artifactId>jgrapht-core</artifactId>
+ 			<version>1.2.0</version>
+		</dependency>
+	
+		<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-lang3</artifactId>
+    		<version>3.0</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.opencsv</groupId>
+    		<artifactId>opencsv</artifactId>
+    		<version>3.3</version>
+		</dependency>
+		
+		<dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+    		<groupId>org.junit.platform</groupId>
+    		<artifactId>junit-platform-launcher</artifactId>
+    		<version>1.1.0</version>
+    		<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.junit.platform</groupId>
+    		<artifactId>junit-platform-runner</artifactId>
+    		<version>1.1.0</version>
+    		<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.junit.vintage</groupId>
+    		<artifactId>junit-vintage-engine</artifactId>
+    		<version>5.1.0</version>
+    		<scope>test</scope>
+    	</dependency>
+        
+        <dependency>
+            <groupId>org.uma.jmetal</groupId>
+            <artifactId>jmetal-core</artifactId>
+            <version>5.6</version>
+        </dependency>
+        
+       	<dependency>
+            <groupId>org.uma.jmetal</groupId>
+            <artifactId>jmetal-algorithm</artifactId>
+            <version>5.6</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.uma.jmetal</groupId>
+            <artifactId>jmetal-exec</artifactId>
+            <version>5.6</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.uma.jmetal</groupId>
+            <artifactId>jmetal-problem</artifactId>
+            <version>5.6</version>
+        </dependency>
+	
+	</dependencies>
+		
+	<build>
+        <finalName>maven-unit-test</finalName>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
+            </plugin>
+
+        
+    		<plugin>
+      			<artifactId>maven-assembly-plugin</artifactId>
+      				<configuration>
+        			<archive>
+          			<manifest>
+            			<mainClass>at.ac.tuwien.ec.sleipnir.Main</mainClass>
+          			</manifest>
+        			</archive>
+        		<descriptorRefs>
+          			<descriptorRef>sleipnir.jar</descriptorRef>
+        		</descriptorRefs>
+      			</configuration>
+    	</plugin>
+  		</plugins>
+	</build>
+	
+	<licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+	</licenses>
+	
+	<developers>
+    <developer>
+      <name>Vincenzo De Maio</name>
+      <email>vincenzo@ec.tuwien.ac.at</email>
+      <organization>Vienna University of Technology</organization>
+      <organizationUrl>http://www.tuwien.ac.at</organizationUrl>
+      <personalUrl>http://www.vincenzodemaio.info</personalUrl>
+    </developer>
+</developers>
+	
+	
+	
+  
+</project>
