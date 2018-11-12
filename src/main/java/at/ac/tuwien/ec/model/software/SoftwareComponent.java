@@ -6,11 +6,55 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 
 public class SoftwareComponent {
 	
+	private String id;
 	private Hardware requirements;
+	private double millionsOfInstruction;
+	private String userId;
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Hardware getRequirements() {
+		return requirements;
+	}
+
+	public void setRequirements(Hardware requirements) {
+		this.requirements = requirements;
+	}
+
+	public double getMillionsOfInstruction() {
+		return millionsOfInstruction;
+	}
+
+	public void setMillionsOfInstruction(double millionsOfInstruction) {
+		this.millionsOfInstruction = millionsOfInstruction;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public SoftwareComponent(String id, Hardware requirements,double millionsOfInstructions, String uid)
+	{
+		this.id = id;
+		this.requirements = requirements;
+		this.millionsOfInstruction = millionsOfInstructions;
+		this.userId = uid;
+	}
 
 	public double getRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {
-		// TODO Auto-generated method stub
-		return 0;
+		return i.getTransmissionTime(this, i.getNodeById(userId), n)*2.0 
+				+ (millionsOfInstruction/n.getMipsPerCore());
+				
 	}
 
 	public Hardware getHardwareRequirements() {

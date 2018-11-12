@@ -27,7 +27,7 @@ public class DefaultNetworkPlanner {
 	
 	public static void setupNetworkConnections(MobileCloudInfrastructure inf)
 	{
-		for(MobileDevice d: inf.getMobileDevices())
+		for(MobileDevice d: inf.getMobileDevices().values())
 		{
 			/*
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
@@ -57,7 +57,7 @@ public class DefaultNetworkPlanner {
 			 *			new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0041)));
 			 */
 			
-			for(EdgeNode en : inf.getEdgeNodes())
+			for(EdgeNode en : inf.getEdgeNodes().values())
 				inf.addLink(d,en,qosUL);
 			
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
@@ -77,7 +77,7 @@ public class DefaultNetworkPlanner {
 							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, firstHop3GBandwidth), 0.9957),
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
         	
-			for(CloudDataCenter cn : inf.getCloudNodes())
+			for(CloudDataCenter cn : inf.getCloudNodes().values())
 				inf.addLink(d, cn, qosCloudUL);
 			
 			

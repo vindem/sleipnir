@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
@@ -63,13 +64,121 @@ public class MobileCloudInfrastructureTest {
 	}
 
 	@Test
-	public void testAddLinkComputationalNodeComputationalNodeQoSProfile() {
-		fail("Not yet implemented");
+	public void testAddLinkComputationalNodeComputationalNodeQoSProfileAllValid() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		inf.addMobileDevice(md);
+		inf.addEdgeNode(en);
+		QoSProfile prof = new QoSProfile(10.0,1.0);
+		inf.addLink(md, en, prof);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeQoSProfileUNull() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = null;
+		MobileDevice md = null;
+		QoSProfile prof = new QoSProfile(10.0,1.0);
+		inf.addLink(md, en, prof);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeQoSProfileUInvalid() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		inf.addEdgeNode(en);
+		QoSProfile prof = new QoSProfile(10.0,1.0);
+		inf.addLink(md, en, prof);
+	}
+	
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeQoSProfileProfileNotValid() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		QoSProfile prof = null;
+		inf.addLink(md, en, prof);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeQoSProfileVNull() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = null;
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		QoSProfile prof = new QoSProfile(10.0,1.0);
+		inf.addLink(md, en, prof);
 	}
 
 	@Test
-	public void testAddLinkComputationalNodeComputationalNodeDoubleDouble() {
-		fail("Not yet implemented");
+	public void testAddLinkComputationalNodeComputationalNodeDoubleDoubleAllValid() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		inf.addMobileDevice(md);
+		inf.addEdgeNode(en);
+		inf.addLink(md, en, 5.0,5.0);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeDoubleDoubleInvalidLatency() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		inf.addMobileDevice(md);
+		inf.addEdgeNode(en);
+		inf.addLink(md, en, -5.0,5.0);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddLinkComputationalNodeComputationalNodeDoubleDoubleInvalidBandwidth() {
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		inf.addMobileDevice(md);
+		inf.addEdgeNode(en);
+		inf.addLink(md, en, 5.0,-5.0);
 	}
 
 	@Test

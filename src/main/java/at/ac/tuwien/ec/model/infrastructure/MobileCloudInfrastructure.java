@@ -21,87 +21,117 @@ import at.ac.tuwien.ec.model.infrastructure.costs.ElectricityPriceTrace;
 import at.ac.tuwien.ec.model.infrastructure.costs.PriceMap;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 /**
  *
  * @author Vincenzo
  */
 public class MobileCloudInfrastructure {
     
-	private ArrayList<MobileDevice> mobileDevices;
-	private ArrayList<EdgeNode> edgeNodes;
-	private ArrayList<CloudDataCenter> cloudNodes;
+	private HashMap<String, MobileDevice> mobileDevices;
+	private HashMap<String, EdgeNode> edgeNodes;
+	private HashMap<String, CloudDataCenter> cloudNodes;
 	private ConnectionMap connectionMap;
 	private PriceMap priceMap;
 	
 	public MobileCloudInfrastructure()
 	{
-		mobileDevices = new ArrayList<MobileDevice>();
-		edgeNodes = new ArrayList<EdgeNode>();
-		cloudNodes = new ArrayList<CloudDataCenter>();
+		mobileDevices = new HashMap<String,MobileDevice>();
+		edgeNodes = new HashMap<String,EdgeNode>();
+		cloudNodes = new HashMap<String,CloudDataCenter>();
 		connectionMap = new ConnectionMap(NetworkConnection.class);
 	}
 	
-	public void addMobileDevice(MobileDevice device)
+	public void addMobileDevice(MobileDevice device) throws IllegalArgumentException
 	{
-		mobileDevices.add(device);
+		mobileDevices.put(device.getId(),device);
 		connectionMap.addVertex(device);
 	}
 	
-	public void addEdgeNode(EdgeNode edge)
+	public void addEdgeNode(EdgeNode edge) throws IllegalArgumentException
 	{
-		edgeNodes.add(edge);
+		edgeNodes.put(edge.getId(),edge);
 		connectionMap.addVertex(edge);
 	}
 	
-	public void addCloudDataCenter(CloudDataCenter cloudDC)
+	public void addCloudDataCenter(CloudDataCenter cloudDC) throws IllegalArgumentException
 	{
-		cloudNodes.add(cloudDC);
+		cloudNodes.put(cloudDC.getId(),cloudDC);
 		connectionMap.addVertex(cloudDC);
 	}
 
-	public void addLink(ComputationalNode u, ComputationalNode v, QoSProfile profile) 
+	public void addLink(ComputationalNode u, ComputationalNode v, QoSProfile profile) throws IllegalArgumentException
 	{
+		if(u == null)
+			throw new IllegalArgumentException("Node 1 is null");
+		if(v == null)
+			throw new IllegalArgumentException("Node 2 is null");
+		if(profile == null)
+			throw new IllegalArgumentException("Profile is null");
+		if(!connectionMap.containsVertex(u) || !connectionMap.containsVertex(v))
+			throw new IllegalArgumentException((connectionMap.containsVertex(u)? v : u).getId() + ": No such vertex");
 		connectionMap.addEdge(u, v, profile);
 	}
 	
-	public void addLink(ComputationalNode u, ComputationalNode v, double latency, double bandwidth)
+	public void addLink(ComputationalNode u, ComputationalNode v, double latency, double bandwidth) throws IllegalArgumentException
 	{
-		connectionMap.addEdge(u, v, new QoSProfile(latency,bandwidth));
+		
+		if(latency < 0.0) throw new IllegalArgumentException("Invalid latency: " + latency);
+		if(bandwidth < 0.0) throw new IllegalArgumentException("Invalid bandwidth: " + bandwidth);
+		addLink(u, v, new QoSProfile(latency,bandwidth));
 	}
 	
 	public void sampleInfrastructure() {
 		for(NetworkConnection n: connectionMap.edgeSet())
 			n.sampleLink();
-		for(CloudDataCenter cdc: cloudNodes)
+		for(CloudDataCenter cdc: cloudNodes.values())
 			cdc.sampleNode();
-		for(EdgeNode en: edgeNodes)
+		for(EdgeNode en: edgeNodes.values())
 			en.sampleNode();
-		for(MobileDevice m: mobileDevices)
+		for(MobileDevice m: mobileDevices.values())
 			m.sampleNode();
 	}
 	
-	public ArrayList<MobileDevice> getMobileDevices() {
+	public ComputationalNode getNodeById(String id)
+	{
+		if(mobileDevices.containsKey(id))
+			return mobileDevices.get(id);
+		if(edgeNodes.containsKey(id))
+			return edgeNodes.get(id);
+		if(cloudNodes.containsKey(id))
+			return cloudNodes.get(id);
+		return null;
+				
+	}
+	
+	public HashMap<String, MobileDevice> getMobileDevices() {
 		return mobileDevices;
 	}
 
-	public void setMobileDevices(ArrayList<MobileDevice> mobileDevices) {
+	public void setMobileDevices(HashMap<String, MobileDevice> mobileDevices) {
 		this.mobileDevices = mobileDevices;
 	}
 
-	public ArrayList<EdgeNode> getEdgeNodes() {
+	public HashMap<String, EdgeNode> getEdgeNodes() {
 		return edgeNodes;
 	}
 
-	public void setEdgeNodes(ArrayList<EdgeNode> edgeNodes) {
+	public void setEdgeNodes(HashMap<String, EdgeNode> edgeNodes) {
 		this.edgeNodes = edgeNodes;
 	}
 
-	public ArrayList<CloudDataCenter> getCloudNodes() {
+	public HashMap<String, CloudDataCenter> getCloudNodes() {
 		return cloudNodes;
 	}
 
-	public void setCloudNodes(ArrayList<CloudDataCenter> cloudNodes) {
+	public void setCloudNodes(HashMap<String, CloudDataCenter> cloudNodes) {
 		this.cloudNodes = cloudNodes;
+	}
+	
+	public double getTransmissionTime(SoftwareComponent sc, ComputationalNode u, ComputationalNode v)
+	{
+		return getTransmissionTime(sc, u, v);
 	}
 
 	public String toString(){

@@ -1,15 +1,52 @@
 package at.ac.tuwien.ec.model.software;
 
+import at.ac.tuwien.ec.model.Hardware;
+
 public class MobileSoftwareComponent extends SoftwareComponent {
 
+	private int inData,outData;
+	private boolean offloadable;
+		
+	public MobileSoftwareComponent(String id, Hardware requirements, double millionsOfInstructions,
+			String uid, int inData, int outData) {
+		super(id, requirements, millionsOfInstructions, uid);
+		this.inData = inData;
+		this.outData = outData;
+		this.offloadable = true;
+	}
+	
+	public MobileSoftwareComponent(String id, Hardware requirements, double millionsOfInstructions,
+			String uid, int inData, int outData, boolean offloadable) {
+		super(id, requirements, millionsOfInstructions, uid);
+		this.inData = inData;
+		this.outData = outData;
+		this.offloadable = offloadable;
+	}
+	
 	public int getInData() {
 		// TODO Auto-generated method stub
-		return 0;
+		return inData;
 	}
 
 	public int getOutData() {
 		// TODO Auto-generated method stub
-		return 0;
+		return outData;
+	}
+
+	public void setInData(int inData) {
+		this.inData = inData;
+	}
+
+	public void setOutData(int outData) {
+		this.outData = outData;
+	}
+	
+	public boolean isOffloadable() {
+		return offloadable;
+	}
+
+	public void setOffloadable(boolean offloadable) {
+		this.offloadable = offloadable;
 	}
 
 }

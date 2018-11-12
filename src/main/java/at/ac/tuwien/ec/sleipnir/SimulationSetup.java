@@ -47,5 +47,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudRam,
 			SimulationSetup.cloudStorage),
 			SimulationSetup.cloudMipsPerCore);
+	public static double antivirusFileSize;
+	public static double task_multiplier;
 
 }
