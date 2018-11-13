@@ -49,5 +49,11 @@ public class SimulationSetup {
 			SimulationSetup.cloudMipsPerCore);
 	public static double antivirusFileSize;
 	public static double task_multiplier;
+	public static int lambdaLatency;
+	public static int chessMovesNum;
+	public static double chess_mi;
+	public static double facebookImageSize;
+	public static double facerecImageSize;
+	public static double navigatorMapSize;
 
 }
