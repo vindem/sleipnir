@@ -129,9 +129,14 @@ public class MobileCloudInfrastructure {
 		this.cloudNodes = cloudNodes;
 	}
 	
-	public double getTransmissionTime(SoftwareComponent sc, ComputationalNode u, ComputationalNode v)
+	public double getTransmissionTime(MobileSoftwareComponent sc, ComputationalNode u, ComputationalNode v)
 	{
-		return getTransmissionTime(sc, u, v);
+		return connectionMap.getTransmissionTime(sc, u, v);
+	}
+	
+	public double getDesiredTransmissionTime(MobileSoftwareComponent sc, ComputationalNode u, ComputationalNode v, QoSProfile profile) 
+	{
+		return connectionMap.getDesiredTransmissionTime(sc, u, v, profile);
 	}
 
 	public String toString(){
@@ -147,6 +152,25 @@ public class MobileCloudInfrastructure {
 	
 	public void addPrices(Coordinates coordinates, ElectricityPriceTrace trace) {
 		priceMap.put(coordinates, trace);
+	}
+
+	public NetworkConnection getLink(String srcId, String trgId) {
+		ComputationalNode src,trg;
+		src = getNodeById(srcId);
+		trg = getNodeById(trgId);
+		if(src == null || trg == null)
+			return null;
+		return getLink(src, trg);
+	}
+
+	public NetworkConnection getLink(ComputationalNode src, ComputationalNode trg) {
+		if(!connectionMap.containsVertex(src) || connectionMap.containsVertex(trg))
+			return null;
+		return connectionMap.getEdge(src, trg);
+	}
+
+	public double getPriceForLocation(Coordinates coords, double runTime) {
+		return priceMap.getPriceForTimeAtLocation(coords, runTime);
 	}
 
 		

@@ -43,17 +43,17 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		if(profile.getLatency()==Integer.MAX_VALUE)
 			return Double.MAX_VALUE;
 		
-		return getTransmissionTimeForQoS(msc,u,v,profile);
+		return getDesiredTransmissionTime(msc,u,v,profile);
 
 	}
 	
 	public double getDesiredTransmissionTime(MobileSoftwareComponent cmp, ComputationalNode u, ComputationalNode v, ComponentLink link)
 	{
 		QoSProfile profile = link.getDesiredQoS();
-		return getTransmissionTimeForQoS(cmp, u,v, profile);
+		return getDesiredTransmissionTime(cmp, u,v, profile);
 	}
 	
-	private double getTransmissionTimeForQoS(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v, QoSProfile profile)
+	public double getDesiredTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v, QoSProfile profile)
 	{
 		return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;

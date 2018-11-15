@@ -19,13 +19,29 @@ public class NetworkConnection extends DefaultEdge {
 		setQoSProfile(profile);
 	}
 
-	public void sampleLink(){
+	public void sampleLink()
+	{
 		qosProfile.sampleQoS();
 	}
 	
-	private void setQoSProfile(QoSProfile profile) {
+	private void setQoSProfile(QoSProfile profile) 
+	{
 		this.qosProfile = profile;
 	}
 	
+	public QoSProfile getQoSProfile()
+	{
+		return qosProfile;
+	}
+	
+	public double getLatency()
+	{
+		return qosProfile.getLatency();
+	}
+	
+	public double getBandwidth()
+	{
+		return qosProfile.getBandwidth();
+	}
 	
 }

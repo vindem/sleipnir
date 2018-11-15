@@ -55,5 +55,8 @@ public class SimulationSetup {
 	public static double facebookImageSize;
 	public static double facerecImageSize;
 	public static double navigatorMapSize;
+	public static String[] algorithms;
+	public static boolean batch;
+	public static double batteryCapacity;
 
 }

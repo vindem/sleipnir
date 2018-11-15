@@ -16,8 +16,8 @@ public abstract class MobileApplication {
 
 	private int workloadId;
 	private String userId;
-	private DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> taskDependencies;
-	private HashMap<String,MobileSoftwareComponent> componentList = new HashMap<String,MobileSoftwareComponent>();
+	protected DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> taskDependencies;
+	protected HashMap<String,MobileSoftwareComponent> componentList = new HashMap<String,MobileSoftwareComponent>();
 	/**
 	 * 
 	 */
@@ -152,6 +152,28 @@ public abstract class MobileApplication {
 					+ new ExponentialDistribution(SimulationSetup.lambdaLatency).sample()) ;
 	}
 	
+	public boolean hasDependency(MobileSoftwareComponent c, MobileSoftwareComponent s) {
+		return taskDependencies.containsEdge(c,s);
+	}
+
+	public ComponentLink getDependency(MobileSoftwareComponent c, MobileSoftwareComponent s) {
+		return taskDependencies.getEdge(c, s);
+	}
+	
+	public ArrayList<ComponentLink> getIncomingEdgesIn(MobileSoftwareComponent msc)
+	{
+		ArrayList<ComponentLink> incomingEdges = new ArrayList<ComponentLink>();
+		incomingEdges.addAll(taskDependencies.incomingEdgesOf(msc));
+		return incomingEdges;
+	}
+	
+	public ArrayList<ComponentLink> getOutgoingEdgesFrom(MobileSoftwareComponent msc)
+	{
+		ArrayList<ComponentLink> outgoingEdges = new ArrayList<ComponentLink>();
+		outgoingEdges.addAll(taskDependencies.outgoingEdgesOf(msc));
+		return outgoingEdges;
+	}
+	
 	public abstract void sampleTasks();
 	
 	public abstract void sampleLinks();
@@ -159,5 +181,7 @@ public abstract class MobileApplication {
 	public abstract void setupTasks();
 	
 	public abstract void setupLinks();
+
+	
 
 }
