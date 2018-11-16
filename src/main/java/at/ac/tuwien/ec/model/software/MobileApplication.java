@@ -174,6 +174,31 @@ public abstract class MobileApplication {
 		return outgoingEdges;
 	}
 	
+	public void removeEdgesFrom(MobileSoftwareComponent msc)
+	{
+		ArrayList<ComponentLink> outgoing = new ArrayList<ComponentLink>();
+		outgoing.addAll(taskDependencies.outgoingEdgesOf(msc));
+		taskDependencies.removeAllEdges(outgoing);
+	}
+	
+	public ArrayList<MobileSoftwareComponent> readyTasks()
+	{
+		ArrayList<MobileSoftwareComponent> readyTasks = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent msc : taskDependencies.vertexSet())
+			if(taskDependencies.incomingEdgesOf(msc).isEmpty())
+				readyTasks.add(msc);
+		return readyTasks;				
+	}
+	
+	public int getComponentNum() {
+		return componentList.size();
+	}
+	
+	public void removeTask(MobileSoftwareComponent firstTaskToTerminate) {
+		taskDependencies.removeVertex(firstTaskToTerminate);
+		
+	}
+	
 	public abstract void sampleTasks();
 	
 	public abstract void sampleLinks();
@@ -181,6 +206,10 @@ public abstract class MobileApplication {
 	public abstract void setupTasks();
 	
 	public abstract void setupLinks();
+
+	
+
+	
 
 	
 

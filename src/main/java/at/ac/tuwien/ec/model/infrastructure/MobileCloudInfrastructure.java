@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.math.RandomUtils;
+
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.*;
@@ -170,6 +172,8 @@ public class MobileCloudInfrastructure {
 	}
 
 	public double getPriceForLocation(Coordinates coords, double runTime) {
+		if(priceMap == null)
+			return RandomUtils.nextDouble();
 		return priceMap.getPriceForTimeAtLocation(coords, runTime);
 	}
 	

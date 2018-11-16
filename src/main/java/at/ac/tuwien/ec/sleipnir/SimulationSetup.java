@@ -4,6 +4,7 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.infrastructure.energy.AMDCPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.Mobile3GNETEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
@@ -17,8 +18,8 @@ public class SimulationSetup {
 	}
 	
 	public static RandomUtils rand = new RandomUtils();
-	public static int MAP_M;
-	public static int MAP_N;
+	public static int MAP_M = 2;
+	public static int MAP_N = 2;
 	public static int cloudMaxHops;
 	public static int cloudCoreNum;
 	public static double cloudRam;
@@ -29,7 +30,7 @@ public class SimulationSetup {
 	public static double edgeStorage;
 	public static double edgeMipsPerCore;
 	public static EdgePricingModel edgePricingModel;
-	public static CPUEnergyModel edgeCPUEnergyModel;
+	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum;
 	public static double mobileEnergyBudget;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 

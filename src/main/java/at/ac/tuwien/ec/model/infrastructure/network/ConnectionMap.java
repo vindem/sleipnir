@@ -34,8 +34,17 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	
 	
 	
-	public double getTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v)
+	public double getTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v) throws IllegalArgumentException
 	{
+		if(u.equals(v))
+			return 0;
+		if(!vertexSet().contains(u))
+			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
+		if(!vertexSet().contains(v))
+			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
+		NetworkConnection link = getEdge(u,v);
+		if(link == null)
+			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
 		QoSProfile profile = getEdge(u,v).qosProfile;
 		if(profile == null)
 			return Double.MAX_VALUE;

@@ -4,7 +4,7 @@ import at.ac.tuwien.ec.model.Hardware;
 
 public class MobileSoftwareComponent extends SoftwareComponent {
 
-	private double inData,outData;
+	private double inData,outData,runTime = Double.MAX_VALUE;
 	private boolean offloadable;
 		
 	public MobileSoftwareComponent(String id, Hardware requirements, double millionsOfInstructions,
@@ -49,4 +49,12 @@ public class MobileSoftwareComponent extends SoftwareComponent {
 		this.offloadable = offloadable;
 	}
 
+	public double getRunTime() {
+		return runTime;
+	}
+
+	public void setRunTime(double runTime) {
+		this.runTime = runTime;
+	}
+	
 }

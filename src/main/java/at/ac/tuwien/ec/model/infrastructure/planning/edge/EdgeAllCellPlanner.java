@@ -4,7 +4,7 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 
-public class EdgeAllCellPLanner extends EdgePlanner {
+public class EdgeAllCellPlanner extends EdgePlanner {
 	
 	
 	public static void setupEdgeNodes(MobileCloudInfrastructure inf) 

@@ -87,6 +87,7 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
 
     public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	double tmp = s.getRuntimeOnNode(n, I);
+    	s.setRunTime(tmp);
     	if(this.runTime < tmp)
     		this.runTime = tmp;
     }

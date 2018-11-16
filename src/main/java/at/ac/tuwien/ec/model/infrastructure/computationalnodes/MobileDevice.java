@@ -41,25 +41,7 @@ public class MobileDevice extends ComputationalNode {
 	public String toString(){
 		return this.toString();
 	}
-
-	@Override
-	public boolean isCompatible(SoftwareComponent sc) {
-		if(super.isCompatible(sc))
-			return cpuEnergyModel.computeCPUEnergy(sc, this, null) < this.energyBudget;
-		return false;
-    }
-	
-	public boolean deploy(SoftwareComponent sc) 
-	{
-		if(isCompatible(sc)) 
-		{
-			super.deploy(sc);
-			this.energyBudget -= cpuEnergyModel.computeCPUEnergy(sc, this, null);
-			return true;
-		}
-		return false;
-	}
-				
+					
 	@Override
 	public void sampleNode() {
 		int x = RandomUtils.nextInt(SimulationSetup.MAP_M);

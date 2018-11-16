@@ -6,6 +6,20 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class FacebookApp extends MobileApplication {
 
+	public FacebookApp(){
+		super();
+	}
+	
+	public FacebookApp(int wId)
+	{
+		super(wId);
+	}
+	
+	public FacebookApp(int wId, String uid)
+	{
+		super(wId,uid);
+	}
+	
 	@Override
 	public void sampleTasks() {
 		// TODO Auto-generated method stub
