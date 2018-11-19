@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class DefaultCloudPlannerText {
+public class DefaultCloudPlannerTest {
 
 	@Test
 	public void testSetupCloudNodes() {

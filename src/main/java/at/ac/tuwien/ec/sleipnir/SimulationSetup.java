@@ -29,7 +29,7 @@ public class SimulationSetup {
 	public static double edgeRam;
 	public static double edgeStorage;
 	public static double edgeMipsPerCore;
-	public static EdgePricingModel edgePricingModel;
+	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum;
 	public static double mobileEnergyBudget;

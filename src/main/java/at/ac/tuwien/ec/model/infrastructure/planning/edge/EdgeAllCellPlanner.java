@@ -10,7 +10,7 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 	public static void setupEdgeNodes(MobileCloudInfrastructure inf) 
 	{
 		for(int i = 0; i < MAP_M; i++)
-			for(int j = 0; j < MAP_N; j++)
+			for(int j = 0; j < MAP_N*2; j++)
 			{
 				Coordinates edgeNodeCoordinates = null;
 				if(i % 2 == 0 && j%2 == 0)
