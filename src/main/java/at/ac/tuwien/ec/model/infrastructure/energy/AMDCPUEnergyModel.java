@@ -1,10 +1,12 @@
 package at.ac.tuwien.ec.model.infrastructure.energy;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 
-public class AMDCPUEnergyModel implements CPUEnergyModel {
+public class AMDCPUEnergyModel implements CPUEnergyModel, Serializable {
 
 	final double LOAD_LEVEL = 0.12;
 	final double ALPHA = 5.29;

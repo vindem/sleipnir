@@ -59,5 +59,6 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity;
+	public static int iterations = 5;
 
 }

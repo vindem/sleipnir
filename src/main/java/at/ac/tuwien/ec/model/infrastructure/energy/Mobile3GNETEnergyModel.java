@@ -1,13 +1,16 @@
 package at.ac.tuwien.ec.model.infrastructure.energy;
 
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 
-public class Mobile3GNETEnergyModel implements NETEnergyModel {
+public class Mobile3GNETEnergyModel implements NETEnergyModel,Serializable {
 
 	private final double alpha = 0.00025;
 	private final double C = 0.0035;

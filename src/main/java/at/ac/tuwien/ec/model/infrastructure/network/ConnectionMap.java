@@ -1,5 +1,7 @@
 package at.ac.tuwien.ec.model.infrastructure.network;
 
+import java.io.Serializable;
+
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 
@@ -11,7 +13,7 @@ import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalNode, NetworkConnection> {
+public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalNode, NetworkConnection> implements Serializable{
 	
 	final int maxHops = SimulationSetup.cloudMaxHops;
 	final double MILLISECONDS_PER_SECONDS = 1000.0;

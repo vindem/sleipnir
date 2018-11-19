@@ -1,11 +1,12 @@
 package at.ac.tuwien.ec.model.infrastructure.costs;
 
 import java.io.FileReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.opencsv.CSVReader;
 
-public class ElectricityPriceTrace {
+public class ElectricityPriceTrace implements Serializable{
 
 	private String filename,timezoneName;
 	private ArrayList<Double> trace;

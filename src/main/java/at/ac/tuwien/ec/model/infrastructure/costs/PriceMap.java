@@ -1,10 +1,11 @@
 package at.ac.tuwien.ec.model.infrastructure.costs;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Timezone;
 
-public class PriceMap extends HashMap<Timezone, ElectricityPriceTrace> {
+public class PriceMap extends HashMap<Timezone, ElectricityPriceTrace> implements Serializable{
 	
 	public PriceMap(){
 		super();

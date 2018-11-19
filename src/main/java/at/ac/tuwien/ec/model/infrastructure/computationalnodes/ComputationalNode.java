@@ -1,5 +1,7 @@
 package at.ac.tuwien.ec.model.infrastructure.computationalnodes;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
@@ -10,9 +12,9 @@ import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.pricing.PricingModel;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
-public abstract class ComputationalNode {
+public abstract class ComputationalNode implements Serializable{
 	
-	private class DefaultPriceModel implements PricingModel
+	private class DefaultPriceModel implements PricingModel,Serializable
 	{
 		public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
 			return 0.0;

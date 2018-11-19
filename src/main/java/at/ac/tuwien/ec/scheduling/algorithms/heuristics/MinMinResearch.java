@@ -17,6 +17,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
+import scala.Tuple2;
 
 public class MinMinResearch extends OffloadScheduler {
 	
@@ -24,6 +25,12 @@ public class MinMinResearch extends OffloadScheduler {
 		super();
 		setMobileApplication(A);
 		setInfrastructure(I);
+	}
+	
+	public MinMinResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+		super();
+		setMobileApplication(t._1);
+		setInfrastructure(t._2);
 	}
 		
 	protected ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {

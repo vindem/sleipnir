@@ -1,10 +1,12 @@
 package at.ac.tuwien.ec.model.infrastructure.energy;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
-public class SamsungS2DualEnergyModel implements CPUEnergyModel {
+public class SamsungS2DualEnergyModel implements CPUEnergyModel,Serializable {
 
 	private final double BETA_1CORE = 6.93205;
 	private final double BETA_2CORE = 11.248;

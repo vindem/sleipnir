@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.model.software;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -12,7 +13,7 @@ import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public abstract class MobileApplication {
+public abstract class MobileApplication implements Serializable{
 
 	private int workloadId;
 	private String userId;
@@ -197,6 +198,11 @@ public abstract class MobileApplication {
 	public void removeTask(MobileSoftwareComponent firstTaskToTerminate) {
 		taskDependencies.removeVertex(firstTaskToTerminate);
 		
+	}
+	
+	public String toString()
+	{
+		return "mobileapp";
 	}
 	
 	public abstract void sampleTasks();

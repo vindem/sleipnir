@@ -1,9 +1,15 @@
 package at.ac.tuwien.ec.model.software;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.Hardware;
 
-public class MobileSoftwareComponent extends SoftwareComponent {
+public class MobileSoftwareComponent extends SoftwareComponent implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5500721963611706499L;
 	private double inData,outData,runTime = Double.MAX_VALUE;
 	private boolean offloadable;
 		

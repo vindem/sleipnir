@@ -1,10 +1,12 @@
 package at.ac.tuwien.ec.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Stefano
  */
-public final class Hardware {
+public final class Hardware implements Serializable{
     
     //currently available resources
     int cores;

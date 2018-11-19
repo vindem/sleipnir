@@ -1,6 +1,13 @@
 package at.ac.tuwien.ec.sleipnir;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -13,20 +20,26 @@ import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
+import scala.Tuple2;
 
 public class Main {
 	
 	public static void main(String[] arg)
 	{
-		MobileCloudInfrastructure infrastructure = new MobileCloudInfrastructure();
-		DefaultCloudPlanner.setupCloudNodes(infrastructure, 4);
-		EdgeAllCellPlanner.setupEdgeNodes(infrastructure);
-		DefaultMobileDevicePlanner.setupMobileDevices(infrastructure, 1);
-		DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
-		MobileApplication facebookApp = new FacebookApp(0,"mobile_0");
-		RandomScheduler research = new RandomScheduler(facebookApp, infrastructure);
-		ArrayList<OffloadScheduling> scheduling = research.findScheduling();
-		System.out.println(scheduling.get(0));
+		SparkConf configuration = new SparkConf();
+		configuration.setMaster("local");
+		configuration.setAppName("Sleipnir");
+		JavaSparkContext jscontext = new JavaSparkContext(configuration);
+		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
+		for(int i = 0; i < 3; i++)
+			test.add(new Tuple2(new FacebookApp(),new MobileCloudInfrastructure()));
+		
+		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
+		input.count();
+		jscontext.close();
 	}
+
+		//Creates samples for each spark worker
+	
 
 }

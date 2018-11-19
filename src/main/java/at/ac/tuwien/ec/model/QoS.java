@@ -1,10 +1,12 @@
 package at.ac.tuwien.ec.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author stefano
  */
-public class QoS {
+public class QoS implements Serializable{
     private double latency;
     private double bandwidth;
     

@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import scala.Tuple2;
  *
  * @author Stefano
  */
-public class QoSProfile {
+public class QoSProfile implements Serializable{
     private double latency;
     private double bandwidth;
     

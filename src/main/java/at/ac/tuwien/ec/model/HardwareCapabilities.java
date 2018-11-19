@@ -1,8 +1,9 @@
 package at.ac.tuwien.ec.model;
 
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
+import scala.Serializable;
 
-public class HardwareCapabilities {
+public class HardwareCapabilities implements Serializable{
 
 	private double mipsPerCore;
 	private Hardware capabilities;

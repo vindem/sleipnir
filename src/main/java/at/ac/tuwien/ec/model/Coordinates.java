@@ -5,7 +5,9 @@
  */
 package at.ac.tuwien.ec.model;
 
-public class Coordinates {
+import java.io.Serializable;
+
+public class Coordinates implements Serializable{
     private double lat, lng;
 
     public Coordinates (double lat, double lng){

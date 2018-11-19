@@ -1,10 +1,17 @@
 package at.ac.tuwien.ec.model.software.mobileapps;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class FacebookApp extends MobileApplication {
+public class FacebookApp extends MobileApplication implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8294521123131080443L;
 
 	public FacebookApp(){
 		super();

@@ -7,8 +7,7 @@ package at.ac.tuwien.ec.model.infrastructure;
 
 
 
-import static java.util.Arrays.asList;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,13 +28,14 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
  *
  * @author Vincenzo
  */
-public class MobileCloudInfrastructure {
+public class MobileCloudInfrastructure implements Serializable{
     
 	private HashMap<String, MobileDevice> mobileDevices;
 	private HashMap<String, EdgeNode> edgeNodes;
 	private HashMap<String, CloudDataCenter> cloudNodes;
 	private ConnectionMap connectionMap;
 	private PriceMap priceMap;
+	private static final long serialVersionUID = 1L;
 	
 	public MobileCloudInfrastructure()
 	{

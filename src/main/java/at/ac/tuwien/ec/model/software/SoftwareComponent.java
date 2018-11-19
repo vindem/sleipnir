@@ -1,15 +1,29 @@
 package at.ac.tuwien.ec.model.software;
 
+import java.io.Serializable;
+
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 
-public class SoftwareComponent {
+public class SoftwareComponent implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6333164666099570460L;
 	private String id;
 	private Hardware requirements;
 	private double millionsOfInstruction;
 	private String userId;
+	
+	public SoftwareComponent(String id, Hardware requirements,double millionsOfInstructions, String uid)
+	{
+		this.id = id;
+		this.requirements = requirements;
+		this.millionsOfInstruction = millionsOfInstructions;
+		this.userId = uid;
+	}	
 	
 	public String getId() {
 		return id;
@@ -43,13 +57,7 @@ public class SoftwareComponent {
 		this.userId = userId;
 	}
 
-	public SoftwareComponent(String id, Hardware requirements,double millionsOfInstructions, String uid)
-	{
-		this.id = id;
-		this.requirements = requirements;
-		this.millionsOfInstruction = millionsOfInstructions;
-		this.userId = uid;
-	}
+	
 
 	public double getRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {
 		return i.getTransmissionTime((MobileSoftwareComponent)this, i.getNodeById(userId), n)*2.0 
