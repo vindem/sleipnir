@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.scheduling.algorithms;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,7 @@ import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 
 
-public abstract class OffloadScheduler extends SimIteration{
+public abstract class OffloadScheduler extends SimIteration implements Serializable{
 	
 	
 	
