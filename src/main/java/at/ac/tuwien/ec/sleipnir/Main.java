@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
+import org.apache.spark.api.java.function.PairFunction;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -23,6 +28,8 @@ import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
+import scala.Tuple4;
+import scala.Tuple5;
 
 public class Main {
 	
@@ -35,17 +42,88 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
 		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
-		JavaRDD<OffloadScheduling> results = input.flatMap(new FlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, OffloadScheduling>() {
+		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> results = input.flatMapToPair(new 
+				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
+				OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>() {
+					private static final long serialVersionUID = 1L;
 
-			@Override
-			public Iterator<OffloadScheduling> call(
-					Tuple2<MobileApplication, MobileCloudInfrastructure> arg0) throws Exception {
-				MinMinResearch search = new MinMinResearch(arg0);
-				return (Iterator<OffloadScheduling>) search.findScheduling().iterator();
-			}});
-		OffloadScheduling firstScheduling = results.first();
-		System.out.println(firstScheduling);
-		input.count();
+					@Override
+					public Iterator<Tuple2<OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>> call(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues)
+							throws Exception {
+						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
+								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
+						MinMinResearch search = new MinMinResearch(inputValues);
+						
+						ArrayList<OffloadScheduling> offloads = search.findScheduling();
+						for(OffloadScheduling os : offloads)
+							output.add(
+									new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
+									new Tuple5<Integer,Double,Double,Double,Double>(
+											1,
+											os.getRunTime(),
+											os.getUserCost(),
+											os.getBatteryLifetime(),
+											os.getProviderCost()
+									)));
+						
+						return output.iterator();
+					}
+		});
+		
+		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> aggregation = 
+				results.reduceByKey(
+				new Function2<Tuple5<Integer,Double,Double,Double,Double>,
+				Tuple5<Integer,Double,Double,Double,Double>,
+				Tuple5<Integer,Double,Double,Double,Double>>()
+				{
+					@Override
+					public Tuple5<Integer, Double, Double, Double, Double> call(
+							Tuple5<Integer, Double, Double, Double, Double> off1,
+							Tuple5<Integer, Double, Double, Double, Double> off2) throws Exception {
+						// TODO Auto-generated method stub
+						return new Tuple5<Integer, Double, Double, Double, Double>(
+								off1._1() + off2._1(),
+								off1._2() + off2._2(),
+								off1._3() + off2._3(),
+								off1._4() + off2._4(),
+								off1._5() + off2._5()
+								);
+					}
+					
+				}
+			);
+		
+		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> histogram = 
+				aggregation.mapToPair(
+						new PairFunction<Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>,
+						OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>()
+						{
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> call(
+									Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> arg0)
+									throws Exception {
+								Tuple5<Integer, Double, Double, Double, Double> val = arg0._2();
+								Tuple5<Integer, Double, Double, Double, Double> tNew 
+									= new Tuple5<Integer, Double, Double, Double, Double>
+									(
+										val._1(),
+										val._2()/val._1(),
+										val._3()/val._1(),
+										val._4()/val._1(),
+										val._5()/val._1()
+									);
+								
+								return new Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>(arg0._1,tNew);
+							}
+
+							
+						}
+				
+				);
+		
 		jscontext.close();
 	}
 
