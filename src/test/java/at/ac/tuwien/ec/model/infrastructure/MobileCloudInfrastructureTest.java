@@ -5,10 +5,13 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import at.ac.tuwien.ec.model.Coordinates;
+import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class MobileCloudInfrastructureTest {
@@ -67,10 +70,10 @@ public class MobileCloudInfrastructureTest {
 	public void testAddLinkComputationalNodeComputationalNodeQoSProfileAllValid() {
 		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 		Assert.assertNotNull(inf);
-		EdgeNode en = new EdgeNode("test",
+		EdgeNode en = new EdgeNode("testEdge",
 				SimulationSetup.defaultEdgeNodeCapabilities);
 		Assert.assertNotNull(en);
-		MobileDevice md = new MobileDevice("test",
+		MobileDevice md = new MobileDevice("testMobile",
 				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
 				10.0);
 		Assert.assertNotNull(md);
@@ -181,6 +184,29 @@ public class MobileCloudInfrastructureTest {
 		inf.addLink(md, en, 5.0,-5.0);
 	}
 
+	@Test
+	public void testGetTransmissionTimeAllFine(){
+		//setting up link
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertNotNull(inf);
+		EdgeNode en = new EdgeNode("testEdge",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		Assert.assertNotNull(en);
+		MobileDevice md = new MobileDevice("testMobile",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		Assert.assertNotNull(md);
+		inf.addMobileDevice(md);
+		inf.addEdgeNode(en);
+		QoSProfile prof = new QoSProfile(10.0,1.0);
+		inf.addLink(md, en, prof);
+		MobileSoftwareComponent msc = new MobileSoftwareComponent("test_component",
+				new Hardware(1, 1, 1), 50, "testMobile", 500, 1500);
+		md.setCoords(new Coordinates(1.0,1.0));
+		en.setCoords(new Coordinates(3.0,3.0));
+		Assert.assertTrue(inf.getTransmissionTime(msc,md,en)>0);
+	}
+	
 	@Test
 	public void testSampleInfrastructure() {
 		fail("Not yet implemented");

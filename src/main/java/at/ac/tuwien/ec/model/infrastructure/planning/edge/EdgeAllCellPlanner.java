@@ -19,7 +19,7 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 					edgeNodeCoordinates = new Coordinates(i,j);
 				if(edgeNodeCoordinates != null)
 				{
-					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities, defaultEdgePricingModel);
+					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 					edge.setCoords(edgeNodeCoordinates);
 					edge.setCPUEnergyModel(defaultCPUEnergyModel);
 					inf.addEdgeNode(edge);

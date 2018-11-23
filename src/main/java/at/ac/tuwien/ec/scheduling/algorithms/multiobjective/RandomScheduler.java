@@ -19,6 +19,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
+import scala.Tuple2;
 
 public class RandomScheduler extends OffloadScheduler {
 	
@@ -29,6 +30,13 @@ public class RandomScheduler extends OffloadScheduler {
 	}
 	
 	
+	public RandomScheduler(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues) {
+		super();
+		setMobileApplication(inputValues._1());
+		setInfrastructure(inputValues._2());
+	}
+
+
 	protected ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
 		ComputationalNode target = null;
 		if(!msc.isOffloadable())
@@ -40,9 +48,9 @@ public class RandomScheduler extends OffloadScheduler {
 		}
 		else
 		{
-			int idx = RandomUtils.nextInt(currentInfrastructure.getEdgeNodes().size());
+			int idx = RandomUtils.nextInt(currentInfrastructure.getCloudNodes().size());
 			ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
-			nodes.addAll(currentInfrastructure.getEdgeNodes().values());
+			nodes.addAll(currentInfrastructure.getCloudNodes().values());
 			target = nodes.get(idx);
 			return target;
 		}
@@ -60,7 +68,8 @@ public class RandomScheduler extends OffloadScheduler {
 		
 		double currentRuntime = 0;
 		int totalTaskNum = currentApp.getComponentNum();
-		while(scheduling.size() < totalTaskNum){
+		boolean progress = true;
+		while(scheduling.size() < totalTaskNum && true){
 			
 			if(!scheduledNodes.isEmpty())
 			{
@@ -77,40 +86,19 @@ public class RandomScheduler extends OffloadScheduler {
 			 ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
 			if(readyTasks.isEmpty())
 				if(scheduledNodes.isEmpty())
-					return null;
+				{
+					progress = false;
+					scheduling = null;
+				}
 			else
 				continue;
 			
-			while(!readyTasks.isEmpty())
+			for(int i = 0; i < readyTasks.size(); i++) 
 			{
-				MobileSoftwareComponent toSchedule = (MobileSoftwareComponent) readyTasks.get(0);
+				MobileSoftwareComponent toSchedule = readyTasks.get(i);
 				ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
-				int j = 1;
-				while(bestTarget == null && j < readyTasks.size())
-				{
-					toSchedule = (MobileSoftwareComponent) readyTasks.get(j);
-					bestTarget = findTarget(scheduling,toSchedule);
-					j++;
-				}
-				if(bestTarget == null && j == readyTasks.size())
-					break;
-				
-				double minminruntime = toSchedule.getRuntimeOnNode(bestTarget, currentInfrastructure);
-
-				for(int i = 1; i < readyTasks.size(); i++)
-				{
-					MobileSoftwareComponent msc = 
-							(MobileSoftwareComponent) readyTasks.get(i);
-
-					ComputationalNode target = findTarget(scheduling,msc);
-					if(target==null)
-						continue;
-					if(msc.getRuntimeOnNode(target, currentInfrastructure) < minminruntime){
-						bestTarget = target;
-						toSchedule = msc;
-					}
-
-				}
+				if(bestTarget == null)
+					continue;
 				deploy(scheduling,toSchedule,bestTarget);
 				partialDeploy.put(bestTarget,toSchedule);
 				scheduledNodes.add(toSchedule);

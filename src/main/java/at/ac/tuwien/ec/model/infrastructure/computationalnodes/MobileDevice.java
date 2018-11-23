@@ -10,6 +10,7 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 
 
 public class MobileDevice extends ComputationalNode {
@@ -39,7 +40,7 @@ public class MobileDevice extends ComputationalNode {
 	}
 	
 	public String toString(){
-		return this.toString();
+		return id + ":" + capabilities;
 	}
 					
 	@Override
@@ -49,6 +50,10 @@ public class MobileDevice extends ComputationalNode {
 		this.setCoords(x, y);
 	}
 
+	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
+	{
+		return 0.0;		
+	}
 	
 	
 }

@@ -23,7 +23,7 @@ public class DefaultMobileDevicePlanner {
 	{
 		for(int i = 0; i < number; i++)
 		{
-			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities,mobileEnergyBudget);
+			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt(SimulationSetup.MAP_M),

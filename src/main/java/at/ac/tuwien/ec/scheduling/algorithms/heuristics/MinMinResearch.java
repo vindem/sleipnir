@@ -65,7 +65,7 @@ public class MinMinResearch extends OffloadScheduler {
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
-		= new PriorityQueue(new RuntimeComparator());
+		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
 		HashMap<ComputationalNode,MobileSoftwareComponent> partialDeploy 
 		= new HashMap<ComputationalNode,MobileSoftwareComponent>();
 		OffloadScheduling scheduling = new OffloadScheduling();
@@ -74,7 +74,8 @@ public class MinMinResearch extends OffloadScheduler {
 		
 		double currentRuntime = 0;
 		int totalTaskNum = currentApp.getComponentNum();
-		while(scheduling.size() < totalTaskNum){
+		boolean progress = true;
+		while(scheduling.size() < totalTaskNum && progress){
 			
 			if(!scheduledNodes.isEmpty())
 			{
@@ -88,43 +89,36 @@ public class MinMinResearch extends OffloadScheduler {
 			
 			/* scheduledNodes is empty and deployment is not complete
 			  implies deployment not possible*/ 
-			 ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
+			ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
 			if(readyTasks.isEmpty())
 				if(scheduledNodes.isEmpty())
-					return null;
+				{
+					scheduling = null;
+					progress = false;
+				}
 			else
 				continue;
-			
+		
 			while(!readyTasks.isEmpty())
 			{
 				MobileSoftwareComponent toSchedule = (MobileSoftwareComponent) readyTasks.get(0);
 				ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
-				int j = 1;
-				while(bestTarget == null && j < readyTasks.size())
-				{
-					toSchedule = (MobileSoftwareComponent) readyTasks.get(j);
-					bestTarget = findTarget(scheduling,toSchedule);
-					j++;
-				}
-				if(bestTarget == null && j == readyTasks.size())
-					break;
-				
-				double minminruntime = toSchedule.getRuntimeOnNode(bestTarget, currentInfrastructure);
-
-				for(int i = 1; i < readyTasks.size(); i++)
-				{
-					MobileSoftwareComponent msc = 
-							(MobileSoftwareComponent) readyTasks.get(i);
-
+				double minminruntime = (bestTarget == null)? Double.MAX_VALUE : toSchedule.getRuntimeOnNode(bestTarget, currentInfrastructure);
+				for(int i = 1; i < readyTasks.size(); i++) {
+					MobileSoftwareComponent msc = (MobileSoftwareComponent) readyTasks.get(i);
 					ComputationalNode target = findTarget(scheduling,msc);
-					if(target==null)
+					if(target == null)
 						continue;
-					if(msc.getRuntimeOnNode(target, currentInfrastructure) < minminruntime){
+					double tmpRuntime = toSchedule.getRuntimeOnNode(bestTarget, currentInfrastructure);
+					if(tmpRuntime < minminruntime)
+					{
 						bestTarget = target;
 						toSchedule = msc;
 					}
 
 				}
+				if(bestTarget == null)
+					break;
 				deploy(scheduling,toSchedule,bestTarget);
 				partialDeploy.put(bestTarget,toSchedule);
 				scheduledNodes.add(toSchedule);

@@ -8,7 +8,8 @@ public class CloudFixedPricingModel implements PricingModel{
 
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
-		return 0;
+		return sc.getHardwareRequirements().getCores() * 0.03 + sc.getHardwareRequirements().getRam() * 0.02
+				+ sc.getHardwareRequirements().getStorage() * 0.01;
 	}
 
 }

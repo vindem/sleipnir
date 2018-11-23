@@ -22,7 +22,7 @@ public class RandomEdgePlanner extends EdgePlanner{
 						currentEdgeNodeCoordinates =  new Coordinates(i,j);
 					if(currentEdgeNodeCoordinates != null)
 					{
-						EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities, defaultEdgePricingModel);
+						EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 						edge.setCoords(currentEdgeNodeCoordinates);
 						edge.setCPUEnergyModel(defaultCPUEnergyModel);
 						inf.addEdgeNode(edge);

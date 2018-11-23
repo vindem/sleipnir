@@ -42,6 +42,7 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
 		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
+		System.out.println("Parallelized!");
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> results = input.flatMapToPair(new 
 				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
 				OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>() {
@@ -52,10 +53,10 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						MinMinResearch search = new MinMinResearch(inputValues);
-						
+						RandomScheduler search = new RandomScheduler(inputValues);
 						ArrayList<OffloadScheduling> offloads = search.findScheduling();
-						for(OffloadScheduling os : offloads)
+						for(OffloadScheduling os : offloads) 
+						{
 							output.add(
 									new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
 									new Tuple5<Integer,Double,Double,Double,Double>(
@@ -65,10 +66,12 @@ public class Main {
 											os.getBatteryLifetime(),
 											os.getProviderCost()
 									)));
-						
+						}
 						return output.iterator();
 					}
 		});
+		
+		System.out.println(results.first());
 		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> aggregation = 
 				results.reduceByKey(
@@ -76,6 +79,11 @@ public class Main {
 				Tuple5<Integer,Double,Double,Double,Double>,
 				Tuple5<Integer,Double,Double,Double,Double>>()
 				{
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
 					@Override
 					public Tuple5<Integer, Double, Double, Double, Double> call(
 							Tuple5<Integer, Double, Double, Double, Double> off1,
@@ -124,6 +132,8 @@ public class Main {
 				
 				);
 		
+		System.out.println(histogram.first());
+		
 		jscontext.close();
 	}
 
@@ -137,7 +147,7 @@ public class Main {
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,1);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2(fbApp,inf);
+			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(fbApp,inf);
 			samples.add(singleSample);
 		}
 		return samples;

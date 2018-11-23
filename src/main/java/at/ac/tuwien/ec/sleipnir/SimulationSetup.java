@@ -20,19 +20,19 @@ public class SimulationSetup {
 	public static RandomUtils rand = new RandomUtils();
 	public static int MAP_M = 2;
 	public static int MAP_N = 2;
-	public static int cloudMaxHops;
-	public static int cloudCoreNum;
-	public static double cloudRam;
-	public static double cloudStorage;
-	public static int cloudMipsPerCore;
-	public static int edgeCoreNum;
-	public static double edgeRam;
-	public static double edgeStorage;
-	public static double edgeMipsPerCore;
+	public static int cloudMaxHops = 10;
+	public static int cloudCoreNum = 128;
+	public static double cloudRam = 256;
+	public static double cloudStorage = 5000;
+	public static int cloudMipsPerCore = 64000;
+	public static int edgeCoreNum = 16;
+	public static double edgeRam = 128;
+	public static double edgeStorage = 1000;
+	public static double edgeMipsPerCore = 8000;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum;
-	public static double mobileEnergyBudget;
+	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
 	public static CPUEnergyModel defaultMobileDeviceCPUModel = new SamsungS2DualEnergyModel();
@@ -49,7 +49,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudStorage),
 			SimulationSetup.cloudMipsPerCore);
 	public static double antivirusFileSize;
-	public static double task_multiplier;
+	public static double task_multiplier = 500;
 	public static int lambdaLatency;
 	public static int chessMovesNum;
 	public static double chess_mi;
@@ -58,7 +58,7 @@ public class SimulationSetup {
 	public static double navigatorMapSize;
 	public static String[] algorithms;
 	public static boolean batch;
-	public static double batteryCapacity;
+	public static double batteryCapacity = mobileEnergyBudget;
 	public static int iterations = 5;
 
 }

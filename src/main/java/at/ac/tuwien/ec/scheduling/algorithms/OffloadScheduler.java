@@ -31,6 +31,8 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	public abstract ArrayList<OffloadScheduling> findScheduling();
 
 	private boolean isOffloadPossibleOn(MobileSoftwareComponent s, ComputationalNode n){
+		if(s.getUserId().equals(n.getId()))
+			return true;
 		NetworkConnection link = currentInfrastructure.getLink(s.getUserId(),n.getId());
 		if(link!=null)
 			return link.getBandwidth() > 0 && Double.isFinite(link.getLatency());
@@ -66,8 +68,12 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 		double consOnMobile = (currentInfrastructure.getMobileDevices().containsKey(n.getId()))? 
 				n.getCPUEnergyModel().computeCPUEnergy(s, n, currentInfrastructure) :
 					currentInfrastructure.getNodeById(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, currentInfrastructure) ;
-				return n.isCompatible(s) && isOffloadPossibleOn(s, n)
-						&& ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - consOnMobile >= 0 && checkLinks(deployment,s,n);
+				boolean compatible = n.isCompatible(s);
+				boolean offloadPossible = isOffloadPossibleOn(s, n);
+				boolean consAcceptable = ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - consOnMobile >= 0;
+				boolean linksOk = checkLinks(deployment,s,n);
+				return compatible && offloadPossible && consAcceptable && linksOk;
+						
 	}
 
 	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
