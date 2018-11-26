@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
@@ -205,6 +206,10 @@ public abstract class MobileApplication implements Serializable{
 		return "mobileapp";
 	}
 	
+	public Graph<MobileSoftwareComponent,ComponentLink> getTaskDependencies() {
+		return taskDependencies;
+	}
+	
 	public abstract void sampleTasks();
 	
 	public abstract void sampleLinks();
@@ -214,9 +219,6 @@ public abstract class MobileApplication implements Serializable{
 	public abstract void setupLinks();
 
 	
-
-	
-
-	
+		
 
 }

@@ -12,23 +12,41 @@ public class MobileWorkload extends MobileApplication {
 				
 	public MobileWorkload()
 	{
+		super();
 		this.workload = new ArrayList<MobileApplication>();
 	}
 	
 	public MobileWorkload(ArrayList<MobileApplication> workload)
 	{
+		super();
 		this.workload = workload;
 		setupTasks();
 		setupLinks();
 	}
 
-	public void joinParallel()
+	public void joinParallel(MobileApplication app)
 	{
-		
+		workload.add(app);
+		Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
 	}
 	
-	public void joinSequentially()
+	public void joinSequentially(MobileApplication app)
 	{
+		ArrayList<MobileSoftwareComponent> sinks = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent msc : taskDependencies.vertexSet())
+			if(taskDependencies.outgoingEdgesOf(msc).isEmpty())
+				sinks.add(msc);
+		
+		ArrayList<MobileSoftwareComponent> sources = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent msc : app.getTaskDependencies().vertexSet())
+			if(app.getTaskDependencies().incomingEdgesOf(msc).isEmpty())
+				sources.add(msc);
+		
+		Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
+		
+		for(MobileSoftwareComponent mscSrc : sinks)
+			for(MobileSoftwareComponent mscTrg: sources )
+				taskDependencies.addEdge(mscSrc, mscTrg);
 		
 	}
 	
@@ -46,14 +64,12 @@ public class MobileWorkload extends MobileApplication {
 
 	@Override
 	public void setupTasks() {
-		for(MobileApplication app:workload)
-			this.componentList.putAll(app.componentList);
+		
 	}
 
 	@Override
 	public void setupLinks() {
-		for(MobileApplication app:workload)
-			Graphs.addGraph(this.taskDependencies, app.taskDependencies);
+		
 	}
 	
 	
