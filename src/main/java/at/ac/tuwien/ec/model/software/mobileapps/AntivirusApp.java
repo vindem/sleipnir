@@ -6,6 +6,20 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class AntivirusApp extends MobileApplication {
 
+	public AntivirusApp()
+	{
+		super();
+	}
+	
+	public AntivirusApp(int wId){
+		super(wId);
+	}
+	
+	public AntivirusApp(int wId, String uid)
+	{
+		super(wId,uid);
+	}
+	
 	@Override
 	public void setupTasks() {
 		

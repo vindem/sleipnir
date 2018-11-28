@@ -18,7 +18,19 @@ public class NavigatorApp extends MobileApplication {
     double gui_mips = 5e3;
     double speed_mips = 5e3;
 	
-	@Override
+	public NavigatorApp(){
+		super();
+	}
+	
+	public NavigatorApp(int wId){
+		super(wId);
+	}
+	
+	public NavigatorApp(int wId, String uid){
+		super(wId,uid);
+	}
+    
+    @Override
 	public void sampleTasks() {
 		// TODO Auto-generated method stub
 		
@@ -126,7 +138,7 @@ public class NavigatorApp extends MobileApplication {
         addLink("CONTROL"+"_"+getWorkloadId()+","+getUserId(), "MAPS"+"_"+getWorkloadId()+","+getUserId(),
         		sampleLatency(),
         		Double.MIN_VALUE);
-        addLink("CONTROL"+"_"+getWorkloadId()+","+getUserId(), "PATH_CALC"+"_"+getWorkloadId(),
+        addLink("CONTROL"+"_"+getWorkloadId()+","+getUserId(), "PATH_CALC"+"_"+getWorkloadId()+","+getUserId(),
         		sampleLatency(),
         		Double.MIN_VALUE);
         addLink("CONTROL"+"_"+getWorkloadId()+","+getUserId(), "TRAFFIC"+"_"+getWorkloadId()+","+getUserId(),

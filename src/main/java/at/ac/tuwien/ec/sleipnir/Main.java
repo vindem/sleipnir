@@ -15,6 +15,8 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.jgrapht.Graph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -22,8 +24,12 @@ import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
+import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.MobileWorkload;
 import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
+import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
@@ -42,7 +48,7 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
 		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
-		System.out.println("Parallelized!");
+		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> results = input.flatMapToPair(new 
 				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
 				OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>() {
@@ -101,6 +107,8 @@ public class Main {
 				}
 			);
 		
+		//System.out.println(aggregation.first());
+		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> histogram = 
 				aggregation.mapToPair(
 						new PairFunction<Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>,
@@ -141,13 +149,17 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
 		for(int i = 0; i < iterations; i++)
 		{
-			MobileApplication fbApp = new FacebookApp(0,"mobile_0");
+			MobileWorkload globalWorkload = new MobileWorkload();
+			WorkloadGenerator generator = new WorkloadGenerator();
+			for(int j = 0; i< SimulationSetup.mobileNum; i++)
+				globalWorkload.joinParallel(generator.setupWorkload(5, "mobile_"+j));
+						
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			DefaultCloudPlanner.setupCloudNodes(inf, 3);
+			DefaultCloudPlanner.setupCloudNodes(inf, 1);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,1);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(fbApp,inf);
+			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
 		return samples;

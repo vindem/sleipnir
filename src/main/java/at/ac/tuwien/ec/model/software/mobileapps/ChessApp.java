@@ -6,6 +6,20 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class ChessApp extends MobileApplication {
 
+	public ChessApp() {
+		super();
+	}
+	
+	public ChessApp(int wId)
+	{
+		super(wId);
+	}
+	
+	public ChessApp(int wId,String uid)
+	{
+		super(wId,uid);
+	}
+	
 	@Override
 	public void sampleTasks() {
 		// TODO Auto-generated method stub

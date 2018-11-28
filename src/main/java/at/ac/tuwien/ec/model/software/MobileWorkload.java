@@ -1,25 +1,30 @@
 package at.ac.tuwien.ec.model.software;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jgrapht.Graphs;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 
 public class MobileWorkload extends MobileApplication {
 
 	private ArrayList<MobileApplication> workload;
-	private MobileSoftwareComponent workloadRoot;
-				
+					
 	public MobileWorkload()
 	{
-		super();
+		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
+		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
 		this.workload = new ArrayList<MobileApplication>();
 	}
 	
 	public MobileWorkload(ArrayList<MobileApplication> workload)
 	{
-		super();
 		this.workload = workload;
+		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
+		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
+		for(MobileApplication app: workload)
+			this.joinSequentially(app);
 		setupTasks();
 		setupLinks();
 	}
@@ -28,12 +33,13 @@ public class MobileWorkload extends MobileApplication {
 	{
 		workload.add(app);
 		Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
+		this.componentList.putAll(app.componentList);
 	}
 	
 	public void joinSequentially(MobileApplication app)
 	{
 		ArrayList<MobileSoftwareComponent> sinks = new ArrayList<MobileSoftwareComponent>();
-		for(MobileSoftwareComponent msc : taskDependencies.vertexSet())
+		for(MobileSoftwareComponent msc : this.taskDependencies.vertexSet())
 			if(taskDependencies.outgoingEdgesOf(msc).isEmpty())
 				sinks.add(msc);
 		
@@ -43,12 +49,14 @@ public class MobileWorkload extends MobileApplication {
 				sources.add(msc);
 		
 		Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
+		this.componentList.putAll(app.componentList);
 		
 		for(MobileSoftwareComponent mscSrc : sinks)
 			for(MobileSoftwareComponent mscTrg: sources )
-				taskDependencies.addEdge(mscSrc, mscTrg);
-		
-	}
+				if(!taskDependencies.containsEdge(mscSrc, mscTrg))
+					addLink(mscSrc.getId(), mscTrg.getId(),Double.MAX_VALUE,0);
+	}	
+	
 	
 	@Override
 	public void sampleTasks() {
@@ -70,6 +78,10 @@ public class MobileWorkload extends MobileApplication {
 	@Override
 	public void setupLinks() {
 		
+	}
+
+	public ArrayList<MobileApplication> getWorkload() {
+		return workload;
 	}
 	
 	

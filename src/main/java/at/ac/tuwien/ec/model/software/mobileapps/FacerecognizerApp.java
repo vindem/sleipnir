@@ -6,6 +6,19 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class FacerecognizerApp extends MobileApplication {
 
+	public FacerecognizerApp(){
+		super();
+	}
+	
+	public FacerecognizerApp(int wId) {
+		super(wId);
+	}
+	
+	public FacerecognizerApp(int wId,String uid)
+	{
+		super(wId,uid);
+	}
+	
 	@Override
 	public void sampleTasks() {
 		// TODO Auto-generated method stub
