@@ -180,7 +180,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	public ArrayList<ComputationalNode> getAllNodes()
 	{
 		ArrayList<ComputationalNode> allNodes = new ArrayList<ComputationalNode>();
-		allNodes.addAll(mobileDevices.values());
+		//allNodes.addAll(mobileDevices.values());
 		allNodes.addAll(edgeNodes.values());
 		allNodes.addAll(cloudNodes.values());
 		return allNodes;

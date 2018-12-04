@@ -28,9 +28,14 @@ import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
+import at.ac.tuwien.ec.model.software.mobileapps.AntivirusApp;
+import at.ac.tuwien.ec.model.software.mobileapps.ChessApp;
 import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
+import at.ac.tuwien.ec.model.software.mobileapps.FacerecognizerApp;
+import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
@@ -59,20 +64,22 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						RandomScheduler search = new RandomScheduler(inputValues);
+						HEFTResearch search = new HEFTResearch(inputValues);
+						//RandomScheduler search = new RandomScheduler(inputValues);
 						ArrayList<OffloadScheduling> offloads = search.findScheduling();
-						for(OffloadScheduling os : offloads) 
-						{
-							output.add(
-									new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
-									new Tuple5<Integer,Double,Double,Double,Double>(
-											1,
-											os.getRunTime(),
-											os.getUserCost(),
-											os.getBatteryLifetime(),
-											os.getProviderCost()
-									)));
-						}
+						if(offloads != null)
+							for(OffloadScheduling os : offloads) 
+							{
+								output.add(
+										new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
+												new Tuple5<Integer,Double,Double,Double,Double>(
+														1,
+														os.getRunTime(),
+														os.getUserCost(),
+														os.getBatteryLifetime(),
+														os.getProviderCost()
+														)));
+							}
 						return output.iterator();
 					}
 		});
@@ -149,17 +156,18 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
 		for(int i = 0; i < iterations; i++)
 		{
-			MobileWorkload globalWorkload = new MobileWorkload();
+			/*MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
-			for(int j = 0; i< SimulationSetup.mobileNum; i++)
-				globalWorkload.joinParallel(generator.setupWorkload(5, "mobile_"+j));
+			for(int j = 0; j< SimulationSetup.mobileNum; j++)
+				globalWorkload.joinParallel(generator.setupWorkload(1, "mobile_"+j));*/
+			MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 						
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, 1);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,1);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
+			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
 			samples.add(singleSample);
 		}
 		return samples;

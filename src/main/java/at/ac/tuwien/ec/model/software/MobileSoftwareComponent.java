@@ -12,6 +12,7 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 	private static final long serialVersionUID = 5500721963611706499L;
 	private double inData,outData,runTime = Double.MAX_VALUE;
 	private boolean offloadable;
+	private double rank = Double.MAX_VALUE;
 		
 	public MobileSoftwareComponent(String id, Hardware requirements, double millionsOfInstructions,
 			String uid, double inData, double outData) {
@@ -61,6 +62,14 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 
 	public void setRunTime(double runTime) {
 		this.runTime = runTime;
+	}
+
+	public double getRank() {
+		return rank;
+	}
+
+	public void setRank(double rank) {
+		this.rank = rank;
 	}
 	
 }

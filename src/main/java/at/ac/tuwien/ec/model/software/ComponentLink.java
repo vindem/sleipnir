@@ -30,4 +30,13 @@ public class ComponentLink extends DefaultEdge {
 		this.profile = profile;
 	}
 
+	public MobileSoftwareComponent getSource()
+	{
+		return (MobileSoftwareComponent) super.getSource();
+	}
+	
+	public MobileSoftwareComponent getTarget()
+	{
+		return (MobileSoftwareComponent) super.getTarget();
+	}
 }

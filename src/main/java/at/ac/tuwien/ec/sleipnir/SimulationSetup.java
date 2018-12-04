@@ -52,10 +52,10 @@ public class SimulationSetup {
 	public static double task_multiplier = 500;
 	public static int lambdaLatency;
 	public static int chessMovesNum = 1;
-	public static double chess_mi;
-	public static double facebookImageSize;
-	public static double facerecImageSize;
-	public static double navigatorMapSize;
+	public static double chess_mi = 10e3;
+	public static double facebookImageSize = 20e3;
+	public static double facerecImageSize = 10e3;
+	public static double navigatorMapSize = 25e6;
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget;

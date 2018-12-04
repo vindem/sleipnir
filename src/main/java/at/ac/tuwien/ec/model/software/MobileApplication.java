@@ -135,12 +135,14 @@ public abstract class MobileApplication implements Serializable{
 	
 	public void addLink(String u, String v, double latency, double bandwidth)
 	{
-		taskDependencies.addEdge(getComponentById(u), getComponentById(v), new ComponentLink(new QoSProfile(latency, bandwidth)));
+		if(!u.equals(v))
+			taskDependencies.addEdge(getComponentById(u), getComponentById(v), new ComponentLink(new QoSProfile(latency, bandwidth)));
 	}
 	
 	public void addLink(MobileSoftwareComponent u, MobileSoftwareComponent v, double latency, double bandwidth)
 	{
-		taskDependencies.addEdge(u, v, new ComponentLink(new QoSProfile(latency, bandwidth)));
+		if(!u.equals(v))
+			taskDependencies.addEdge(u, v, new ComponentLink(new QoSProfile(latency, bandwidth)));
 	}
 	
 	public MobileSoftwareComponent getComponentById(String id){

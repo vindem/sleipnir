@@ -43,14 +43,6 @@ public class FacerecognizerApp extends MobileApplication {
         		,5e3*SimulationSetup.task_multiplier
         		,false
         		);
-		addComponent("FIND_MATCH_INIT"+"_"+getWorkloadId()+","+getUserId(),
-				new Hardware(1, 1, 1)
-				,this.getUserId()
-				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,5e3*SimulationSetup.task_multiplier
-        		);
 		addComponent("FIND_MATCH"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
@@ -58,6 +50,14 @@ public class FacerecognizerApp extends MobileApplication {
         		,8.0e3*SimulationSetup.task_multiplier
 				,5e3*SimulationSetup.task_multiplier
         		,img_size*SimulationSetup.task_multiplier
+        		);
+		addComponent("FIND_MATCH_INIT"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()
+				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
+        		,8.0e3*SimulationSetup.task_multiplier
+				,5e3*SimulationSetup.task_multiplier
+        		,5e3*SimulationSetup.task_multiplier
         		);
 		addComponent("DETECT_FACE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)

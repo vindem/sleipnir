@@ -6,6 +6,8 @@ import java.util.HashMap;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
+import at.ac.tuwien.ec.model.Hardware;
+
 
 public class MobileWorkload extends MobileApplication {
 
@@ -16,24 +18,39 @@ public class MobileWorkload extends MobileApplication {
 		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
 		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
 		this.workload = new ArrayList<MobileApplication>();
+		
 	}
 	
-	public MobileWorkload(ArrayList<MobileApplication> workload)
-	{
-		this.workload = workload;
-		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
-		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
-		for(MobileApplication app: workload)
-			this.joinSequentially(app);
-		setupTasks();
-		setupLinks();
-	}
+	
 
 	public void joinParallel(MobileApplication app)
 	{
 		workload.add(app);
 		Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
 		this.componentList.putAll(app.componentList);
+		ArrayList<MobileSoftwareComponent> sources = new ArrayList<MobileSoftwareComponent>();
+		
+		if(getComponentById("SOURCE") == null)
+			addComponent("SOURCE", new Hardware(0, 0, 0), "mobile_0" , 0, true);
+		if(getComponentById("SINK") == null)
+			addComponent("SINK", new Hardware(0, 0, 0), "mobile_0" , 0, true);
+		
+		for(MobileSoftwareComponent msc : app.getTaskDependencies().vertexSet())
+			if(app.getTaskDependencies().incomingEdgesOf(msc).isEmpty())
+				sources.add(msc);
+		
+		for(MobileSoftwareComponent msc : sources)
+			addLink(getComponentById("SOURCE"),msc,Double.MAX_VALUE,0);
+						
+		ArrayList<MobileSoftwareComponent> sink = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent msc : app.getTaskDependencies().vertexSet())
+			if(app.getTaskDependencies().outgoingEdgesOf(msc).isEmpty())
+				sink.add(msc);
+		
+		for(MobileSoftwareComponent msc : sink)
+			addLink(msc,getComponentById("SINK"),Double.MAX_VALUE,0);
+		
+		
 	}
 	
 	public void joinSequentially(MobileApplication app)
