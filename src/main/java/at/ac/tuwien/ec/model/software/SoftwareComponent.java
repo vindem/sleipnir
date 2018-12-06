@@ -57,6 +57,9 @@ public class SoftwareComponent implements Serializable{
 		this.userId = userId;
 	}
 
+	public double getLocalRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {
+		return (millionsOfInstruction/n.getMipsPerCore());
+	}
 	
 
 	public double getRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {

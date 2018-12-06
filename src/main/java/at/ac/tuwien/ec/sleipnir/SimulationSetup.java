@@ -31,7 +31,7 @@ public class SimulationSetup {
 	public static double edgeMipsPerCore = 8000;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 1;
+	public static int mobileNum = 2;
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
@@ -50,7 +50,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudMipsPerCore);
 	public static double antivirusFileSize;
 	public static double task_multiplier = 500;
-	public static int lambdaLatency;
+	public static int lambdaLatency = 0;
 	public static int chessMovesNum = 1;
 	public static double chess_mi = 10e3;
 	public static double facebookImageSize = 20e3;
@@ -59,6 +59,6 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget;
-	public static int iterations = 5;
+	public static int iterations = 1;
 
 }

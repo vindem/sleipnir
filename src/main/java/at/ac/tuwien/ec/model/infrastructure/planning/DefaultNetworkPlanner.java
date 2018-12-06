@@ -70,11 +70,11 @@ public class DefaultNetworkPlanner {
 			
         	QoSProfile qosCloudUL;//,qosCloudDL
         	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
-					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, firstHopWiFiHQBandwidth), 0.9),
-					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , firstHopWiFiLQBandwidth), 0.09),
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, CloudWiFiHQBandwidth), 0.9),
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , CloudWiFiLQBandwidth), 0.09),
 					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					)) : new QoSProfile(asList(
-							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, firstHop3GBandwidth), 0.9957),
+							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, Cloud3GBandwidth), 0.9957),
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
         	
 			for(CloudDataCenter cn : inf.getCloudNodes().values())

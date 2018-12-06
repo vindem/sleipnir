@@ -29,7 +29,7 @@ class MobileWorkloadTest {
 	void testMobileWorkloadArrayListOfMobileApplication() {
 		ArrayList<MobileApplication> wload = new ArrayList<MobileApplication>();
 		wload.add(new FacebookApp(0, "mId"));
-		MobileWorkload mwload = new MobileWorkload(wload);
+		MobileWorkload mwload = new MobileWorkload();
 		Assert.assertEquals(wload, mwload.getWorkload());
 		Assert.assertNotNull(mwload.componentList);
 		Assert.assertNotNull(mwload.taskDependencies);		

@@ -113,13 +113,19 @@ public abstract class MobileApplication implements Serializable{
 		
 	public ArrayList<MobileSoftwareComponent> getPredecessors(MobileSoftwareComponent msc)
 	{
-		ArrayList<MobileSoftwareComponent> preds = (ArrayList<MobileSoftwareComponent>) Graphs.predecessorListOf(taskDependencies, msc);
+		ArrayList<MobileSoftwareComponent> preds = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent p : Graphs.predecessorListOf(taskDependencies, msc))
+			if(!preds.contains(p))
+				preds.add(p);
 		return preds;
 	}
 	
 	public ArrayList<MobileSoftwareComponent> getNeighbors(MobileSoftwareComponent msc)
 	{
-		ArrayList<MobileSoftwareComponent> succs = (ArrayList<MobileSoftwareComponent>) Graphs.successorListOf(taskDependencies, msc);
+		ArrayList<MobileSoftwareComponent> succs = new ArrayList<MobileSoftwareComponent>();
+		for(MobileSoftwareComponent s : Graphs.successorListOf(taskDependencies, msc))
+			if(!succs.contains(s))
+				succs.add(s);
 		return succs;
 	}
 	
@@ -208,7 +214,7 @@ public abstract class MobileApplication implements Serializable{
 		return "mobileapp";
 	}
 	
-	public Graph<MobileSoftwareComponent,ComponentLink> getTaskDependencies() {
+	public DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> getTaskDependencies() {
 		return taskDependencies;
 	}
 	

@@ -156,18 +156,18 @@ public class Main {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
 		for(int i = 0; i < iterations; i++)
 		{
-			/*MobileWorkload globalWorkload = new MobileWorkload();
+			MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
 			for(int j = 0; j< SimulationSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(1, "mobile_"+j));*/
-			MobileApplication app = new FacerecognizerApp(0,"mobile_0");
-						
+				globalWorkload.joinParallel(generator.setupWorkload(2, "mobile_"+j));
+			//globalWorkload = generator.setupWorkload(2, "mobile_0");
+			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, 1);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,1);
+			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
+			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
 		return samples;

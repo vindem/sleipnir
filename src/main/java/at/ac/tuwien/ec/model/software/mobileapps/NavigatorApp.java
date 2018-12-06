@@ -6,6 +6,11 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class NavigatorApp extends MobileApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8523061215581247638L;
+
 	public double data_variance = 1e+3;
 	
 	double config_panel_mips = 1.0e3;
@@ -104,16 +109,7 @@ public class NavigatorApp extends MobileApplication {
         		,2e3*SimulationSetup.task_multiplier
         		,false
         		);
-        addComponent("GUI"+"_"+getWorkloadId()+","+getUserId(),
-        		new Hardware(1, 0.5, 1)
-        		,this.getUserId()
-        		//,2.0 + ExponentialDistributionGenerator.getNext(gui_mips)*1e-1
-        		,2.0e3*SimulationSetup.task_multiplier
-        		,10e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
-        		,false
-        		);
-        addComponent("SPEED_TRAP"+"_"+getWorkloadId()+","+getUserId(),
+       addComponent("SPEED_TRAP"+"_"+getWorkloadId()+","+getUserId(),
         		new Hardware(1, 0.5, 1)
         		,this.getUserId()
         		//,2.0 + ExponentialDistributionGenerator.getNext(speed_mips)*1e-1
@@ -122,6 +118,15 @@ public class NavigatorApp extends MobileApplication {
         		,1e3*SimulationSetup.task_multiplier
         		,false
         		);
+       addComponent("GUI"+"_"+getWorkloadId()+","+getUserId(),
+       		new Hardware(1, 0.5, 1)
+       		,this.getUserId()
+       		//,2.0 + ExponentialDistributionGenerator.getNext(gui_mips)*1e-1
+       		,2.0e3*SimulationSetup.task_multiplier
+       		,10e3*SimulationSetup.task_multiplier
+       		,1e3*SimulationSetup.task_multiplier
+       		,false
+       		);
 	}
 
 	@Override
