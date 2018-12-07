@@ -60,5 +60,10 @@ public class SimulationSetup {
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget;
 	public static int iterations = 1;
+	public static int cloudNum = 1;
+	public static double EchoGamma;
+	public static double EchoAlpha;
+	public static double EchoBeta;
+	
 
 }

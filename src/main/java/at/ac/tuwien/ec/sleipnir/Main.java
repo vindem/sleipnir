@@ -36,6 +36,7 @@ import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
+import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HeftEchoResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
@@ -64,7 +65,7 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						HEFTResearch search = new HEFTResearch(inputValues);
+						HeftEchoResearch search = new HeftEchoResearch(inputValues);
 						//RandomScheduler search = new RandomScheduler(inputValues);
 						ArrayList<OffloadScheduling> offloads = search.findScheduling();
 						if(offloads != null)
@@ -163,7 +164,7 @@ public class Main {
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			DefaultCloudPlanner.setupCloudNodes(inf, 1);
+			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
