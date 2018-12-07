@@ -33,9 +33,9 @@ public class DefaultNetworkPlanner {
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
 			 * In this planner, there is a link between each mobile device and each edge node.
 			 */
-			double firstHop3GBandwidth = (new ExponentialDistribution(1.0/7.2)).sample();
-			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(1.0/32.0)).sample(); 
-			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(1.0/4.0)).sample();
+			double firstHop3GBandwidth = (new ExponentialDistribution(7.2)).sample();
+			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(32.0)).sample(); 
+			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(4.0)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosUL;//,qosDL;
 			qosUL = (wifiAvailable)? new QoSProfile(asList(
@@ -63,9 +63,9 @@ public class DefaultNetworkPlanner {
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
 			 */
-			double Cloud3GBandwidth = (new ExponentialDistribution(1.0/3.6)).sample();
-        	double CloudWiFiHQBandwidth = (new ExponentialDistribution(1.0/16.0)).sample();
-        	double CloudWiFiLQBandwidth = (new ExponentialDistribution(1.0/2.0)).sample();
+			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
+        	double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
+        	double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
         	double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			
         	QoSProfile qosCloudUL;//,qosCloudDL

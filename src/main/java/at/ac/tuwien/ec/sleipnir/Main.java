@@ -160,7 +160,7 @@ public class Main {
 			MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
 			for(int j = 0; j< SimulationSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(2, "mobile_"+j));
+				globalWorkload.joinParallel(generator.setupWorkload(25, "mobile_"+j));
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
