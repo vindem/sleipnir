@@ -35,8 +35,8 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 			return true;
 		NetworkConnection link = currentInfrastructure.getLink(s.getUserId(),n.getId());
 		if(link!=null)
-			return link.getBandwidth() > 0 && Double.isFinite(link.getLatency());
-			return false;
+			return link.getBandwidth() > 0 && link.getLatency() > 0;
+		return false;
 	}
 
 	private boolean checkLinks(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
@@ -72,7 +72,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 				boolean offloadPossible = isOffloadPossibleOn(s, n);
 				boolean consAcceptable = ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - consOnMobile >= 0;
 				boolean linksOk = checkLinks(deployment,s,n);
-				return compatible && offloadPossible && consAcceptable && linksOk;
+				return compatible && offloadPossible && consAcceptable;// && linksOk;
 						
 	}
 

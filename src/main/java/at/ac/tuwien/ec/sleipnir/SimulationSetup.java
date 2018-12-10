@@ -18,17 +18,17 @@ public class SimulationSetup {
 	}
 	
 	public static RandomUtils rand = new RandomUtils();
-	public static int MAP_M = 2;
-	public static int MAP_N = 2;
+	public static int MAP_M = 1;
+	public static int MAP_N = 1;
 	public static int cloudMaxHops = 10;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;
 	public static double cloudStorage = 5000;
-	public static int cloudMipsPerCore = 64000;
+	public static double cloudMipsPerCore = 6400000.0;
 	public static int edgeCoreNum = 16;
 	public static double edgeRam = 128;
 	public static double edgeStorage = 1000;
-	public static double edgeMipsPerCore = 8000;
+	public static double edgeMipsPerCore = 80000.0;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum = 1;

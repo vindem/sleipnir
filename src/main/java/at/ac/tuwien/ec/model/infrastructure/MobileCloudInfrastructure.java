@@ -166,7 +166,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	}
 
 	public NetworkConnection getLink(ComputationalNode src, ComputationalNode trg) {
-		if(!connectionMap.containsVertex(src) || connectionMap.containsVertex(trg))
+		if(!connectionMap.containsVertex(src) || !connectionMap.containsVertex(trg))
 			return null;
 		return connectionMap.getEdge(src, trg);
 	}

@@ -65,7 +65,7 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						HeftEchoResearch search = new HeftEchoResearch(inputValues);
+						HEFTResearch search = new HEFTResearch(inputValues);
 						//RandomScheduler search = new RandomScheduler(inputValues);
 						ArrayList<OffloadScheduling> offloads = search.findScheduling();
 						if(offloads != null)
