@@ -6,6 +6,11 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public class CloudFixedPricingModel implements PricingModel{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6544891264417198511L;
+
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
 		return sc.getHardwareRequirements().getCores() * 0.03 + sc.getHardwareRequirements().getRam() * 0.02

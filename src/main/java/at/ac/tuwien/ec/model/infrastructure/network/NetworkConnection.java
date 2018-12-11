@@ -44,4 +44,14 @@ public class NetworkConnection extends DefaultEdge {
 		return qosProfile.getBandwidth();
 	}
 	
+	public ComputationalNode getTarget()
+	{
+		return (ComputationalNode) super.getTarget();
+	}
+	
+	public ComputationalNode getSource()
+	{
+		return (ComputationalNode) super.getSource();
+	}
+	
 }

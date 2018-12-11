@@ -64,6 +64,7 @@ public class SimulationSetup {
 	public static double EchoGamma;
 	public static double EchoAlpha;
 	public static double EchoBeta;
+	public static double Eta = 1.0;
 	
 
 }

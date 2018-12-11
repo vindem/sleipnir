@@ -186,5 +186,15 @@ public class MobileCloudInfrastructure implements Serializable{
 		return allNodes;
 	}
 
+	public Set<NetworkConnection> getNetworkLinks() {
+		// TODO Auto-generated method stub
+		return connectionMap.edgeSet();
+	}
+
+	public Set<NetworkConnection> getOutgoingLinksFrom(ComputationalNode cn) {
+		// TODO Auto-generated method stub
+		return connectionMap.outgoingEdgesOf(cn);
+	}
+
 		
 }
