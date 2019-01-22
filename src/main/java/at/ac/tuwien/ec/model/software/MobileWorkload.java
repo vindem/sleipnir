@@ -21,9 +21,16 @@ public class MobileWorkload extends MobileApplication {
 		this.workload = new ArrayList<MobileApplication>();
 		
 	}
-	
-	
 
+	public MobileWorkload(ArrayList<MobileApplication> workload)
+	{
+		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
+		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
+		this.workload = new ArrayList<MobileApplication>();
+		for(MobileApplication app:workload)
+			joinSequentially(app);
+	}
+	
 	public void joinParallel(MobileApplication app)
 	{
 		workload.add(app);

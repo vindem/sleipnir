@@ -155,7 +155,7 @@ public class MonteCarloSimulation{
 		case "echo":
 			singleSearch = new HeftEchoResearch(currentApp,I);
 			break;
-		case "moheft":
+		/*case "moheft":
 			singleSearch = new MOHeftResearch(currentApp,I);
 			break;
 		case "nsgaIII":

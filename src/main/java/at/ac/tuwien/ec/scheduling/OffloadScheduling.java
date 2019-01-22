@@ -119,6 +119,7 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
 			this.infEnergyConsumption += n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime -= offloadEnergy;
 		}
+		
 	}
 	
 	public void removeEnergyConsumption(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
@@ -135,6 +136,7 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
 			this.infEnergyConsumption -= n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime += offloadEnergy;
 		}
+		
 	}
 
 	public void addProviderCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
@@ -153,6 +155,7 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
 					providerCost += fn.getCPUEnergyModel().getIdlePower(s, n, i)
 					* i.getPriceForLocation(fn.getCoords(),runTime);
 		}
+		
 	}
 
 	public void removeProviderCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
@@ -213,5 +216,5 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
 	public void setInfEnergyConsumption(double infEnergyConsumption) {
 		this.infEnergyConsumption = infEnergyConsumption;
 	}
-
+	
 }
