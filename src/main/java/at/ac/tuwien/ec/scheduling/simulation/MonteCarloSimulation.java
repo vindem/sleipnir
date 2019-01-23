@@ -20,7 +20,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.OffloadSchedulingHistogram;
-import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.WeightedFunctionResearch;
+import at.ac.tuwien.ec.scheduling.algorithms.heuristics.WeightedFunctionResearch;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 import static java.util.Arrays.asList;
