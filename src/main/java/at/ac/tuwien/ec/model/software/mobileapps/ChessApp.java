@@ -6,6 +6,11 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class ChessApp extends MobileApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8691346644863245202L;
+
 	public ChessApp() {
 		super();
 	}

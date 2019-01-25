@@ -1,7 +1,5 @@
 package at.ac.tuwien.ec.model.software.mobileapps;
 
-import java.util.ArrayList;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 

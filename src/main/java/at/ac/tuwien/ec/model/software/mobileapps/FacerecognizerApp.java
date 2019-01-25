@@ -6,6 +6,11 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class FacerecognizerApp extends MobileApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8209655232158209461L;
+
 	public FacerecognizerApp(){
 		super();
 	}
