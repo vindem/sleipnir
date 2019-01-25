@@ -1,9 +1,12 @@
 package at.ac.tuwien.ec.model.infrastructure.computationalnodes;
 
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.availability.AvailabilityModel;
 import at.ac.tuwien.ec.model.pricing.PricingModel;
 
 public class CloudDataCenter extends ComputationalNode{
+	
+	private AvailabilityModel availabilityModel;
 	
 	public CloudDataCenter(String id, HardwareCapabilities capabilities) {
 		super(id, capabilities);
@@ -14,7 +17,23 @@ public class CloudDataCenter extends ComputationalNode{
 	{
 		super(id,capabilities);
 		this.priceModel = pricingModel;
-		
+	}
+	
+	public CloudDataCenter(String id, HardwareCapabilities capabilities, PricingModel pricingModel, AvailabilityModel avModel)
+	{
+		super(id,capabilities);
+		this.priceModel = pricingModel;
+		this.availabilityModel = avModel;
+	}
+	
+	public double getAvailabilityAt(double runtime)
+	{
+		return availabilityModel.availabilityAt(runtime);
+	}
+	
+	public boolean isAvailableAt(double runtime)
+	{
+		return availabilityModel.isAvailableAt(runtime);
 	}
 	
 	@Override
