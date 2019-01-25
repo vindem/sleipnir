@@ -1,13 +1,6 @@
 package at.ac.tuwien.ec.model.software.mobileapps;
 
-import java.util.ArrayList;
-
 import org.apache.commons.lang.math.RandomUtils;
-import org.jgrapht.traverse.TopologicalOrderIterator;
-
-import at.ac.tuwien.ec.model.software.ComponentLink;
-import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
 
 public class WorkloadGenerator {
