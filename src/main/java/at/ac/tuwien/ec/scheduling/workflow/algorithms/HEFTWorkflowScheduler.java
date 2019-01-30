@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.algorithms.heftbased;
+package at.ac.tuwien.ec.scheduling.workflow.algorithms;
 
 
 import java.util.ArrayList;
@@ -19,24 +19,25 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.OffloadScheduler;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.utils.NodeRankComparator;
+import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
+import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
 import scala.Tuple2;
 
 
 
-public class HEFTResearch extends OffloadScheduler {
+public class HEFTWorkflowScheduler extends WorkflowScheduler {
 	
-	public HEFTResearch(MobileApplication A, MobileCloudInfrastructure I) {
+	public HEFTWorkflowScheduler(MobileApplication A, MobileCloudInfrastructure I) {
 		super();
 		setMobileApplication(A);
 		setInfrastructure(I);
 		setRank(this.currentApp,this.currentInfrastructure);
 	}
 	
-	public HEFTResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+	public HEFTWorkflowScheduler(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
 		super();
 		setMobileApplication(t._1());
 		setInfrastructure(t._2());
@@ -45,24 +46,22 @@ public class HEFTResearch extends OffloadScheduler {
 	
 	
 	@Override
-	public ArrayList<OffloadScheduling> findScheduling() {
+	public ArrayList<? extends Scheduling> findScheduling() {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
 		//ArrayList<MobileSoftwareComponent> tasks = new ArrayList<MobileSoftwareComponent>();
 		PriorityQueue<MobileSoftwareComponent> tasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
 		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
 		//Collections.sort(tasks, new NodeRankComparator());
-		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
-		
+		ArrayList<WorkflowScheduling> deployments = new ArrayList<WorkflowScheduling>();
+
 		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
-		
+
 		double currentRuntime;
 		MobileSoftwareComponent currTask;
-		OffloadScheduling scheduling = new OffloadScheduling(); 
+		WorkflowScheduling scheduling = new WorkflowScheduling(); 
 		while((currTask = tasks.poll())!=null)
 		{
-			//currTask = tasks.remove(0);
-			
 			if(!scheduledNodes.isEmpty())
 			{
 				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
@@ -73,49 +72,35 @@ public class HEFTResearch extends OffloadScheduler {
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double tMin = Double.MAX_VALUE;
-			ComputationalNode target = null;
-			if(!currTask.isOffloadable())
-			{
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
+			ComputationalNode pred = null,target = null;
+
+			double maxP = 0.0;
+			for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
+				if(cmp.getRunTime()>maxP) 
 				{
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
-					scheduledNodes.add(currTask);
+					maxP = cmp.getRunTime();
+					pred = scheduling.get(cmp);
 				}
-				else
+			for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+				if(maxP + currTask.getRuntimeOnNode(pred, cn,currentInfrastructure) < tMin &&
+						isValid(scheduling,currTask,cn))
 				{
-					if(scheduledNodes.isEmpty())
-						target = null;
+					tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
+					target = cn;
+					currTask.setRunTime(tMin);
 				}
-			}
-			else
-			{
-				double maxP = Double.MIN_VALUE;
-				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
-					if(cmp.getRunTime()>maxP)
-						maxP = cmp.getRunTime();
-				
-				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
-							isValid(scheduling,currTask,cn))
-					{
-						tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
-						target = cn;
-					}
-				if(maxP + currTask.getRuntimeOnNode(currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure) < tMin
-						&& isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
-			}
+			
 			if(target != null)
 			{
 				deploy(scheduling,currTask,target);
 				scheduledNodes.add(currTask);
 			}
-			else
+			
 			{
 				if(scheduledNodes.isEmpty())
 					target = null;
 			}
-								
+
 		}
 		deployments.add(scheduling);
 		return deployments;
@@ -140,7 +125,6 @@ public class HEFTResearch extends OffloadScheduler {
 			int numberOfNodes = I.getAllNodes().size() + 1;
 			for(ComputationalNode cn : I.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
-			w_cmp += msc.getLocalRuntimeOnNode(I.getNodeById(msc.getUserId()), I);
 			w_cmp = w_cmp / numberOfNodes;
 			
 			if(dag.outgoingEdgesOf(msc).isEmpty())
@@ -154,12 +138,12 @@ public class HEFTResearch extends OffloadScheduler {
 				{
 					tmpWRank = upRank(neigh.getTarget(),dag,I);
 					double tmpCRank = 0;
-					if(neigh.getTarget().isOffloadable())
-					{
-						for(ComputationalNode cn : I.getAllNodes())
-							tmpCRank += I.getTransmissionTime(neigh.getTarget(), I.getNodeById(msc.getUserId()), cn);
-						tmpCRank = tmpCRank / (I.getAllNodes().size());
-					}
+					for(ComputationalNode cn0 : I.getAllNodes())
+						for(ComputationalNode cn1 : I.getAllNodes())
+							tmpCRank += I.getTransmissionTime(neigh.getTarget(),cn0, cn1);
+							
+					tmpCRank = tmpCRank / (I.getAllNodes().size());
+					
 					double tmpRank = tmpWRank + tmpCRank;
 					maxSRank = (tmpRank > maxSRank)? tmpRank : maxSRank;
 				}

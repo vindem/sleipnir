@@ -67,6 +67,12 @@ public class SoftwareComponent implements Serializable{
 				+ (millionsOfInstruction/n.getMipsPerCore());
 				
 	}
+	
+	public double getRuntimeOnNode(ComputationalNode n, ComputationalNode m, MobileCloudInfrastructure i) {
+		return ((n==null)? 0 : i.getTransmissionTime((MobileSoftwareComponent)this, n, m)*2.0) 
+				+ (millionsOfInstruction/m.getMipsPerCore());
+				
+	}
 
 	public Hardware getHardwareRequirements() {
 		// TODO Auto-generated method stub

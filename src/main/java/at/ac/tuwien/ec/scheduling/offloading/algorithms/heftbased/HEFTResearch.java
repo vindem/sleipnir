@@ -1,70 +1,49 @@
-package at.ac.tuwien.ec.scheduling.algorithms.heftbased;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased;
+
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.OffloadScheduler;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.utils.NodeRankComparator;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import scala.Tuple2;
 
-public class HeftEchoResearch extends OffloadScheduler {
 
-	private static final double gamma = SimulationSetup.EchoGamma;
-	private static final double alpha = SimulationSetup.EchoAlpha;
-	private static final double beta = SimulationSetup.EchoBeta;
+
+public class HEFTResearch extends OffloadScheduler {
 	
-	public HeftEchoResearch(MobileApplication A, MobileCloudInfrastructure I) {
+	public HEFTResearch(MobileApplication A, MobileCloudInfrastructure I) {
 		super();
 		setMobileApplication(A);
 		setInfrastructure(I);
 		setRank(this.currentApp,this.currentInfrastructure);
 	}
 	
-	public HeftEchoResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+	public HEFTResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
 		super();
 		setMobileApplication(t._1());
 		setInfrastructure(t._2());
 		setRank(this.currentApp,this.currentInfrastructure);
 	}
-
-	private double computeScore(MobileSoftwareComponent s, ComputationalNode cn, double minRuntime, double minCost, double maxBattery) {
-		//if(cn.isMobile())
-		//	return Double.MAX_VALUE;
-		double currRuntime = s.getRuntimeOnNode(cn, currentInfrastructure);
-		double currCost = cn.computeCost(s, currentInfrastructure);
-		double currBattery = ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - 
-				((currentInfrastructure.getMobileDevices().containsValue(cn))? 
-						cn.getCPUEnergyModel().computeCPUEnergy(s, cn, currentInfrastructure) :
-						currentInfrastructure.getNodeById(s.getUserId()).
-							getNetEnergyModel().computeNETEnergy(s, cn, currentInfrastructure));
-		
-		double runtimeDiff = Math.pow(currRuntime - minRuntime,2.0);
-		double costDiff = Math.pow(currCost - minCost,2.0);
-		double batteryDiff = Math.pow(maxBattery - currBattery,2.0);
-				
-		return alpha * adjust(runtimeDiff,1.0)  + beta * adjust(costDiff,1.0) + gamma * adjust(batteryDiff,1.0);
-	}
-
-	private double normalized(double x, double minRange, double maxRange) {
-		return (x - minRange) / (maxRange - minRange) ;
-	}
 	
-	private double adjust(double x, double factor){
-		return x * factor;
-	}
-
+	
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
@@ -93,10 +72,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
-			double minRuntime = Double.MAX_VALUE;
-			double minCost = Double.MAX_VALUE;
-			double maxBattery = Double.MIN_VALUE;
-			
+			double tMin = Double.MAX_VALUE;
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
@@ -117,54 +93,17 @@ public class HeftEchoResearch extends OffloadScheduler {
 				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
 					if(cmp.getRunTime()>maxP)
 						maxP = cmp.getRunTime();
-				// Computing reference values that will be used for score
+				
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(isValid(scheduling,currTask,cn))
+					if(maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
+							isValid(scheduling,currTask,cn))
 					{
-						double tmpRuntime = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
-						double tmpCost = cn.computeCost(currTask, currentInfrastructure);
-						double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
-								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, cn, currentInfrastructure);
-					
-						if(tmpRuntime < minRuntime)
-							minRuntime = tmpRuntime;
-						if(tmpCost < minCost)
-							minCost = tmpCost;
-						if(tmpBattery > maxBattery)
-							maxBattery = tmpBattery;
-					}
-				
-				if(isValid(scheduling,currTask, currentInfrastructure.getNodeById(currTask.getUserId())))
-				{
-					double tmpRuntime = maxP + currTask.getRuntimeOnNode(currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
-					double tmpCost = currentInfrastructure.getNodeById(currTask.getUserId()).computeCost(currTask, currentInfrastructure);
-					double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
-				
-					if(tmpRuntime < minRuntime)
-						minRuntime = tmpRuntime;
-					if(tmpCost < minCost)
-						minCost = tmpCost;
-					if(tmpBattery > maxBattery)
-						maxBattery = tmpBattery;
-				}
-				
-				//Computing node with minimum score
-				double minScore = Double.MAX_VALUE;
-				double tmpScore;
-				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(isValid(scheduling,currTask,cn) && (tmpScore = computeScore(currTask,cn,minRuntime,minCost,maxBattery)) < minScore )
-					{
-						minScore = tmpScore;
+						tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
 						target = cn;
 					}
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())) 
-						&& (tmpScore = computeScore(currTask,currentInfrastructure.getNodeById(currTask.getUserId()),minRuntime,minCost,maxBattery)) < minScore )
-				{
-					minScore = tmpScore;
+				if(maxP + currTask.getRuntimeOnNode(currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure) < tMin
+						&& isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
 					target = currentInfrastructure.getNodeById(currTask.getUserId());
-				}
-				
 			}
 			if(target != null)
 			{
@@ -181,7 +120,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 		deployments.add(scheduling);
 		return deployments;
 	}
-	
+
 	private void setRank(MobileApplication A, MobileCloudInfrastructure I)
 	{
 		for(MobileSoftwareComponent msc : A.getTaskDependencies().vertexSet())

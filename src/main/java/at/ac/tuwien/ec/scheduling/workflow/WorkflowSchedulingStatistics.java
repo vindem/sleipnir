@@ -1,19 +1,20 @@
-package at.ac.tuwien.ec.scheduling;
+package at.ac.tuwien.ec.scheduling.workflow;
 
 import java.util.ArrayList;
 
-public class OffloadSchedulingStatistics {
-	private double frequency,score;
-	private ArrayList<Double> runtime,cost,battery,providerCost;
+import at.ac.tuwien.ec.scheduling.SchedulingStatistics;
 
-	public OffloadSchedulingStatistics(){
+public class WorkflowSchedulingStatistics extends SchedulingStatistics{
+	private double frequency,score;
+	private ArrayList<Double> runtime,reliability,usercost;
+
+	public WorkflowSchedulingStatistics(){
 		runtime = new ArrayList<Double>();
-		cost = new ArrayList<Double>();
-		battery = new ArrayList<Double>();
-		providerCost = new ArrayList<Double>();
+		reliability = new ArrayList<Double>();
+		usercost = new ArrayList<Double>();
 	}
 	
-	public double getFrequency() {
+	public Double getFrequency() {
 		return frequency;
 	}
 
@@ -21,7 +22,7 @@ public class OffloadSchedulingStatistics {
 		this.frequency = frequency;
 	}
 
-	public double getScore() {
+	public Double getScore() {
 		return score;
 	}
 
@@ -38,29 +39,22 @@ public class OffloadSchedulingStatistics {
 	}
 
 	public ArrayList<Double> getCost() {
-		return cost;
+		return usercost;
 	}
 
 	public void addCost(double cost) {
-		this.cost.add(cost);
+		this.usercost.add(cost);
 	}
 
-	public ArrayList<Double> getBattery() {
-		return battery;
+	public ArrayList<Double> getReliability() {
+		return reliability;
 	}
 
-	public void addBattery(double battery) {
-		this.battery.add(battery);
+	public void addReliability(double battery) {
+		this.reliability.add(battery);
 	}
 	
-	public ArrayList<Double> getProviderCost() {
-		return providerCost;
-	}
-	
-	public void addProviderCost(double providerCost) {
-		this.providerCost.add(providerCost);
-	}
-	
+		
 	public double calculateMean(ArrayList<Double> sample){
 		Double tmp = 0.0;
 		for(Double d: sample)

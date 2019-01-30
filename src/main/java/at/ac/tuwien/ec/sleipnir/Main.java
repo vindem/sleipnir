@@ -34,11 +34,12 @@ import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
 import at.ac.tuwien.ec.model.software.mobileapps.FacerecognizerApp;
 import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HeftEchoResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
+import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.MinMinResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
 import scala.Tuple4;
 import scala.Tuple5;
@@ -128,25 +129,25 @@ public class Main {
 							@Override
 							public Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> call(
 									Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> arg0)
-									throws Exception {
+											throws Exception {
 								Tuple5<Integer, Double, Double, Double, Double> val = arg0._2();
 								Tuple5<Integer, Double, Double, Double, Double> tNew 
-									= new Tuple5<Integer, Double, Double, Double, Double>
-									(
+								= new Tuple5<Integer, Double, Double, Double, Double>
+								(
 										val._1(),
 										val._2()/val._1(),
 										val._3()/val._1(),
 										val._4()/val._1(),
 										val._5()/val._1()
-									);
-								
+										);
+
 								return new Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>(arg0._1,tNew);
 							}
 
-							
+
 						}
-				
-				);
+
+						);
 		
 		System.out.println(histogram.first());
 		

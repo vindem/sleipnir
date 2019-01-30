@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.algorithms.heftbased.utils;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils;
 
 import java.util.Comparator;
 

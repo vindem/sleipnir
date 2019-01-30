@@ -18,9 +18,10 @@ import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.OffloadSchedulingHistogram;
-import at.ac.tuwien.ec.scheduling.algorithms.heuristics.WeightedFunctionResearch;
+import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.scheduling.SchedulingHistogram;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadSchedulingHistogram;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.WeightedFunctionResearch;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 import static java.util.Arrays.asList;
@@ -49,19 +50,19 @@ public class MonteCarloSimulation{
     	this.I = I;
     }
     
-    public HashMap<String,OffloadSchedulingHistogram> startSimulation() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    public HashMap<String,SchedulingHistogram> startSimulation() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
     	//HashMap<Deployment, Couple<Double, Double>> histogram = new HashMap<>();
-    	HashMap<String,OffloadSchedulingHistogram> histograms = new HashMap<String,OffloadSchedulingHistogram>();
+    	HashMap<String,SchedulingHistogram> histograms = new HashMap<String,SchedulingHistogram>();
     	//DeploymentsHistogram histogram = new DeploymentsHistogram();
 
     	for(int i = 0; i < SimulationSetup.algorithms.length; i++)
-    		histograms.put(SimulationSetup.algorithms[i], new OffloadSchedulingHistogram());
+    		histograms.put(SimulationSetup.algorithms[i], new SchedulingHistogram());
     	    	   	
     	ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     	for(String algorithm : histograms.keySet()){
-    		ArrayList<OffloadScheduling> depList = new ArrayList<OffloadScheduling>();
-    		List<Future<ArrayList<OffloadScheduling>>> futures = new LinkedList<Future<ArrayList<OffloadScheduling>>>();
+    		ArrayList<Scheduling> depList = new ArrayList<Scheduling>();
+    		List<Future<ArrayList<? extends Scheduling>>> futures = new LinkedList<Future<ArrayList<? extends Scheduling>>>();
     		/*
     		 * long wExtractStart = System.currentTimeMillis();
     		 * MobileApplication A = extractWorkload(muWorkload);
@@ -88,7 +89,7 @@ public class MonteCarloSimulation{
     		{
     			for(int k = 0; k < futures.size(); k++)
     				try	{
-    					ArrayList<OffloadScheduling> results = (ArrayList<OffloadScheduling>)futures.get(k).get();
+    					ArrayList<Scheduling> results = (ArrayList<Scheduling>)futures.get(k).get();
     					if(results != null)
     						depList.addAll(results);
     				} catch (InterruptedException | ExecutionException e) {
@@ -110,7 +111,7 @@ public class MonteCarloSimulation{
     		double pos = depList.size();
     		double size = depList.size();
     		System.out.println("Deployment found for " + algorithm + ": " + size);
-    		for (OffloadScheduling d : depList) {
+    		for (Scheduling d : depList) {
     			if (histograms.get(algorithm).containsKey(d)) {
     				//Double newCount = histogram.get(d).getA() + 1.0; //montecarlo frequency
     				//Double newPos = histogram.get(d).getB() + ((pos + 1)/ (size+1));

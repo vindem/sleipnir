@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package at.ac.tuwien.ec.scheduling;
+package at.ac.tuwien.ec.scheduling.offloading;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +20,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
@@ -27,7 +28,7 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
  *
  * @author stefano
  */
-public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, ComputationalNode>{
+public class OffloadScheduling extends Scheduling{
     /**
 	 * 
 	 */

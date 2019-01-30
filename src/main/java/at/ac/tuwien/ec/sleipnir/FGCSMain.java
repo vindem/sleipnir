@@ -12,22 +12,18 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingNetworkPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.model.software.MobileWorkload;
-import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
+import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
+import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
+import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTWorkflowScheduler;
+import at.ac.tuwien.ec.scheduling.workflow.algorithms.WorkflowScheduler;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 import at.ac.tuwien.ec.workflow.MontageWorkflow;
 import scala.Tuple2;
-import scala.Tuple5;
+import scala.Tuple4;
 
 public class FGCSMain {
 
@@ -40,30 +36,29 @@ public class FGCSMain {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(FGCSSetup.iterations);
 		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
 
-		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> results = input.flatMapToPair(new 
+		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> results = input.flatMapToPair(new 
 				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
-				OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>() {
+				WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Iterator<Tuple2<OffloadScheduling, Tuple5<Integer,Double,Double,Double,Double>>> call(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues)
+			public Iterator<Tuple2<WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>> call(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues)
 					throws Exception {
-				ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
-						new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-				HEFTResearch search = new HEFTResearch(inputValues);
+				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
+						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
+				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
 				//RandomScheduler search = new RandomScheduler(inputValues);
-				ArrayList<OffloadScheduling> offloads = search.findScheduling();
-				if(offloads != null)
-					for(OffloadScheduling os : offloads) 
+				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
+				if(schedulings != null)
+					for(WorkflowScheduling os : schedulings) 
 					{
 						output.add(
-								new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
-										new Tuple5<Integer,Double,Double,Double,Double>(
+								new Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>(os,
+										new Tuple4<Integer,Double,Double,Double>(
 												1,
 												os.getRunTime(),
 												os.getUserCost(),
-												os.getBatteryLifetime(),
-												os.getProviderCost()
+												os.getReliability()
 												)));
 					}
 				return output.iterator();
@@ -72,11 +67,11 @@ public class FGCSMain {
 
 		System.out.println(results.first());
 
-		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> aggregation = 
+		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> aggregation = 
 				results.reduceByKey(
-						new Function2<Tuple5<Integer,Double,Double,Double,Double>,
-						Tuple5<Integer,Double,Double,Double,Double>,
-						Tuple5<Integer,Double,Double,Double,Double>>()
+						new Function2<Tuple4<Integer,Double,Double,Double>,
+						Tuple4<Integer,Double,Double,Double>,
+						Tuple4<Integer,Double,Double,Double>>()
 						{
 							/**
 							 * 
@@ -84,16 +79,15 @@ public class FGCSMain {
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Tuple5<Integer, Double, Double, Double, Double> call(
-									Tuple5<Integer, Double, Double, Double, Double> off1,
-									Tuple5<Integer, Double, Double, Double, Double> off2) throws Exception {
+							public Tuple4<Integer, Double, Double, Double> call(
+									Tuple4<Integer, Double, Double, Double> off1,
+									Tuple4<Integer, Double, Double, Double> off2) throws Exception {
 								// TODO Auto-generated method stub
-								return new Tuple5<Integer, Double, Double, Double, Double>(
+								return new Tuple4<Integer, Double, Double, Double>(
 										off1._1() + off2._1(),
 										off1._2() + off2._2(),
 										off1._3() + off2._3(),
-										off1._4() + off2._4(),
-										off1._5() + off2._5()
+										off1._4() + off2._4()
 										);
 							}
 
@@ -102,30 +96,29 @@ public class FGCSMain {
 
 		//System.out.println(aggregation.first());
 
-		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> histogram = 
+		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> histogram = 
 				aggregation.mapToPair(
-						new PairFunction<Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>,
-						OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>()
+						new PairFunction<Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>,
+						WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>()
 						{
 
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> call(
-									Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> arg0)
+							public Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> call(
+									Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> arg0)
 											throws Exception {
-								Tuple5<Integer, Double, Double, Double, Double> val = arg0._2();
-								Tuple5<Integer, Double, Double, Double, Double> tNew 
-								= new Tuple5<Integer, Double, Double, Double, Double>
+								Tuple4<Integer, Double, Double, Double> val = arg0._2();
+								Tuple4<Integer, Double, Double, Double> tNew 
+								= new Tuple4<Integer, Double, Double, Double>
 								(
 										val._1(),
 										val._2()/val._1(),
 										val._3()/val._1(),
-										val._4()/val._1(),
-										val._5()/val._1()
-										);
+										val._4()/val._1()
+								);
 
-								return new Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>(arg0._1,tNew);
+								return new Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
 							}
 
 

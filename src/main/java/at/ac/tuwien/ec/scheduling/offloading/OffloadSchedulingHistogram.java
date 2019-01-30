@@ -1,10 +1,12 @@
-package at.ac.tuwien.ec.scheduling;
+package at.ac.tuwien.ec.scheduling.offloading;
 
 import java.util.HashMap;
 import java.util.List;
 
+import at.ac.tuwien.ec.scheduling.SchedulingHistogram;
 
-public class OffloadSchedulingHistogram extends HashMap<OffloadScheduling, OffloadSchedulingStatistics>{
+
+public class OffloadSchedulingHistogram extends SchedulingHistogram{
 
 	/**
 	 * 
@@ -47,7 +49,7 @@ public class OffloadSchedulingHistogram extends HashMap<OffloadScheduling, Offlo
 	public void update(OffloadScheduling d,double score){
 		if(super.containsKey(d))
 		{
-			OffloadSchedulingStatistics tmp = super.get(d);
+			OffloadSchedulingStatistics tmp = (OffloadSchedulingStatistics) super.get(d);
 			tmp.setFrequency(tmp.getFrequency() + 1.0);
 			tmp.addBattery(d.getBatteryLifetime());
 			tmp.addRuntime(d.getRunTime());
@@ -62,47 +64,47 @@ public class OffloadSchedulingHistogram extends HashMap<OffloadScheduling, Offlo
 	}
 	
 	public Double getScore(OffloadScheduling deployment){
-		return super.get(deployment).getScore();
+		return ((OffloadSchedulingStatistics) super.get(deployment)).getScore();
 	}
 
 	public double getAverageBattery(OffloadScheduling deployment) {
 		Double tmp = 0.0;
-		for(Double d : super.get(deployment).getBattery())
+		for(Double d : ((OffloadSchedulingStatistics) super.get(deployment)).getBattery())
 			tmp += d;
 		return (tmp.doubleValue() / super.get(deployment).getFrequency());
 	}
 
 	public double getAverageRuntime(OffloadScheduling deployment) {
 		Double tmp = 0.0;
-		for(Double d: super.get(deployment).getRuntime())
+		for(Double d: ((OffloadSchedulingStatistics) super.get(deployment)).getRuntime())
 			tmp += d;
 		return (tmp.doubleValue() / super.get(deployment).getFrequency());
 	}
 
 	public double getAverageCost(OffloadScheduling deployment) {
 		double tmp = 0;
-		for(Double d : super.get(deployment).getCost())
+		for(Double d : ((OffloadSchedulingStatistics) super.get(deployment)).getCost())
 			tmp += d;
 		return tmp / super.get(deployment).getFrequency();
 	}
 	
 	public double getAverageProviderCost(OffloadScheduling deployment) {
 		double tmp = 0.0;
-		for(Double d : super.get(deployment).getProviderCost())
+		for(Double d : ((OffloadSchedulingStatistics) super.get(deployment)).getProviderCost())
 			tmp += d;
 		return (tmp / super.get(deployment).getFrequency());
 	}
 	
 	public double[] getRuntimeConfidenceInterval(OffloadScheduling deployment, double confidenceLevel){
-		return super.get(deployment).getConfidenceInterval(super.get(deployment).getRuntime(), confidenceLevel);
+		return ((OffloadSchedulingStatistics) super.get(deployment)).getConfidenceInterval(((OffloadSchedulingStatistics) super.get(deployment)).getRuntime(), confidenceLevel);
 	}
 	
 	public double[] getCostConfidenceInterval(OffloadScheduling deployment, double confidenceLevel){
-		return super.get(deployment).getConfidenceInterval(super.get(deployment).getCost(), confidenceLevel);
+		return ((OffloadSchedulingStatistics) super.get(deployment)).getConfidenceInterval(((OffloadSchedulingStatistics) super.get(deployment)).getCost(), confidenceLevel);
 	}
 	
 	public double[] getBatteryConfidenceInterval(OffloadScheduling deployment, double confidenceLevel){
-		return super.get(deployment).getConfidenceInterval(super.get(deployment).getBattery(), confidenceLevel);
+		return ((OffloadSchedulingStatistics) super.get(deployment)).getConfidenceInterval(((OffloadSchedulingStatistics) super.get(deployment)).getBattery(), confidenceLevel);
 	}
 	
 }

@@ -9,9 +9,9 @@ import java.util.concurrent.Callable;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.Scheduling;
 
-public abstract class SimIteration implements Callable<ArrayList<OffloadScheduling>>{
+public abstract class SimIteration implements Callable<ArrayList<? extends Scheduling>>{
 
 	protected MobileApplication currentApp;
 	protected MobileCloudInfrastructure currentInfrastructure;
@@ -38,12 +38,12 @@ public abstract class SimIteration implements Callable<ArrayList<OffloadScheduli
 		this.algorithm = algorithm;
 	}
 
-	public ArrayList<OffloadScheduling> call()
+	public ArrayList<? extends Scheduling> call()
 	{
 		return findScheduling();
 	}
 	
-	public abstract ArrayList<OffloadScheduling> findScheduling();
+	public abstract ArrayList<? extends Scheduling> findScheduling();
     
 
 }

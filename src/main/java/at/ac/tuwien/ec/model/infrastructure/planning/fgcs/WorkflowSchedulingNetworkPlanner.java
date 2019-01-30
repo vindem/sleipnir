@@ -21,13 +21,27 @@ import scala.Tuple2;
  */
 
 public class WorkflowSchedulingNetworkPlanner {
-	
+
 	static double wifiAvailableProbability = SimulationSetup.wifiAvailableProbability;
-	
-	
+
+
 	public static void setupNetworkConnections(MobileCloudInfrastructure inf)
 	{
-		for(MobileDevice d: inf.getMobileDevices().values())
+
+
+		/* 
+		 * In the newer version, we want to enable qos profiles for upload and download.
+		 * For now, we use just one profile.
+		 * qosDL = (wifiAvailable)? new QoSProfile(asList(
+		 *	new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiHQBandwidth), 0.9),
+		 *	new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiLQBandwidth), 0.09),
+		 *	new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
+		 *	)) : new QoSProfile(asList(
+		 *			new Tuple2<QoS,Double>(new QoS(54.0, firstHop3GBandwidth), 0.9959),
+		 *			new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0041)));
+		 */
+
+		for(EdgeNode en0 : inf.getEdgeNodes().values())
 		{
 			/*
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
@@ -45,43 +59,62 @@ public class WorkflowSchedulingNetworkPlanner {
 					)) : new QoSProfile(asList(
 							new Tuple2<QoS,Double>(new QoS(54.0, firstHop3GBandwidth), 0.9957),
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
-			/* 
-			 * In the newer version, we want to enable qos profiles for upload and download.
-			 * For now, we use just one profile.
-			 * qosDL = (wifiAvailable)? new QoSProfile(asList(
-			 *	new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiHQBandwidth), 0.9),
-			 *	new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiLQBandwidth), 0.09),
-			 *	new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
-			 *	)) : new QoSProfile(asList(
-			 *			new Tuple2<QoS,Double>(new QoS(54.0, firstHop3GBandwidth), 0.9959),
-			 *			new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0041)));
-			 */
-			
-			for(EdgeNode en : inf.getEdgeNodes().values())
-				inf.addLink(d,en,qosUL);
-			
-			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
-			 * In this planner, there is a link between each mobile device and each Cloud node.
-			 */
+			for(EdgeNode en1 : inf.getEdgeNodes().values())
+				if(!en0.equals(en1)) 
+				{
+					inf.addLink(en0,en1,qosUL);
+					inf.addLink(en1,en0,qosUL);
+				}
+
+		}
+		/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
+		 * In this planner, there is a link between each mobile device and each Cloud node.
+		 */
+		for(CloudDataCenter cn0 : inf.getCloudNodes().values()) 
+		{
 			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-        	double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-        	double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
-        	double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
-			
-        	QoSProfile qosCloudUL;//,qosCloudDL
-        	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
+			double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
+			double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
+			QoSProfile qosCloudUL;//,qosCloudDL
+			qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
 					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, CloudWiFiHQBandwidth), 0.9),
 					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , CloudWiFiLQBandwidth), 0.09),
 					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					)) : new QoSProfile(asList(
 							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, Cloud3GBandwidth), 0.9957),
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
-        	
-			for(CloudDataCenter cn : inf.getCloudNodes().values())
-				inf.addLink(d, cn, qosCloudUL);
-			
-			
+
+			for(CloudDataCenter cn1 : inf.getCloudNodes().values())
+				if(!cn0.equals(cn1)) 
+				{
+				inf.addLink(cn0, cn1, qosCloudUL);
+				inf.addLink(cn1, cn0, qosCloudUL);
+				}
+		}
+		for(EdgeNode en : inf.getEdgeNodes().values()) 
+		{
+			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
+			double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
+			double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
+			QoSProfile qosCloudUL;//,qosCloudDL
+			qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, CloudWiFiHQBandwidth), 0.9),
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , CloudWiFiLQBandwidth), 0.09),
+					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
+					)) : new QoSProfile(asList(
+							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, Cloud3GBandwidth), 0.9957),
+							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
+			for(CloudDataCenter cn : inf.getCloudNodes().values()) 
+			{
+				inf.addLink(en, cn, qosCloudUL);
+				inf.addLink(cn, en, qosCloudUL);
+			}
 		}
 	}
-
 }
+
+
