@@ -22,7 +22,7 @@ public class WorkflowSchedulingCloudPlanner {
 				Timezone.DETROIT, Timezone.INDIANAPOLIS, Timezone.DUBLIN, Timezone.STGHISLAIN, Timezone.SINGAPORE, Timezone.KOREA				
 		};
 	static CPUEnergyModel defaultCPUEnergyModel = new AMDCPUEnergyModel();
-	static double[] cloudAvailability = {99.9999, 99.9999, 99.675, 99.6119, 99.999, 99.899};	
+	static double[] cloudAvailability = {0.999999, 0.999999, 0.99675, 0.996119, 0.99999, 0.99899};	
 	public static void setupCloudNodes(MobileCloudInfrastructure inf, int cloudNum) 
 	{
 		for(int i = 0; i < cloudNum; i++)

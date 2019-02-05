@@ -3,7 +3,9 @@ package at.ac.tuwien.ec.scheduling.workflow;
 import java.util.LinkedHashMap;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 
@@ -18,7 +20,7 @@ public class WorkflowScheduling extends Scheduling {
 	{
 		super();
 		runTime = 0.0;
-		reliability = 0.0;
+		reliability = 1.0;
 		userCost = 0.0;
 	}
 	
@@ -100,14 +102,23 @@ public class WorkflowScheduling extends Scheduling {
 
 	public void addReliability(MobileSoftwareComponent s, ComputationalNode n,
 			MobileCloudInfrastructure currentInfrastructure) {
-		// TODO Auto-generated method stub
+		double availability = 1.0;
+		if(n instanceof CloudDataCenter)
+			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
+		else if(n instanceof EdgeNode)
+			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
+		this.reliability = this.reliability * availability;
 		
 	}
 
 	public void removeReliability(MobileSoftwareComponent s, ComputationalNode n,
 			MobileCloudInfrastructure currentInfrastructure) {
-		// TODO Auto-generated method stub
-		
+		double availability = 1.0;
+		if(n instanceof CloudDataCenter)
+			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
+		else if(n instanceof EdgeNode)
+			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
+		this.reliability = this.reliability / availability;
 	}
 
 }

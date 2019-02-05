@@ -9,7 +9,9 @@ import org.apache.hadoop.net.NetworkTopologyWithNodeGroup;
 
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -65,12 +67,26 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 	
 
 	protected boolean isValid(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
+		CloudDataCenter c;
+		EdgeNode e;
+		boolean available;
 		if(s.getMillionsOfInstruction() == 0)
 			return true;
 		boolean compatible = n.isCompatible(s);
 		boolean reachable = checkReachability(deployment,s,n);
-		//boolean linksOk = checkLinks(deployment,s,n);
-		return compatible && reachable;
+		if(n instanceof CloudDataCenter) 
+		{
+			c = (CloudDataCenter) n;
+			available = c.isAvailableAt(0);
+		}
+		else if(n instanceof EdgeNode)
+		{
+			e = (EdgeNode) n;
+			available = e.isAvailableAt(0);
+		}
+		else 
+			available = true;
+		return compatible && reachable && available;
 						
 	}
 
@@ -87,7 +103,7 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 
 	protected synchronized void deploy(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		deployment.put(s, n);
-		if(!s.getId().equals("SOURCE") || !s.getId().equals("SINK"))
+		if(!s.getId().startsWith("SOURCE") || !s.getId().startsWith("SINK"))
 		{
 			deployment.addCost(s,n, currentInfrastructure);
 			deployment.addRuntime(s, s.getRunTime());
