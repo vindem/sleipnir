@@ -40,380 +40,450 @@ public class MontageWorkflow extends MobileApplication {
 
 	@Override
 	public void setupTasks() {
-		addComponent("ROOT"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("SOURCE"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,0
+        		,0
+        		,0
+        		);
+		//LEVEL 1
+		addComponent("retrieveImageList"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T0"+"_"+getWorkloadId()+","+getUserId(),
+		//FIRST BARRIER
+		addComponent("BARRIER0"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,0
+        		,0
+        		,0
+        		);
+		//LEVEL 2
+		addComponent("calculateOverlaps"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T1"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("downloadAndProject0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T2"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("downloadAndProject1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T3"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("downloadAndProject2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T4"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("downloadAndProject3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		//END OF FIRST LEVEL
-		addComponent("T5"+"_"+getWorkloadId()+","+getUserId(),
+		//SECOND BARRIER
+		addComponent("BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T6"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 3
+		addComponent("calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T7"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T8"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T9"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T10"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti4"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T11"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti5"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T12"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti6"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		//END OF SECOND LEVEL
-		addComponent("T13"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcDiffFitMulti7"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		//END OF THIRD LEVEL
-		addComponent("T14"+"_"+getWorkloadId()+","+getUserId(),
+		//THIRD BARRIER
+		addComponent("BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		//END OF FOURTH LEVEL
-		addComponent("T15"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 4
+		addComponent("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T16"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("calcTiles"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T17"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("bgCorrectionMulti0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T18"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("bgCorrectionMulti1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T19"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("bgCorrectionMulti2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		//END OF FIFTH LEVEL
-		addComponent("T20"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("bgCorrectionMulti3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T21"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("bgCorrectionMulti4"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T22"+"_"+getWorkloadId()+","+getUserId(),
+		//FOURTH BARRIER
+		addComponent("BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,0
+        		,0
+        		,0
+        		);
+		//LEVEL 5
+		addComponent("addAndShrink0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T23"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("addAndShrink1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
         		);
-		addComponent("T24"+"_"+getWorkloadId()+","+getUserId(),
+		addComponent("addAndShrink2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
 				,2.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,1e3*SimulationSetup.task_multiplier
+        		);
+		addComponent("addAndShrink3"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,2.0e3*SimulationSetup.task_multiplier
+        		,5e3*SimulationSetup.task_multiplier
+        		,1e3*SimulationSetup.task_multiplier
+        		);
+		addComponent("addTiles"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,2.0e3*SimulationSetup.task_multiplier
+        		,5e3*SimulationSetup.task_multiplier
+        		,1e3*SimulationSetup.task_multiplier
+        		);
+		addComponent("SINK"+"_"+getWorkloadId()+","+getUserId(),
+				new Hardware(1, 1, 1)
+				,this.getUserId()				
+				,0
+        		,0
+        		,0
         		);
 	}
 
 	@Override
 	public void setupLinks() {
-		addLink("ROOT"+"_"+getWorkloadId()+","+getUserId()
-		, "T0"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("SOURCE"+"_"+getWorkloadId()+","+getUserId()
+		, "retrieveImageList"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("ROOT"+"_"+getWorkloadId()+","+getUserId()
-		, "T1"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 1
+		addLink("retrieveImageList"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER0"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("ROOT"+"_"+getWorkloadId()+","+getUserId()
-		, "T2"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 2
+		addLink("BARRIER0"+"_"+getWorkloadId()+","+getUserId()
+		, "calculateOverlaps"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("ROOT"+"_"+getWorkloadId()+","+getUserId()
-		, "T3"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER0"+"_"+getWorkloadId()+","+getUserId()
+		, "downloadAndProject0"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("ROOT"+"_"+getWorkloadId()+","+getUserId()
-		, "T4"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER0"+"_"+getWorkloadId()+","+getUserId()
+		, "downloadAndProject1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINKS FROM T0
-		addLink("T0"+"_"+getWorkloadId()+","+getUserId()
-		, "T5"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER0"+"_"+getWorkloadId()+","+getUserId()
+		, "downloadAndProject2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T0"+"_"+getWorkloadId()+","+getUserId()
-		, "T5"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER0"+"_"+getWorkloadId()+","+getUserId()
+		, "downloadAndProject3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T0"+"_"+getWorkloadId()+","+getUserId()
-		, "T6"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calculateOverlaps"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T0"+"_"+getWorkloadId()+","+getUserId()
-		, "T8"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("downloadAndProject0"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T0"+"_"+getWorkloadId()+","+getUserId()
-		, "T16"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("downloadAndProject1"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINKS FROM T1
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T5"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("downloadAndProject2"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T6"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("downloadAndProject3"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T7"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 3
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T9"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T10"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T11"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T1"+"_"+getWorkloadId()+","+getUserId()
-		, "T17"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti4"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINKS FROM T2
-		addLink("T2"+"_"+getWorkloadId()+","+getUserId()
-		, "T8"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti5"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T2"+"_"+getWorkloadId()+","+getUserId()
-		, "T18"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti6"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T2"+"_"+getWorkloadId()+","+getUserId()
-		, "T11"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER1"+"_"+getWorkloadId()+","+getUserId()
+		, "calcDiffFitMulti7"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINK FROM T3
-		addLink("T3"+"_"+getWorkloadId()+","+getUserId()
-		, "T11"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T3"+"_"+getWorkloadId()+","+getUserId()
-		, "T19"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINKS FROM T4
-		addLink("T4"+"_"+getWorkloadId()+","+getUserId()
-		, "T12"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti1"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T4"+"_"+getWorkloadId()+","+getUserId()
-		, "T13"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti2"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T4"+"_"+getWorkloadId()+","+getUserId()
-		, "T20"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti3"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//LINKS OF THIRD LEVEL
-		addLink("T5"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti4"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T6"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti5"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T7"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti6"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T8"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcDiffFitMulti7"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T9"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 4
+		addLink("BARRIER2"+"_"+getWorkloadId()+","+getUserId()
+		, "calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T10"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER2"+"_"+getWorkloadId()+","+getUserId()
+		, "calcTiles"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T11"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId()
+		, "bgCorrectionMulti0"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T12"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId()
+		, "bgCorrectionMulti1"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T13"+"_"+getWorkloadId()+","+getUserId()
-		, "T14"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId()
+		, "bgCorrectionMulti2"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//fourth level
-		addLink("T14"+"_"+getWorkloadId()+","+getUserId()
-		, "T15"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId()
+		, "bgCorrectionMulti3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//fifth level
-		addLink("T15"+"_"+getWorkloadId()+","+getUserId()
-		, "T16"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId()
+		, "bgCorrectionMulti4"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T15"+"_"+getWorkloadId()+","+getUserId()
-		, "T17"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("calcTiles"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T15"+"_"+getWorkloadId()+","+getUserId()
-		, "T18"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("bgCorrectionMulti0"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T15"+"_"+getWorkloadId()+","+getUserId()
-		, "T19"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("bgCorrectionMulti1"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T15"+"_"+getWorkloadId()+","+getUserId()
-		, "T20"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("bgCorrectionMulti2"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		//tail
-		addLink("T18"+"_"+getWorkloadId()+","+getUserId()
-		, "T21"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("bgCorrectionMulti3"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T21"+"_"+getWorkloadId()+","+getUserId()
-		, "T22"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("bgCorrectionMulti4"+"_"+getWorkloadId()+","+getUserId()
+		, "BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T22"+"_"+getWorkloadId()+","+getUserId()
-		, "T23"+"_"+getWorkloadId()+","+getUserId(),
+		//LEVEL 5
+		addLink("BARRIER3"+"_"+getWorkloadId()+","+getUserId()
+		, "addAndShrink0"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
-		addLink("T23"+"_"+getWorkloadId()+","+getUserId()
-		, "T24"+"_"+getWorkloadId()+","+getUserId(),
+		addLink("BARRIER3"+"_"+getWorkloadId()+","+getUserId()
+		, "addAndShrink1"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("BARRIER3"+"_"+getWorkloadId()+","+getUserId()
+		, "addAndShrink2"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("BARRIER3"+"_"+getWorkloadId()+","+getUserId()
+		, "addAndShrink3"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("addAndShrink0"+"_"+getWorkloadId()+","+getUserId()
+		, "addTiles"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("addAndShrink1"+"_"+getWorkloadId()+","+getUserId()
+		, "addTiles"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("addAndShrink2"+"_"+getWorkloadId()+","+getUserId()
+		, "addTiles"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("addAndShrink3"+"_"+getWorkloadId()+","+getUserId()
+		, "addTiles"+"_"+getWorkloadId()+","+getUserId(),
+		sampleLatency(),
+		0.1);
+		addLink("addTiles"+"_"+getWorkloadId()+","+getUserId()
+		, "SINK"+"_"+getWorkloadId()+","+getUserId(),
 		sampleLatency(),
 		0.1);
 	}

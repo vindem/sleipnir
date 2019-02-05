@@ -12,9 +12,11 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingCloudPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingEdgePlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.fgcs.WorkflowSchedulingNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
+import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingCloudPlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingEdgePlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingTerminalsPlanner;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
 import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
@@ -47,6 +49,7 @@ public class FGCSMain {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
 				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
+				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
 				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
 				if(schedulings != null)
@@ -141,7 +144,8 @@ public class FGCSMain {
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
 			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
-			WorkflowSchedulingNetworkPlanner.setupNetworkConnections(inf);
+			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
+			WorkflowSchedulingNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
 			samples.add(singleSample);
 		}

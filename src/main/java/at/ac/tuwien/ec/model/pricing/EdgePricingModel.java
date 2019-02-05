@@ -26,25 +26,23 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	double minEdgeLatency = 10e6;
     	double minCloudLatency = 10e6;
     	
-    	for(NetworkConnection l : i.getOutgoingLinksFrom(i.getNodeById(sc.getUserId())))
+    	for(NetworkConnection l : i.getIncomingLinksTo(cn))
     	{
     		ComputationalNode n = l.getTarget();
     		if(i.getCloudNodes().containsValue(n) && l.getLatency() < minCloudLatency)
     			minCloudLatency = l.getLatency();
     		else if(i.getEdgeNodes().containsValue(n) && l.getLatency() < minEdgeLatency)
     			minEdgeLatency = l.getLatency();
-    		else 
-    			continue;
     	}
     	
     	for(CloudDataCenter c : i.getCloudNodes().values()){
-    		double tmp = sc.getRuntimeOnNode(c, i);
+    		double tmp = sc.getRuntimeOnNode(c, cn, i);
     		if(tmp < minCloudTime)
     			minCloudTime = tmp;
     	}
     	
     	for(EdgeNode f : i.getEdgeNodes().values()){
-    		double tmp = sc.getRuntimeOnNode(f, i);
+    		double tmp = sc.getRuntimeOnNode(f, cn, i);
     		if(tmp < minEdgeTime)
     			minEdgeTime = tmp;
     	}

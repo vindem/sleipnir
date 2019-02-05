@@ -30,11 +30,13 @@ import scala.Tuple2;
 
 public class HEFTWorkflowScheduler extends WorkflowScheduler {
 	
+	
 	public HEFTWorkflowScheduler(MobileApplication A, MobileCloudInfrastructure I) {
 		super();
 		setMobileApplication(A);
 		setInfrastructure(I);
 		setRank(this.currentApp,this.currentInfrastructure);
+		//to be changed
 	}
 	
 	public HEFTWorkflowScheduler(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
@@ -44,7 +46,7 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 		setRank(this.currentApp,this.currentInfrastructure);
 	}
 	
-	
+		
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
@@ -73,7 +75,7 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 			}
 			double tMin = Double.MAX_VALUE;
 			ComputationalNode pred = null,target = null;
-
+			
 			double maxP = 0.0;
 			for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
 				if(cmp.getRunTime()>maxP) 
@@ -81,15 +83,22 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 					maxP = cmp.getRunTime();
 					pred = scheduling.get(cmp);
 				}
-			for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-				if(maxP + currTask.getRuntimeOnNode(pred, cn,currentInfrastructure) < tMin &&
-						isValid(scheduling,currTask,cn))
-				{
-					tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
-					target = cn;
-					currTask.setRunTime(tMin);
-				}
-			
+			if(currTask.getId().startsWith("SOURCE_0") || currTask.getId().startsWith("SINK_0"))
+			{
+				target = this.entryNode;
+				tMin = maxP + currTask.getRuntimeOnNode(pred,target,currentInfrastructure);
+				currTask.setRunTime(tMin);
+			}
+			else 
+				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+					if(maxP + currTask.getRuntimeOnNode(pred, cn,currentInfrastructure) < tMin &&
+							isValid(scheduling,currTask,cn))
+					{
+						tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
+						target = cn;
+						currTask.setRunTime(tMin);
+					}
+
 			if(target != null)
 			{
 				deploy(scheduling,currTask,target);

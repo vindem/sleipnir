@@ -33,16 +33,24 @@ public class MobileCloudInfrastructure implements Serializable{
 	private HashMap<String, MobileDevice> mobileDevices;
 	private HashMap<String, EdgeNode> edgeNodes;
 	private HashMap<String, CloudDataCenter> cloudNodes;
+	private HashMap<String, EntryPoint> terminals;
 	private ConnectionMap connectionMap;
 	private PriceMap priceMap;
 	private static final long serialVersionUID = 1L;
 	
 	public MobileCloudInfrastructure()
 	{
+		terminals = new HashMap<String,EntryPoint>();
 		mobileDevices = new HashMap<String,MobileDevice>();
 		edgeNodes = new HashMap<String,EdgeNode>();
 		cloudNodes = new HashMap<String,CloudDataCenter>();
 		connectionMap = new ConnectionMap(NetworkConnection.class);
+	}
+	
+	public void addTerminal(EntryPoint terminal) throws IllegalArgumentException
+	{
+		terminals.put(terminal.getId(),terminal);
+		connectionMap.addVertex(terminal);
 	}
 	
 	public void addMobileDevice(MobileDevice device) throws IllegalArgumentException
@@ -103,8 +111,19 @@ public class MobileCloudInfrastructure implements Serializable{
 			return edgeNodes.get(id);
 		if(cloudNodes.containsKey(id))
 			return cloudNodes.get(id);
+		if(terminals.containsKey(id))
+			return terminals.get(id);
 		return null;
 				
+	}
+	
+	public HashMap<String,EntryPoint> getEntryPoints()
+	{
+		return terminals;
+	}
+	
+	public void setTerminals(HashMap<String,EntryPoint> terminals){
+		this.terminals = terminals;
 	}
 	
 	public HashMap<String, MobileDevice> getMobileDevices() {
@@ -193,8 +212,15 @@ public class MobileCloudInfrastructure implements Serializable{
 
 	public Set<NetworkConnection> getOutgoingLinksFrom(ComputationalNode cn) {
 		// TODO Auto-generated method stub
+		if(!connectionMap.containsVertex(cn))
+			System.err.println("cn.getId()");
 		return connectionMap.outgoingEdgesOf(cn);
 	}
 
-		
+	public Set<NetworkConnection> getIncomingLinksTo(ComputationalNode cn) {
+		// TODO Auto-generated method stub
+		if(!connectionMap.containsVertex(cn))
+			System.err.println("cn.getId()");
+		return connectionMap.incomingEdgesOf(cn);
+	}
 }

@@ -26,6 +26,11 @@ public class CloudDataCenter extends ComputationalNode{
 		this.availabilityModel = avModel;
 	}
 	
+	public void setAvailabilityModel(AvailabilityModel model)
+	{
+		this.availabilityModel = model;
+	}
+	
 	public double getAvailabilityAt(double runtime)
 	{
 		return availabilityModel.availabilityAt(runtime);

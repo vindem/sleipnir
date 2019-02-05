@@ -19,6 +19,11 @@ public class EdgeNode extends ComputationalNode {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public void setAvailabilityModel(AvailabilityModel model)
+	{
+		this.availabilityModel = model;
+	}
+	
 	public double getAvailabilityAt(double runtime)
 	{
 		return availabilityModel.availabilityAt(runtime);

@@ -23,7 +23,7 @@ import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
 
 public abstract class WorkflowScheduler extends SimIteration implements Serializable{
 	
-	
+	protected ComputationalNode entryNode;
 	
 	public WorkflowScheduler()
 	{
@@ -87,7 +87,7 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 
 	protected synchronized void deploy(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		deployment.put(s, n);
-		if(!s.getId().equalsIgnoreCase("root"))
+		if(!s.getId().equals("SOURCE") || !s.getId().equals("SINK"))
 		{
 			deployment.addCost(s,n, currentInfrastructure);
 			deployment.addRuntime(s, s.getRunTime());
@@ -109,6 +109,8 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 		// System.out.println("UNDEP"+deployment);
 	}
 
-	
+	public void setEntryNode(ComputationalNode node){
+		this.entryNode = node;
+	}
 
 }

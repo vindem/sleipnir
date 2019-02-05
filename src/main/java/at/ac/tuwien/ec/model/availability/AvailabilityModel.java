@@ -1,12 +1,14 @@
 package at.ac.tuwien.ec.model.availability;
 
+import java.io.Serializable;
+
 /**
  * 
  * @author vincenzo
  * This abstract class is used as reference implementation for availability models. All availability models MUST
  * implement this class.
  */
-public abstract class AvailabilityModel {
+public abstract class AvailabilityModel implements Serializable{
 	
 	protected double availabilityLevel;
 	

@@ -1,14 +1,18 @@
 package at.ac.tuwien.ec.model.infrastructure.planning.edge;
 
 import at.ac.tuwien.ec.model.Coordinates;
+import at.ac.tuwien.ec.model.availability.AvailabilityModel;
+import at.ac.tuwien.ec.model.availability.ConstantAvailabilityModel;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 
 public class EdgeAllCellPlanner extends EdgePlanner {
 	
+	static double[] availability = {0.9795, 0.9995, 0.9799, 0.9843, 0.9595, 0.99191};
 	
 	public static void setupEdgeNodes(MobileCloudInfrastructure inf) 
 	{
+		int k = 0;
 		for(int i = 0; i < MAP_M; i++)
 			for(int j = 0; j < MAP_N*2; j++)
 			{
@@ -19,9 +23,12 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 					edgeNodeCoordinates = new Coordinates(i,j);
 				if(edgeNodeCoordinates != null)
 				{
+					AvailabilityModel model = new ConstantAvailabilityModel(availability[k]);
+					k++;
 					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 					edge.setCoords(edgeNodeCoordinates);
 					edge.setCPUEnergyModel(defaultCPUEnergyModel);
+					edge.setAvailabilityModel(model);
 					inf.addEdgeNode(edge);
 				}
 			}

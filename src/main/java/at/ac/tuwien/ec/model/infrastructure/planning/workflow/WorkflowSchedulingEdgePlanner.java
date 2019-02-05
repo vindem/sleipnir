@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.fgcs;
+package at.ac.tuwien.ec.model.infrastructure.planning.workflow;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
@@ -7,11 +7,12 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.pricing.EdgePricingModel;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class WorkflowSchedulingEdgePlanner {
 
-	protected static int MAP_M = SimulationSetup.MAP_M;
-	protected static int MAP_N = SimulationSetup.MAP_N;
+	protected static int MAP_M = FGCSSetup.MAP_M;
+	protected static int MAP_N = FGCSSetup.MAP_N;
 	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities.clone();
 	protected static EdgePricingModel defaultEdgePricingModel = SimulationSetup.edgePricingModel;
 	protected static CPUEnergyModel defaultCPUEnergyModel = SimulationSetup.edgeCPUEnergyModel;
