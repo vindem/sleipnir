@@ -78,6 +78,10 @@ public class HardwareCapabilities implements Serializable{
 	{
 		return new HardwareCapabilities(capabilities.clone(),mipsPerCore);
 	}
+
+	public void setMipsPerCore(double mipsPerCore) {
+		this.mipsPerCore = mipsPerCore;
+	}
 	
 	
 }

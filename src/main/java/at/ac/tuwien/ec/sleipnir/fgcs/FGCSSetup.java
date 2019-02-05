@@ -24,7 +24,7 @@ public class FGCSSetup {
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;
 	public static double cloudStorage = 5000;
-	public static double cloudMipsPerCore = 6400000.0;
+	public static double cloudMipsPerCore = 100000.0;
 	public static int edgeCoreNum = 16;
 	public static double edgeRam = 128;
 	public static double edgeStorage = 1000;
