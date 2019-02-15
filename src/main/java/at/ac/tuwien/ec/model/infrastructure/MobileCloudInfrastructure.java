@@ -33,6 +33,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	private HashMap<String, MobileDevice> mobileDevices;
 	private HashMap<String, EdgeNode> edgeNodes;
 	private HashMap<String, CloudDataCenter> cloudNodes;
+	private HashMap<String, IoTDevice> iotDevices;
 	private ConnectionMap connectionMap;
 	private PriceMap priceMap;
 	private static final long serialVersionUID = 1L;

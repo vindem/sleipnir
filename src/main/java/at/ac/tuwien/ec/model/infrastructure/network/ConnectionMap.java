@@ -9,11 +9,12 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalNode, NetworkConnection> implements Serializable{
+public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode, NetworkConnection> implements Serializable{
 	
 	final int maxHops = SimulationSetup.cloudMaxHops;
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
@@ -24,11 +25,11 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void addNode(ComputationalNode node){
+	public void addNode(NetworkedNode node){
 		addVertex(node);
 	}
 	
-	public void addEdge(ComputationalNode v,ComputationalNode u,QoSProfile p)
+	public void addEdge(NetworkedNode v,NetworkedNode u,QoSProfile p)
 	{
 		NetworkConnection conn = new NetworkConnection(p);
 		addEdge(u,v,conn);		
@@ -36,7 +37,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	
 	
 	
-	public double getTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v) throws IllegalArgumentException
+	public double getTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{
 		if(u.equals(v))
 			return 0;
@@ -58,19 +59,19 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 
 	}
 	
-	public double getDesiredTransmissionTime(MobileSoftwareComponent cmp, ComputationalNode u, ComputationalNode v, ComponentLink link)
+	public double getDesiredTransmissionTime(MobileSoftwareComponent cmp, NetworkedNode u, NetworkedNode v, ComponentLink link)
 	{
 		QoSProfile profile = link.getDesiredQoS();
 		return getDesiredTransmissionTime(cmp, u,v, profile);
 	}
 	
-	public double getDesiredTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v, QoSProfile profile)
+	public double getDesiredTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile)
 	{
 		return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
-	private double computeDistance(ComputationalNode u, ComputationalNode v)
+	private double computeDistance(NetworkedNode u, NetworkedNode v)
 	{
 		Coordinates c1,c2;
 		if(u.equals(v))
