@@ -9,6 +9,10 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
  */
 public class ConstantAvailabilityModel extends AvailabilityModel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6131317981776181272L;
 	private UniformRealDistribution uniformDistribution = new UniformRealDistribution(0.0, 1.0);
 
 	/**

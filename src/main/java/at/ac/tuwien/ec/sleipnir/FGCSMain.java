@@ -15,12 +15,14 @@ import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingEdgePlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingFixedNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingTerminalsPlanner;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
 import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTWorkflowScheduler;
+import at.ac.tuwien.ec.scheduling.workflow.algorithms.SchedulingTester;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.WorkflowScheduler;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 import at.ac.tuwien.ec.workflow.MontageWorkflow;
@@ -48,7 +50,7 @@ public class FGCSMain {
 					throws Exception {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
-				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
+				WorkflowScheduler search = new SchedulingTester(inputValues);
 				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
 				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
@@ -145,7 +147,7 @@ public class FGCSMain {
 			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
 			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
 			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
-			WorkflowSchedulingNetworkPlanner.setupNetworkConnections(inf);			
+			WorkflowSchedulingFixedNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
 			samples.add(singleSample);
 		}

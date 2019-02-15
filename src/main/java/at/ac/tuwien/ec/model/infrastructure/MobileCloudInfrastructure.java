@@ -152,6 +152,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	
 	public double getTransmissionTime(MobileSoftwareComponent sc, ComputationalNode u, ComputationalNode v)
 	{
+		//return 0.0;
 		return connectionMap.getTransmissionTime(sc, u, v);
 	}
 	

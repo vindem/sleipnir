@@ -15,6 +15,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 import scala.Tuple2;
 
 /* In the default planner, there is a link between each mobile device and each computational node.
@@ -23,7 +24,7 @@ import scala.Tuple2;
 
 public class WorkflowSchedulingNetworkPlanner {
 
-	static double wifiAvailableProbability = SimulationSetup.wifiAvailableProbability;
+	static double wifiAvailableProbability = FGCSSetup.wifiAvailableProbability;
 
 
 	public static void setupNetworkConnections(MobileCloudInfrastructure inf)
@@ -58,8 +59,8 @@ public class WorkflowSchedulingNetworkPlanner {
 		for(EntryPoint ep : inf.getEntryPoints().values()) 
 		{
 			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-			double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-			double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
+			double CloudWiFiHQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
 			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosCloudUL;//,qosCloudDL
@@ -122,8 +123,10 @@ public class WorkflowSchedulingNetworkPlanner {
 		for(CloudDataCenter cn0 : inf.getCloudNodes().values()) 
 		{
 			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-			double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-			double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
+			//double CloudWiFiHQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			//double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			double CloudWiFiHQBandwidth = 1000.0;
+			double CloudWiFiLQBandwidth = 1000.0;
 			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosCloudUL;//,qosCloudDL
@@ -145,8 +148,10 @@ public class WorkflowSchedulingNetworkPlanner {
 		for(EdgeNode en : inf.getEdgeNodes().values()) 
 		{
 			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-			double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-			double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
+			//double CloudWiFiHQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			//double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			double CloudWiFiHQBandwidth = 1000.0;
+			double CloudWiFiLQBandwidth = 1000.0;
 			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosCloudUL;//,qosCloudDL

@@ -23,16 +23,20 @@ public class WorkflowSchedulingEdgePlanner {
 	public static void setupEdgeNodes(MobileCloudInfrastructure inf) 
 	{
 		int k = 0;
-		for(int i = 0; i < MAP_M; i++)
-			for(int j = 0; j < MAP_N*2; j++)
+		//for(int i = 0; i < MAP_M; i++)
+			//for(int j = 0; j < MAP_N*2; j++)
 			{
 				Coordinates edgeNodeCoordinates = null;
-				if(i % 2 == 0 && j%2 == 0)
-					edgeNodeCoordinates = new Coordinates(i,j);
-				else if(i%2==1 && j%2==1)
-					edgeNodeCoordinates = new Coordinates(i,j);
-				if(edgeNodeCoordinates != null)
+				//if(i % 2 == 0 && j%2 == 0)
+					//edgeNodeCoordinates = new Coordinates(i,j);
+				//else if(i%2==1 && j%2==1)
+					//edgeNodeCoordinates = new Coordinates(i,j);
+				//if(edgeNodeCoordinates != null)
+				//{
+				for(int i = 0; i < 6; i++) 
 				{
+					int j = i;
+					edgeNodeCoordinates = new Coordinates(i,j);
 					HardwareCapabilities nodeCapabilities = defaultHardwareCapabilities.clone();
 					nodeCapabilities.setMipsPerCore(edgeMips[k]);
 					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);

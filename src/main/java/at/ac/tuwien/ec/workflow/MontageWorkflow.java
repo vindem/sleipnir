@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.workflow;
 
+import org.apache.commons.math3.distribution.ConstantRealDistribution;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 
 import at.ac.tuwien.ec.model.Hardware;
@@ -12,10 +13,12 @@ public class MontageWorkflow extends MobileApplication {
 	 * 
 	 */
 	private static final long serialVersionUID = 739162783366447018L;
-	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(5e6);
-	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(6e6);
-	private static ExponentialDistribution miDistr = new ExponentialDistribution(2e4);
-	
+	//private static ExponentialDistribution inDataDistr = new ExponentialDistribution(500000);
+	//private static ExponentialDistribution outDataDistr = new ExponentialDistribution(600000);
+	//private static ExponentialDistribution miDistr = new ExponentialDistribution(20000);
+	private static ConstantRealDistribution inDataDistr = new ConstantRealDistribution(500000);
+	private static ConstantRealDistribution outDataDistr = new ConstantRealDistribution(500000);
+	private static ConstantRealDistribution miDistr = new ConstantRealDistribution(20000);
 	public MontageWorkflow()
 	{
 		super();
@@ -112,9 +115,9 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,0
+        		,0
+        		,0
         		);
 		//LEVEL 3
 		addComponent("calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId(),
@@ -177,9 +180,9 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,0
+        		,0
+        		,0
         		);
 		//LEVEL 4
 		addComponent("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId(),

@@ -12,10 +12,11 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalNode, NetworkConnection> implements Serializable{
 	
-	final int maxHops = SimulationSetup.cloudMaxHops;
+	final int maxHops = FGCSSetup.cloudMaxHops;
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
 	
@@ -72,7 +73,8 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	
 	private double computeDistance(ComputationalNode u, ComputationalNode v)
 	{
-		Coordinates c1,c2;
+		return 1.0;
+		/*Coordinates c1,c2;
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
@@ -83,7 +85,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		return (Math.abs(c1.getLatitude()-c2.getLatitude()) 
 				+ Math.max(0, 
 						(Math.abs(c1.getLatitude()-c2.getLatitude())
-								- Math.abs(c1.getLongitude()-c2.getLongitude()) )/2));
+								- Math.abs(c1.getLongitude()-c2.getLongitude()) )/2));*/
 	}
 	
 	private static final long serialVersionUID = 1L;

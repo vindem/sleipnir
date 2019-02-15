@@ -107,6 +107,9 @@ public class WorkflowScheduling extends Scheduling {
 			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
 		else if(n instanceof EdgeNode)
 			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
+		else
+			availability = 1.0;
+		//System.out.println(availability);
 		this.reliability = this.reliability * availability;
 		
 	}
@@ -118,6 +121,8 @@ public class WorkflowScheduling extends Scheduling {
 			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
 		else if(n instanceof EdgeNode)
 			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
+		else
+			availability = 1.0;
 		this.reliability = this.reliability / availability;
 	}
 
