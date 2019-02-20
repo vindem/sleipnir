@@ -76,9 +76,9 @@ public class HEFTResearch extends OffloadScheduler {
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
+				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 					scheduledNodes.add(currTask);
 				}
 				else
@@ -101,9 +101,9 @@ public class HEFTResearch extends OffloadScheduler {
 						tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
 						target = cn;
 					}
-				if(maxP + currTask.getRuntimeOnNode(currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure) < tMin
-						&& isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
+				if(maxP + currTask.getRuntimeOnNode((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure) < tMin
+						&& isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 			}
 			if(target != null)
 			{
@@ -140,7 +140,7 @@ public class HEFTResearch extends OffloadScheduler {
 			int numberOfNodes = I.getAllNodes().size() + 1;
 			for(ComputationalNode cn : I.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
-			w_cmp += msc.getLocalRuntimeOnNode(I.getNodeById(msc.getUserId()), I);
+			w_cmp += msc.getLocalRuntimeOnNode((ComputationalNode) I.getNodeById(msc.getUserId()), I);
 			w_cmp = w_cmp / numberOfNodes;
 			
 			if(dag.outgoingEdgesOf(msc).isEmpty())

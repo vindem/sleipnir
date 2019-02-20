@@ -8,5 +8,6 @@ public class IoTDevice extends NetworkedNode {
 		super(id, capabilities);
 		// TODO Auto-generated constructor stub
 	}
+		
 
 }

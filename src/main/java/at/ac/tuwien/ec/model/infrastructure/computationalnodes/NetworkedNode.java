@@ -10,6 +10,10 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public abstract class NetworkedNode implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8325571055039111575L;
 	protected String id;
 	protected Coordinates coords;
 	protected HardwareCapabilities capabilities;

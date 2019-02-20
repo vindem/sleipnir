@@ -100,9 +100,9 @@ public class HeftEchoResearch extends OffloadScheduler {
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
+				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 					scheduledNodes.add(currTask);
 				}
 				else
@@ -134,12 +134,12 @@ public class HeftEchoResearch extends OffloadScheduler {
 							maxBattery = tmpBattery;
 					}
 				
-				if(isValid(scheduling,currTask, currentInfrastructure.getNodeById(currTask.getUserId())))
+				if(isValid(scheduling,currTask, (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
-					double tmpRuntime = maxP + currTask.getRuntimeOnNode(currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
-					double tmpCost = currentInfrastructure.getNodeById(currTask.getUserId()).computeCost(currTask, currentInfrastructure);
+					double tmpRuntime = maxP + currTask.getRuntimeOnNode((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
+					double tmpCost = ((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())).computeCost(currTask, currentInfrastructure);
 					double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
+							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
 				
 					if(tmpRuntime < minRuntime)
 						minRuntime = tmpRuntime;
@@ -158,11 +158,11 @@ public class HeftEchoResearch extends OffloadScheduler {
 						minScore = tmpScore;
 						target = cn;
 					}
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())) 
-						&& (tmpScore = computeScore(currTask,currentInfrastructure.getNodeById(currTask.getUserId()),minRuntime,minCost,maxBattery)) < minScore )
+				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())) 
+						&& (tmpScore = computeScore(currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()),minRuntime,minCost,maxBattery)) < minScore )
 				{
 					minScore = tmpScore;
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 				}
 				
 			}
@@ -201,7 +201,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 			int numberOfNodes = I.getAllNodes().size() + 1;
 			for(ComputationalNode cn : I.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
-			w_cmp += msc.getLocalRuntimeOnNode(I.getNodeById(msc.getUserId()), I);
+			w_cmp += msc.getLocalRuntimeOnNode((ComputationalNode) I.getNodeById(msc.getUserId()), I);
 			w_cmp = w_cmp / numberOfNodes;
 			
 			if(dag.outgoingEdgesOf(msc).isEmpty())
