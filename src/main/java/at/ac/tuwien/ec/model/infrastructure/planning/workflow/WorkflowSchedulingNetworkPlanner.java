@@ -152,7 +152,8 @@ public class WorkflowSchedulingNetworkPlanner {
 			//double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
 			double CloudWiFiHQBandwidth = 1000.0;
 			double CloudWiFiLQBandwidth = 1000.0;
-			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			double cloudLatency = 300;
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosCloudUL;//,qosCloudDL
 			qosCloudUL = (wifiAvailable)? new QoSProfile(asList(

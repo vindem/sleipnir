@@ -34,7 +34,7 @@ public class FGCSSetup {
 	public static int mobileNum = 2;
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
-			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
+			new HardwareCapabilities(new Hardware(2,16,(int)16e10),0.0);
 	public static CPUEnergyModel defaultMobileDeviceCPUModel = new SamsungS2DualEnergyModel();
 	public static NETEnergyModel defaultMobileDeviceNETModel = new Mobile3GNETEnergyModel();
 	public static double wifiAvailableProbability = 1.0;
@@ -59,7 +59,7 @@ public class FGCSSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 1000;
+	public static int iterations = 1;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;

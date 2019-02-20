@@ -32,6 +32,8 @@ public class WorkflowSchedulingCloudPlanner {
 					defaultCloudPricindModel);
 			cdc.setCoords(defaultTimezones[i%defaultTimezones.length]);
 			cdc.setCPUEnergyModel(defaultCPUEnergyModel);
+			cdc.setBandwidth(1000.0);
+			cdc.setLatency(300.0);
 			AvailabilityModel model = new ConstantAvailabilityModel(cloudAvailability[i]);
 			cdc.setAvailabilityModel(model);
 			inf.addCloudDataCenter(cdc);

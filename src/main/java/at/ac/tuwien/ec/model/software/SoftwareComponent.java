@@ -14,7 +14,7 @@ public class SoftwareComponent implements Serializable{
 	private static final long serialVersionUID = 6333164666099570460L;
 	private String id;
 	private Hardware requirements;
-	private double millionsOfInstruction;
+	protected double millionsOfInstruction;
 	private String userId;
 	
 	public SoftwareComponent(String id, Hardware requirements,double millionsOfInstructions, String uid)

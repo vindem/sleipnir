@@ -27,6 +27,7 @@ public abstract class ComputationalNode implements Serializable{
 	protected CPUEnergyModel cpuEnergyModel;
 	protected NETEnergyModel netEnergyModel;
 	protected PricingModel priceModel;
+	protected double bandwidth, latency;
 		
 	public ComputationalNode(String id, HardwareCapabilities capabilities)
 	{
@@ -112,5 +113,21 @@ public abstract class ComputationalNode implements Serializable{
 	}
 	
 	public abstract void sampleNode();
+
+	public double getBandwidth() {
+		return bandwidth;
+	}
+
+	public void setBandwidth(double bandwidth) {
+		this.bandwidth = bandwidth;
+	}
+
+	public double getLatency() {
+		return latency;
+	}
+
+	public void setLatency(double latency) {
+		this.latency = latency;
+	}
 	
 }

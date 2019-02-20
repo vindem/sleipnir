@@ -59,7 +59,7 @@ public class WorkflowScheduling extends Scheduling {
     }
 
     public void addRuntime(MobileSoftwareComponent s, double runtime){
-    	s.setRunTime(runtime);
+    	//s.setRunTime(runtime);
     	if(this.runTime < runtime)
     		this.runTime = runtime;
     }

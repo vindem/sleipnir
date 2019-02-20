@@ -63,9 +63,9 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("retrieveImageList"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,0//miDistr.sample()
+        		,0//inDataDistr.sample()
+        		,0//outDataDistr.sample()
         		);
 		//FIRST BARRIER
 		addComponent("BARRIER0"+"_"+getWorkloadId()+","+getUserId(),

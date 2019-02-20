@@ -103,14 +103,14 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 
 	protected synchronized void deploy(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		deployment.put(s, n);
-		if(!s.getId().startsWith("SOURCE") || !s.getId().startsWith("SINK"))
-		{
+		//if(!s.getId().startsWith("SOURCE") || !s.getId().startsWith("SINK"))
+		//{
 			deployment.addCost(s,n, currentInfrastructure);
 			deployment.addRuntime(s, s.getRunTime());
 			deployment.addReliability(s,n,currentInfrastructure);
 			//System.out.println(deployment + " " + deployment.size());
 			n.deploy(s);
-		}
+		//}
 	}
 
 	protected void undeploy(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {

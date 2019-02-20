@@ -20,6 +20,8 @@ public class WorkflowSchedulingEdgePlanner {
 	protected static CPUEnergyModel defaultCPUEnergyModel = FGCSSetup.edgeCPUEnergyModel;
 	protected static double[] edgeMips = {15000, 10000, 12000, 16000, 13000, 8000};
 	protected static double[] edgeNodeAvail = {0.9795, 0.9995, 0.9799, 0.9843, 0.9595, 0.99191};
+	static double[] latencies = {15.0,54.0,15.0,15.0,54.0,15.0};
+	static double[] bws = {32.0,7.2,4.0,4.0,7.2,32.0};
 	public static void setupEdgeNodes(MobileCloudInfrastructure inf) 
 	{
 		int k = 0;
@@ -39,9 +41,11 @@ public class WorkflowSchedulingEdgePlanner {
 					edgeNodeCoordinates = new Coordinates(i,j);
 					HardwareCapabilities nodeCapabilities = defaultHardwareCapabilities.clone();
 					nodeCapabilities.setMipsPerCore(edgeMips[k]);
-					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
+					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", nodeCapabilities, defaultEdgePricingModel);
 					edge.setCoords(edgeNodeCoordinates);
 					edge.setCPUEnergyModel(defaultCPUEnergyModel);
+					edge.setBandwidth(bws[k]);
+					edge.setLatency(latencies[k]);
 					AvailabilityModel model = new ConstantAvailabilityModel(edgeNodeAvail[k]);
 					edge.setAvailabilityModel(model);
 					inf.addEdgeNode(edge);

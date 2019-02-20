@@ -19,6 +19,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	final int maxHops = FGCSSetup.cloudMaxHops;
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
+	//final double BYTES_PER_MEGABIT = 1e6;
 	
 	public ConnectionMap(Class<? extends NetworkConnection> edgeClass) {
 		super(edgeClass);
@@ -54,7 +55,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		
 		if(profile.getLatency()==Integer.MAX_VALUE)
 			return Double.MAX_VALUE;
-		
+		//System.out.println("("+u.getId()+","+v.getId()+")"+" latency: " + profile.getLatency() + " bandwidth: " + profile.getBandwidth() );
 		return getDesiredTransmissionTime(msc,u,v,profile);
 
 	}
@@ -67,8 +68,10 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	
 	public double getDesiredTransmissionTime(MobileSoftwareComponent msc, ComputationalNode u, ComputationalNode v, QoSProfile profile)
 	{
-		return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
-				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+		//return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+		return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
+				(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
 	}
 	
 	private double computeDistance(ComputationalNode u, ComputationalNode v)
