@@ -32,9 +32,13 @@ public class DataEntry extends MobileSoftwareComponent {
 		this.topic = topic;
 	}
 	
-	public double getTotalData()
+		
+	public double getTotalProcessingTime(IoTDevice dev, ComputationalNode node, MobileDevice mobile, MobileDataDistributionInfrastructure infrastructure)
 	{
-		return getInData() + getOutData();
+		double dataTransmissionTime = getDataTransmissionTimeOn(dev, node, infrastructure);
+		double processingTime = getProcessingTime(node);
+		double outDataTransmission = getProcessedDataTransmissionTime(node, mobile, infrastructure);
+		return dataTransmissionTime + processingTime + outDataTransmission;
 	}
 	
 	private double getDataTransmissionTimeOn(IoTDevice dev, ComputationalNode node, MobileDataDistributionInfrastructure infrastructure)
