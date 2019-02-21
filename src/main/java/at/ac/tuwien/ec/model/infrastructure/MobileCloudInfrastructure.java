@@ -30,12 +30,11 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
  */
 public class MobileCloudInfrastructure implements Serializable{
     
-	private HashMap<String, MobileDevice> mobileDevices;
-	private HashMap<String, EdgeNode> edgeNodes;
-	private HashMap<String, CloudDataCenter> cloudNodes;
-	private HashMap<String, IoTDevice> iotDevices;
-	private ConnectionMap connectionMap;
-	private PriceMap priceMap;
+	protected HashMap<String, MobileDevice> mobileDevices;
+	protected HashMap<String, EdgeNode> edgeNodes;
+	protected HashMap<String, CloudDataCenter> cloudNodes;
+	protected ConnectionMap connectionMap;
+	protected PriceMap priceMap;
 	private static final long serialVersionUID = 1L;
 	
 	public MobileCloudInfrastructure()
@@ -98,8 +97,6 @@ public class MobileCloudInfrastructure implements Serializable{
 	
 	public NetworkedNode getNodeById(String id)
 	{
-		if(iotDevices.containsKey(id))
-			return iotDevices.get(id);
 		if(mobileDevices.containsKey(id))
 			return mobileDevices.get(id);
 		if(edgeNodes.containsKey(id))

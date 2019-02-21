@@ -59,6 +59,50 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 
 	}
 	
+	public double getInDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
+	{
+		if(u.equals(v))
+			return 0;
+		if(!vertexSet().contains(u))
+			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
+		if(!vertexSet().contains(v))
+			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
+		NetworkConnection link = getEdge(u,v);
+		if(link == null)
+			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
+		QoSProfile profile = getEdge(u,v).qosProfile;
+		if(profile == null)
+			return Double.MAX_VALUE;
+		
+		if(profile.getLatency()==Integer.MAX_VALUE)
+			return Double.MAX_VALUE;
+		
+		return getInDataTransmissionTime(msc,u,v,profile);
+
+	}
+	
+	public double getOutDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
+	{
+		if(u.equals(v))
+			return 0;
+		if(!vertexSet().contains(u))
+			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
+		if(!vertexSet().contains(v))
+			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
+		NetworkConnection link = getEdge(u,v);
+		if(link == null)
+			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
+		QoSProfile profile = getEdge(u,v).qosProfile;
+		if(profile == null)
+			return Double.MAX_VALUE;
+		
+		if(profile.getLatency()==Integer.MAX_VALUE)
+			return Double.MAX_VALUE;
+		
+		return getOutDataTransmissionTime(msc,u,v,profile);
+
+	}
+	
 	public double getDesiredTransmissionTime(MobileSoftwareComponent cmp, NetworkedNode u, NetworkedNode v, ComponentLink link)
 	{
 		QoSProfile profile = link.getDesiredQoS();
@@ -69,6 +113,17 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 	{
 		return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+	}
+	
+	public double getInDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile){
+		return (((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+	}
+	
+	public double getOutDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile)
+	{
+		return ((msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
 	private double computeDistance(NetworkedNode u, NetworkedNode v)

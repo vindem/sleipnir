@@ -67,5 +67,7 @@ public class SimulationSetup {
 	public static double Eta = 1.0;
 	public static int appNumber = 25;
 	
+	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
+	
 
 }
