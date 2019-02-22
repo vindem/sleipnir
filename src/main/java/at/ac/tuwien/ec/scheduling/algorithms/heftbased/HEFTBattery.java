@@ -14,6 +14,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
+import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -69,7 +70,7 @@ public class HEFTBattery extends OffloadScheduler {
 				currentRuntime = firstTaskToTerminate.getRunTime();
 				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				//currentApp.removeTask(firstTaskToTerminate);
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double maxB = Double.MIN_VALUE;

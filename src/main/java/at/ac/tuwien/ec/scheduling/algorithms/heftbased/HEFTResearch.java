@@ -69,7 +69,7 @@ public class HEFTResearch extends OffloadScheduler {
 				currentRuntime = firstTaskToTerminate.getRunTime();
 				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				//currentApp.removeTask(firstTaskToTerminate);
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double tMin = Double.MAX_VALUE;

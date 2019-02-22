@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.hadoop.net.NetworkTopologyWithNodeGroup;
 
 import at.ac.tuwien.ec.model.QoSProfile;
+import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
@@ -16,6 +17,7 @@ import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 
@@ -29,7 +31,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 
 	}
 
-	public abstract ArrayList<OffloadScheduling> findScheduling();
+	public abstract ArrayList<? extends Scheduling> findScheduling();
 
 	private boolean isOffloadPossibleOn(MobileSoftwareComponent s, ComputationalNode n){
 		if(s.getUserId().equals(n.getId()))
@@ -41,13 +43,13 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	}
 
 	private boolean checkLinks(OffloadScheduling deployment, MobileSoftwareComponent s, NetworkedNode n) {
-		for (MobileSoftwareComponent c : deployment.keySet()) {
+		for (SoftwareComponent c : deployment.keySet()) {
 			if(!c.getUserId().equals(s.getUserId()))
 				continue;
 			
-			if(currentApp.hasDependency(c,s))
+			if(currentApp.hasDependency((MobileSoftwareComponent) c,s))
 			{
-				ComponentLink link = currentApp.getDependency(c,s);
+				ComponentLink link = currentApp.getDependency((MobileSoftwareComponent) c,s);
 				if(link==null)
 					return false;
 				QoSProfile requirements = link.getDesiredQoS();

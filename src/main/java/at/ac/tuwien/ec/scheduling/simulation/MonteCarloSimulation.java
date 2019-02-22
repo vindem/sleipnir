@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import org.uma.jmetal.util.JMetalLogger;
 
+import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -61,7 +62,7 @@ public class MonteCarloSimulation{
 
     	for(String algorithm : histograms.keySet()){
     		ArrayList<OffloadScheduling> depList = new ArrayList<OffloadScheduling>();
-    		List<Future<ArrayList<OffloadScheduling>>> futures = new LinkedList<Future<ArrayList<OffloadScheduling>>>();
+    		List<Future<ArrayList<? extends Scheduling>>> futures = new LinkedList<Future<ArrayList<? extends Scheduling>>>();
     		/*
     		 * long wExtractStart = System.currentTimeMillis();
     		 * MobileApplication A = extractWorkload(muWorkload);

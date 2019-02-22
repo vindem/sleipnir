@@ -14,6 +14,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.math3.ode.ODEIntegrator;
 
+import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -25,9 +26,9 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 /**
  *
- * @author stefano
+ * @author Vincenzo
  */
-public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, ComputationalNode>{
+public class OffloadScheduling extends Scheduling{
     /**
 	 * 
 	 */
@@ -48,43 +49,6 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
         super(deployment);
     }
       
-    
-    @Override
-    public String toString(){
-        String result ="";
-
-        for (MobileSoftwareComponent s : super.keySet()){
-            result+="["+s.getId()+"->" +super.get(s).getId()+"]" ;
-        }
-        
-        return result;   
-    }
-    
-    @Override
-    public boolean equals(Object o){
-        boolean result = true;
-        OffloadScheduling d = (OffloadScheduling) o;
-        result = this.hashCode() == d.hashCode();
-        /*for (SoftwareComponent s : this.keySet()){
-            if (!this.get(s).equals(d.get(s))){
-                result = false;
-                break;
-            }
-        }*/
-        return result;
-    }
-
-    @Override
-    public int hashCode() {
-        if(this.hashCode == Integer.MIN_VALUE)
-        {
-        	int hash = 7;
-        	String s = this.toString();
-        	this.hashCode = 47 * hash + s.hashCode();
-        }
-        return this.hashCode;
-    }
-
     public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	double tmp = s.getRuntimeOnNode(n, I);
     	s.setRunTime(tmp);
@@ -93,7 +57,7 @@ public class OffloadScheduling extends LinkedHashMap<MobileSoftwareComponent, Co
     }
     
     public void removeRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	this.runTime -= s.getRuntimeOnNode(super.get(s), I);
+    	this.runTime -= s.getRuntimeOnNode((ComputationalNode) super.get(s), I);
     }
     
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
