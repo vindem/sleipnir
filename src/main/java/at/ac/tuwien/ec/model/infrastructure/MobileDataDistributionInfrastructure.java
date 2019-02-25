@@ -3,7 +3,7 @@ package at.ac.tuwien.ec.model.infrastructure;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import at.ac.tuwien.ac.data.DataEntry;
+import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;

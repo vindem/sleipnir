@@ -26,6 +26,11 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8003193379895494196L;
+
 	public OffloadScheduler()
 	{
 

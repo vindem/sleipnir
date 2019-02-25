@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.data;
+package at.ac.tuwien.ac.datamodel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
