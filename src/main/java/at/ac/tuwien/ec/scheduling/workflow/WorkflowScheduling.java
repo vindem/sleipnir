@@ -103,10 +103,16 @@ public class WorkflowScheduling extends Scheduling {
 	public void addReliability(MobileSoftwareComponent s, ComputationalNode n,
 			MobileCloudInfrastructure currentInfrastructure) {
 		double availability = 1.0;
-		if(n instanceof CloudDataCenter)
+		if(n instanceof CloudDataCenter) 
+		{
 			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
+			//System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
+		}
 		else if(n instanceof EdgeNode)
+		{
 			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
+			//System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
+		}
 		else
 			availability = 1.0;
 		//System.out.println(availability);
