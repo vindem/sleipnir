@@ -35,6 +35,14 @@ public class DataPlacement extends Scheduling {
 		double entryLatency = entry.getTotalProcessingTime(dev, n, mobile, inf);
 		averageLatency -= entryLatency / dataEntries;
 	}
+
+	public double getAverageLatency() {
+		return averageLatency;
+	}
+
+	public void setAverageLatency(double averageLatency) {
+		this.averageLatency = averageLatency;
+	}
 	
 	
 
