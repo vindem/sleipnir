@@ -106,12 +106,12 @@ public class WorkflowScheduling extends Scheduling {
 		if(n instanceof CloudDataCenter) 
 		{
 			availability = ((CloudDataCenter)n).getAvailabilityAt(0.0);
-			//System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
+			System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
 		}
 		else if(n instanceof EdgeNode)
 		{
 			availability = ((EdgeNode)n).getAvailabilityAt(0.0);
-			//System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
+			System.out.println(s.getId() + "\t" + n.getId() + "\t" + availability);
 		}
 		else
 			availability = 1.0;

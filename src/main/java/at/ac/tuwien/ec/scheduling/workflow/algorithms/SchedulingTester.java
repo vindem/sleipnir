@@ -22,7 +22,8 @@ public class SchedulingTester extends WorkflowScheduler {
 	//static int[] mapping = {6,6,1,2,4,1,7,10,7,3,10,3,7,7,4,4,1,3,6,1,3,2,5,5,5,5,2};
 	//static int[] mapping = {1,2,5,6,2,4,6,4,1,3,5,7,7,5,1,2,6,6,3,5,4,4,2,1,3,3};
 	//static int[] mapping = {2,3,6,1,6,2,5,6,5,2,3,5,3,1,8,8,8,1,2,8,4,3,1,4,5,6};
-	static int[] mapping = {4,3,5,3,2,1,6,6,3,1,3,2,4,1,10,4,10,1,5,5,2,5,6,2,6,4};
+	//static int[] mapping = {4,3,5,3,2,1,6,6,3,1,3,2,4,1,10,4,10,1,5,5,2,5,6,2,6,4};
+	static int[] mapping = {3,6,4,6,5,1,5,2,7,1,4,1,7,2,3,3,6,6,4,4,3,1,5,2,5,2};
 	public SchedulingTester(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
 		super();
 		setMobileApplication(t._1());
@@ -100,7 +101,7 @@ public class SchedulingTester extends WorkflowScheduler {
 				currRuntime += curr.getRuntimeOnNode(pred, target, currentInfrastructure);
 			}
 			curr.setRunTime(currRuntime);
-			System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
+			//System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
 			deploy(scheduling,curr,target);
 		}
 		schedulings.add(scheduling);
