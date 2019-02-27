@@ -18,7 +18,9 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 	 * 
 	 */
 	private static final long serialVersionUID = 4568099240968031102L;
-
+	protected ArrayList<DataEntry> dataEntries;
+	
+	
 	public DataPlacementAlgorithm() 
 	{
 		super();		
