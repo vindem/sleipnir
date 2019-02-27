@@ -21,7 +21,7 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 
 	public DataPlacementAlgorithm() 
 	{
-		
+		super();		
 	}
 	
 	@Override

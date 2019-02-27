@@ -10,6 +10,10 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 
 public class MobileDataDistributionInfrastructure extends MobileCloudInfrastructure {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1870819700911396938L;
 	private HashMap<String, IoTDevice> iotDevices;
 	private HashMap<String, ArrayList<MobileDevice>> registry;
 	
@@ -52,14 +56,18 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		}
 	}
 
-	public double getOutDataTransmissionTime(DataEntry dataEntry, ComputationalNode node, MobileDevice mobile) {
-		// TODO Auto-generated method stub
-		return 0;
+	public double computeDataEntryLatency(DataEntry de, ComputationalNode target, MobileDevice mDev)
+	{
+		IoTDevice dev = iotDevices.get(de.getIotDeviceId());
+		return de.getTotalProcessingTime(dev, target, mDev, this);
 	}
 
 	public double getInDataTransmissionTime(DataEntry dataEntry, IoTDevice dev, ComputationalNode node) {
-		// TODO Auto-generated method stub
-		return 0;
+		return connectionMap.getInDataTransmissionTime(dataEntry, dev, node);
+	}
+
+	public double getOutDataTransmissionTime(DataEntry dataEntry, ComputationalNode node, MobileDevice mobile) {
+		return connectionMap.getOutDataTransmissionTime(dataEntry, node, mobile);
 	}
 	
 }

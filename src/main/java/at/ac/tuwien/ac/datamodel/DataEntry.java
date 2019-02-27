@@ -11,11 +11,12 @@ public class DataEntry extends MobileSoftwareComponent {
 
 	private String topic, iotDeviceId;
 	
-	public DataEntry(String id, Hardware requirements, double millionsOfInstructions, String targetNode, double inData,
+	public DataEntry(String id, Hardware requirements, double millionsOfInstructions, String iotNode, double inData,
 			double outData, String topic)
 	{
-		super(id, requirements, millionsOfInstructions, targetNode, inData, outData, false);
+		super(id, requirements, millionsOfInstructions, iotNode, inData, outData, false);
 		setTopic(topic);
+		setIotDeviceId(iotNode);
 	}
 	
 	private DataEntry(String id, Hardware requirements, double millionsOfInstructions, String uid, double inData,
@@ -60,6 +61,14 @@ public class DataEntry extends MobileSoftwareComponent {
 	 * 
 	 */
 	private static final long serialVersionUID = -1297937242964874317L;
+
+	public String getIotDeviceId() {
+		return iotDeviceId;
+	}
+
+	public void setIotDeviceId(String iotDeviceId) {
+		this.iotDeviceId = iotDeviceId;
+	}
 
 	
 
