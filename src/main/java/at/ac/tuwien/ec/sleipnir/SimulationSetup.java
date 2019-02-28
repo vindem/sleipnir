@@ -35,6 +35,8 @@ public class SimulationSetup {
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
+	public static HardwareCapabilities defaultIoTDeviceHardwareCapabilities = 
+			new HardwareCapabilities(new Hardware(1,1,1),0);
 	public static CPUEnergyModel defaultMobileDeviceCPUModel = new SamsungS2DualEnergyModel();
 	public static NETEnergyModel defaultMobileDeviceNETModel = new Mobile3GNETEnergyModel();
 	public static double wifiAvailableProbability;
@@ -71,6 +73,7 @@ public class SimulationSetup {
 	public static int iotDevicesNum = 8;
 	
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
+	public static int dataEntryNum = 10;
 	
 
 }

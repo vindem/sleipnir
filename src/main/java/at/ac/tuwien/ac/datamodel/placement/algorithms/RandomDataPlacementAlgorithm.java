@@ -13,6 +13,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import scala.Tuple2;
 
 public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 
@@ -25,6 +26,12 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 	{
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;
+	}
+	
+	public RandomDataPlacementAlgorithm(Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	{
+		setInfrastructure(arg._2);
+		this.dataEntries = arg._1;
 	}
 	
 	@Override
@@ -43,10 +50,11 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 				{
 					ComputationalNode target = findTarget(inf);
 					double entryLatency = inf.computeDataEntryLatency(d, target, mDev);
-					dp.addEntryLatency(d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev, inf);
+					deploy(dp, d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev);
 				}
 			}
 		}
+		dataPlacements.add(dp);
 		return dataPlacements;
 	}
 
@@ -57,13 +65,13 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 		ComputationalNode target;
 		if(cloud)
 		{
-			nodeChooser = new UniformIntegerDistribution(0,inf.getCloudNodes().size());
+			nodeChooser = new UniformIntegerDistribution(0,inf.getCloudNodes().size()-1);
 			int idx = nodeChooser.sample();
 			target = (ComputationalNode) inf.getCloudNodes().values().toArray()[idx];
 		}
 		else
 		{
-			nodeChooser = new UniformIntegerDistribution(0,inf.getEdgeNodes().size());
+			nodeChooser = new UniformIntegerDistribution(0,inf.getEdgeNodes().size()-1);
 			int idx = nodeChooser.sample();
 			target = (ComputationalNode) inf.getEdgeNodes().values().toArray()[idx];
 		}

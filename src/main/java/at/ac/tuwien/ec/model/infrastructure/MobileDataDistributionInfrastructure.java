@@ -7,6 +7,7 @@ import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 
 public class MobileDataDistributionInfrastructure extends MobileCloudInfrastructure {
 	
@@ -68,6 +69,13 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 
 	public double getOutDataTransmissionTime(DataEntry dataEntry, ComputationalNode node, MobileDevice mobile) {
 		return connectionMap.getOutDataTransmissionTime(dataEntry, node, mobile);
+	}
+	
+	public NetworkedNode getNodeById(String id)
+	{
+		if(iotDevices.containsKey(id))
+			return iotDevices.get(id);
+		return super.getNodeById(id);				
 	}
 	
 }

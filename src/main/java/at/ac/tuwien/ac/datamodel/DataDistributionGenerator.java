@@ -37,7 +37,8 @@ public class DataDistributionGenerator implements Serializable{
 
 	private void generateData() {
 		for(int i = 0; i < entryNum; i++)
-			generatedData.add(new DataEntry("entry"+i,
+			generatedData.add(
+					new DataEntry("entry"+i,
 					new Hardware(1, 1, 1),
 					miDistr.sample(),
 					"iot"+(i%SimulationSetup.iotDevicesNum),
