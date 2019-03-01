@@ -79,7 +79,7 @@ public class SchedulingTester extends WorkflowScheduler {
 			{
 				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(curr))
 				{
-					if(cmp.getRunTime() > maxPredecessorRuntime) 
+					if(cmp.getRunTime() >= maxPredecessorRuntime) 
 					{
 						maxPredecessorRuntime = cmp.getRunTime() ;
 						target = scheduling.get(cmp);
@@ -102,7 +102,7 @@ public class SchedulingTester extends WorkflowScheduler {
 				for(MobileSoftwareComponent cmp : preds) 
 				{
 					double tmp = cmp.getRunTime();
-					if(tmp > currRuntime) 
+					if(tmp >= currRuntime) 
 					{ 
 						currRuntime = tmp;
 						pred = scheduling.get(cmp); 
@@ -113,7 +113,7 @@ public class SchedulingTester extends WorkflowScheduler {
 				
 			}
 			curr.setRunTime(currRuntime);
-			System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
+			//System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
 			deploy(scheduling,curr,target);
 		}
 		schedulings.add(scheduling);
