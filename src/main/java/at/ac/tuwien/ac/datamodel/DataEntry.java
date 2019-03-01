@@ -7,7 +7,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
-public class DataEntry extends MobileSoftwareComponent {
+public class DataEntry extends MobileSoftwareComponent implements Cloneable {
 
 	private String topic, iotDeviceId;
 	
@@ -70,6 +70,9 @@ public class DataEntry extends MobileSoftwareComponent {
 		this.iotDeviceId = iotDeviceId;
 	}
 
-	
+	public DataEntry clone() throws CloneNotSupportedException
+	{
+		return (DataEntry) super.clone();
+	}
 
 }

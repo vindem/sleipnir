@@ -36,6 +36,22 @@ public class DataDistributionGenerator implements Serializable{
 	}
 
 	private void generateData() {
+		double mi, inD, outD;
+		do
+		{
+			mi = miDistr.sample();
+		}
+		while( mi <= 0);
+		do
+		{
+			inD = miDistr.sample();
+		}
+		while( inD <= 0);
+		do
+		{
+			outD = miDistr.sample();
+		}
+		while( outD <= 0);
 		for(int i = 0; i < entryNum; i++)
 			generatedData.add(
 					new DataEntry("entry"+i,

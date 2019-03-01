@@ -26,6 +26,23 @@ public class DefaultNetworkPlanner {
 	
 	static double wifiAvailableProbability = SimulationSetup.wifiAvailableProbability;
 	
+	private static double exponentialGeneration(double lambda)
+	{
+		double value;
+		do
+			value = new ExponentialDistribution(lambda).sample();
+		while(value <= 0);
+		return value;
+	}
+	
+	private static double normalGeneration()
+	{
+		double value;
+		do
+			value = new NormalDistribution(200.0,33.5).sample();
+		while(value <= 0);
+		return value;
+	}
 	
 	public static void setupNetworkConnections(MobileDataDistributionInfrastructure inf)
 	{
@@ -35,9 +52,9 @@ public class DefaultNetworkPlanner {
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
 			 * In this planner, there is a link between each mobile device and each edge node.
 			 */
-			double firstHop3GBandwidth = (new ExponentialDistribution(7.2)).sample();
-			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(32.0)).sample(); 
-			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(4.0)).sample();
+			double firstHop3GBandwidth = exponentialGeneration(7.2);
+			double firstHopWiFiHQBandwidth = exponentialGeneration(32.0); 
+			double firstHopWiFiLQBandwidth = exponentialGeneration(4.0);
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosUL;//,qosDL;
 			qosUL = (wifiAvailable)? new QoSProfile(asList(
@@ -65,10 +82,10 @@ public class DefaultNetworkPlanner {
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
 			 */
-			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-        	double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-        	double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
-        	double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			double Cloud3GBandwidth = exponentialGeneration(3.6);
+        	double CloudWiFiHQBandwidth = exponentialGeneration(16.0);
+        	double CloudWiFiLQBandwidth = exponentialGeneration(2.0);
+        	double cloudLatency = normalGeneration();
 			
         	QoSProfile qosCloudUL;//,qosCloudDL
         	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
@@ -93,9 +110,9 @@ public class DefaultNetworkPlanner {
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
 			 * In this planner, there is a link between each mobile device and each edge node.
 			 */
-			double firstHop3GBandwidth = (new ExponentialDistribution(7.2)).sample();
-			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(32.0)).sample(); 
-			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(4.0)).sample();
+			double firstHop3GBandwidth = exponentialGeneration(7.2);
+			double firstHopWiFiHQBandwidth = exponentialGeneration(32.0); 
+			double firstHopWiFiLQBandwidth = exponentialGeneration(4.0);
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosUL;//,qosDL;
 			qosUL = (wifiAvailable)? new QoSProfile(asList(
@@ -123,10 +140,10 @@ public class DefaultNetworkPlanner {
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
 			 */
-			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-        	double CloudWiFiHQBandwidth = (new ExponentialDistribution(16.0)).sample();
-        	double CloudWiFiLQBandwidth = (new ExponentialDistribution(2.0)).sample();
-        	double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			double Cloud3GBandwidth = exponentialGeneration(3.6);
+        	double CloudWiFiHQBandwidth = exponentialGeneration(16.0);
+        	double CloudWiFiLQBandwidth = exponentialGeneration(2.0);
+        	double cloudLatency = normalGeneration();
 			
         	QoSProfile qosCloudUL;//,qosCloudDL
         	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
@@ -139,10 +156,7 @@ public class DefaultNetworkPlanner {
         	
 			for(CloudDataCenter cn : inf.getCloudNodes().values())
 				inf.addLink(iot, cn, qosCloudUL);
-			
-			
-			
-			
+		
 		}
 	}
 

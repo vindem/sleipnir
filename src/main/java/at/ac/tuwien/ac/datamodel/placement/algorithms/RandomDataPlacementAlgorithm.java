@@ -49,7 +49,6 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 				for(MobileDevice mDev : devs)
 				{
 					ComputationalNode target = findTarget(inf);
-					double entryLatency = inf.computeDataEntryLatency(d, target, mDev);
 					deploy(dp, d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev);
 				}
 			}

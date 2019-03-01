@@ -33,7 +33,7 @@ public class Scheduling extends LinkedHashMap<SoftwareComponent, NetworkedNode> 
 	    @Override
 	    public boolean equals(Object o){
 	        boolean result = true;
-	        OffloadScheduling d = (OffloadScheduling) o;
+	        Scheduling d = (Scheduling) o;
 	        result = this.hashCode() == d.hashCode();
 	        /*for (SoftwareComponent s : this.keySet()){
 	            if (!this.get(s).equals(d.get(s))){
