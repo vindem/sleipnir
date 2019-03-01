@@ -18,12 +18,9 @@ import scala.Tuple2;
 
 public class SchedulingTester extends WorkflowScheduler {
 	
-	//static int[] mapping = {3,5,6,5,1,1,2,8,6,8,8,5,8,4,6,3,1,3,4,2,6,4,4,3,1,5,2};
-	//static int[] mapping = {6,6,1,2,4,1,7,10,7,3,10,3,7,7,4,4,1,3,6,1,3,2,5,5,5,5,2};
-	//static int[] mapping = {1,2,5,6,2,4,6,4,1,3,5,7,7,5,1,2,6,6,3,5,4,4,2,1,3,3};
-	//static int[] mapping = {2,3,6,1,6,2,5,6,5,2,3,5,3,1,8,8,8,1,2,8,4,3,1,4,5,6};
-	//static int[] mapping = {4,3,5,3,2,1,6,6,3,1,3,2,4,1,10,4,10,1,5,5,2,5,6,2,6,4};
-	static int[] mapping = {3,6,4,6,5,1,5,2,7,1,4,1,7,2,3,3,6,6,4,4,3,1,5,2,5,2};
+	
+	//static int[] mapping = {3,6,4,6,5,1,5,2,7,1,4,1,7,2,3,3,6,6,4,4,3,1,5,2,5,2};
+	static int[] mapping = {6,3,6,6,5,3,1,1,2,4,7,4,6,10,5,3,5,1,2,4,2,5,1,4,2,3};
 	public SchedulingTester(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
 		super();
 		setMobileApplication(t._1());
@@ -65,16 +62,30 @@ public class SchedulingTester extends WorkflowScheduler {
 			double currRuntime = 0.0;
 			double maxPredecessorRuntime = 0.0;
 			ComputationalNode target, pred = currentInfrastructure.getNodeById("entry0");
-
-			if(curr.getId().contains("BARRIER") || curr.getId().contains("SOURCE") || curr.getId().contains("SINK"))
+			target = currentInfrastructure.getNodeById("entry0");
+			if(curr.getId().contains("SOURCE") || curr.getId().contains("SINK"))
 			{
-				target = currentInfrastructure.getNodeById("entry0");
+				
 				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(curr))
 				{
-					if(cmp.getRunTime() > maxPredecessorRuntime)
+					if(cmp.getRunTime() > maxPredecessorRuntime) 
+					{
 						maxPredecessorRuntime = cmp.getRunTime() ;
+					}
 				}
 				currRuntime = maxPredecessorRuntime; 
+			}
+			else if(curr.getId().contains("BARRIER"))
+			{
+				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(curr))
+				{
+					if(cmp.getRunTime() > maxPredecessorRuntime) 
+					{
+						maxPredecessorRuntime = cmp.getRunTime() ;
+						target = scheduling.get(cmp);
+					}
+				}
+				currRuntime = maxPredecessorRuntime;
 			}
 			else
 			{
@@ -94,14 +105,15 @@ public class SchedulingTester extends WorkflowScheduler {
 					if(tmp > currRuntime) 
 					{ 
 						currRuntime = tmp;
-						pred = scheduling.get(cmp);
+						pred = scheduling.get(cmp); 
 					}
 				}
 				//System.out.println(pred.getId()+ "," + target.getId());
 				currRuntime += curr.getRuntimeOnNode(pred, target, currentInfrastructure);
+				
 			}
 			curr.setRunTime(currRuntime);
-			//System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
+			System.out.println(curr.getId() + "\t" +  target.getId() + "\t" + target.getMipsPerCore()  + "\t" + currRuntime);
 			deploy(scheduling,curr,target);
 		}
 		schedulings.add(scheduling);

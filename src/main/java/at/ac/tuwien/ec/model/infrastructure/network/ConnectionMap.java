@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.model.infrastructure.network;
 
 import java.io.Serializable;
 
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 
@@ -14,7 +15,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
-public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalNode, NetworkConnection> implements Serializable{
+public class ConnectionMap extends DefaultDirectedWeightedGraph<ComputationalNode, NetworkConnection> implements Serializable{
 	
 	final int maxHops = FGCSSetup.cloudMaxHops;
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
@@ -30,7 +31,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		addVertex(node);
 	}
 	
-	public void addEdge(ComputationalNode v,ComputationalNode u,QoSProfile p)
+	public void addEdge(ComputationalNode u,ComputationalNode v,QoSProfile p)
 	{
 		NetworkConnection conn = new NetworkConnection(p);
 		addEdge(u,v,conn);		
@@ -49,7 +50,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 		NetworkConnection link = getEdge(u,v);
 		if(link == null)
 			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
-		QoSProfile profile = getEdge(u,v).qosProfile;
+		QoSProfile profile = getEdge(u,v).qosProfileULDL;
 		if(profile == null)
 			return Double.MAX_VALUE;
 		
@@ -70,6 +71,7 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<ComputationalN
 	{
 		//return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+		System.out.println(u.getId() + "," + v.getId() + " : " + profile.getLatency() + " , " + profile.getBandwidth() );
 		return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
 				(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
 	}

@@ -119,6 +119,7 @@ public abstract class MobileApplication implements Serializable{
 				preds.add(p);
 		return preds;
 	}
+		
 	
 	public ArrayList<MobileSoftwareComponent> getNeighbors(MobileSoftwareComponent msc)
 	{

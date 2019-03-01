@@ -45,7 +45,7 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 			for(EdgeNode en1 : inf.getEdgeNodes().values())
 			{
 					inf.addLink(ep,en1,qosUL);
-					//inf.addLink(en1,ep,qosUL);
+					inf.addLink(en1,ep,qosUL);
 			}
 		}
 
@@ -58,7 +58,7 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 			for(CloudDataCenter cn1 : inf.getCloudNodes().values())
 			{
 				inf.addLink(ep, cn1, qosCloudUL);
-				//inf.addLink(cn1, ep, qosCloudUL);
+				inf.addLink(cn1, ep, qosCloudUL);
 			}
 		}
 		
@@ -89,8 +89,7 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 			for(EdgeNode en1 : inf.getEdgeNodes().values())
 				if(!en0.equals(en1)) 
 				{
-					inf.addLink(en0,en1,qosUL);
-					//inf.addLink(en1,en0,qosUL);
+					inf.addLink(en1,en0,qosUL);
 				}
 
 		}
@@ -108,20 +107,32 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 				if(!cn0.equals(cn1)) 
 				{
 				inf.addLink(cn0, cn1, qosCloudUL);
-				//inf.addLink(cn1, cn0, qosCloudUL);
+				inf.addLink(cn1, cn0, qosCloudUL);
 				}
+		}
+		k=0;
+		for(EdgeNode en : inf.getEdgeNodes().values()) 
+		{
+			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			QoSProfile qosCloudUL;
+			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(latencies[k],bws[k]),1.0)));
+			k++;
+			for(CloudDataCenter cn : inf.getCloudNodes().values()) 
+			{
+				inf.addLink(cn, en, qosCloudUL);
+			}
+			
 		}
 		for(EdgeNode en : inf.getEdgeNodes().values()) 
 		{
 			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
-			double cloudLatency = 200.0;
 			QoSProfile qosCloudUL;
-			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(cloudLatency,1000.0),1.0)));
+			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(200.0,1000.0),1.0)));
 			for(CloudDataCenter cn : inf.getCloudNodes().values()) 
 			{
 				inf.addLink(en, cn, qosCloudUL);
-				//inf.addLink(cn, en, qosCloudUL);
 			}
+			
 		}
 	}
 }

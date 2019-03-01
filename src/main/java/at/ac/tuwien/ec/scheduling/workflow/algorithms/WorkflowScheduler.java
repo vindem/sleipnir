@@ -105,8 +105,9 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 		deployment.put(s, n);
 		deployment.addCost(s,n, currentInfrastructure);
 		deployment.addRuntime(s, s.getRunTime());
-		deployment.addReliability(s,n,currentInfrastructure);
-			//System.out.println(deployment + " " + deployment.size());
+		if(!s.getId().contains("BARRIER"))
+			deployment.addReliability(s,n,currentInfrastructure);
+		//System.out.println(deployment + " " + deployment.size());
 		n.deploy(s);
 	}
 

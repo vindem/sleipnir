@@ -7,7 +7,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 
 public class NetworkConnection extends DefaultEdge {
 
-	QoSProfile qosProfile;
+	QoSProfile qosProfileULDL;
 	/**
 	 * 
 	 */
@@ -21,27 +21,27 @@ public class NetworkConnection extends DefaultEdge {
 
 	public void sampleLink()
 	{
-		qosProfile.sampleQoS();
+		qosProfileULDL.sampleQoS();
 	}
 	
 	private void setQoSProfile(QoSProfile profile) 
 	{
-		this.qosProfile = profile;
+		this.qosProfileULDL = profile;
 	}
 	
 	public QoSProfile getQoSProfile()
 	{
-		return qosProfile;
+		return qosProfileULDL;
 	}
 	
 	public double getLatency()
 	{
-		return qosProfile.getLatency();
+		return qosProfileULDL.getLatency();
 	}
 	
 	public double getBandwidth()
 	{
-		return qosProfile.getBandwidth();
+		return qosProfileULDL.getBandwidth();
 	}
 	
 	public ComputationalNode getTarget()
