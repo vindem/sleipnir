@@ -25,6 +25,9 @@ import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTWorkflowScheduler;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.SchedulingTester;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.WorkflowScheduler;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
+import at.ac.tuwien.ec.workflow.BWAWorkflow;
+import at.ac.tuwien.ec.workflow.EpigenomicsWorkflow;
+import at.ac.tuwien.ec.workflow.MeteoAGWorkflow;
 import at.ac.tuwien.ec.workflow.MontageWorkflow;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -50,7 +53,7 @@ public class FGCSMain {
 					throws Exception {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
-				WorkflowScheduler search = new SchedulingTester(inputValues);
+				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
 				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
 				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
@@ -142,7 +145,7 @@ public class FGCSMain {
 		{
 			
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
-			MobileApplication app = new MontageWorkflow();
+			MobileApplication app = new EpigenomicsWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
 			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
