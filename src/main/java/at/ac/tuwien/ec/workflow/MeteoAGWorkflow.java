@@ -13,12 +13,12 @@ public class MeteoAGWorkflow extends MobileApplication {
 	 * 
 	 */
 	private static final long serialVersionUID = 739162783366447018L;
-	//private static ExponentialDistribution inDataDistr = new ExponentialDistribution(500000);
-	//private static ExponentialDistribution outDataDistr = new ExponentialDistribution(600000);
-	//private static ExponentialDistribution miDistr = new ExponentialDistribution(20000);
-	private static ConstantRealDistribution inDataDistr = new ConstantRealDistribution(500000);
-	private static ConstantRealDistribution outDataDistr = new ConstantRealDistribution(500000);
-	private static ConstantRealDistribution miDistr = new ConstantRealDistribution(20000);
+	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(500000);
+	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(500000);
+	private static ExponentialDistribution miDistr = new ExponentialDistribution(20000);
+	//private static ConstantRealDistribution inDataDistr = new ConstantRealDistribution(500000);
+	//private static ConstantRealDistribution outDataDistr = new ConstantRealDistribution(500000);
+	//private static ConstantRealDistribution miDistr = new ConstantRealDistribution(20000);
 	public MeteoAGWorkflow()
 	{
 		super();

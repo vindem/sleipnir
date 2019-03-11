@@ -69,9 +69,7 @@ public class SchedulingTester extends WorkflowScheduler {
 				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(curr))
 				{
 					if(cmp.getRunTime() > maxPredecessorRuntime) 
-					{
 						maxPredecessorRuntime = cmp.getRunTime() ;
-					}
 				}
 				currRuntime = maxPredecessorRuntime; 
 			}

@@ -54,6 +54,7 @@ public class FGCSMain {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
 				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
+				//WorkflowScheduler search = new SchedulingTester(inputValues);
 				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
 				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
@@ -145,7 +146,7 @@ public class FGCSMain {
 		{
 			
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
-			MobileApplication app = new EpigenomicsWorkflow();
+			MobileApplication app = new MontageWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
 			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);

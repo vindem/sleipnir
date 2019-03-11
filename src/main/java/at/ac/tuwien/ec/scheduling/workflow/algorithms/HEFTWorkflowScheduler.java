@@ -59,7 +59,7 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 
 		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
 
-		double currentRuntime;
+		double currentRuntime = 0.0;
 		MobileSoftwareComponent currTask;
 		WorkflowScheduling scheduling = new WorkflowScheduling(); 
 		while((currTask = tasks.poll())!=null)
@@ -67,49 +67,60 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 			if(!scheduledNodes.isEmpty())
 			{
 				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
-				currentRuntime = firstTaskToTerminate.getRunTime();
+				//currentRuntime = firstTaskToTerminate.getRunTime();
 				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				//currentApp.removeTask(firstTaskToTerminate);
 				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double tMin = Double.MAX_VALUE;
-			ComputationalNode pred = null,target = null;
+			ComputationalNode pred = currentInfrastructure.getNodeById("entry0"),target = null;
 			
 			double maxP = 0.0;
 			for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
 				if(cmp.getRunTime()>maxP) 
 				{
 					maxP = cmp.getRunTime();
-					pred = scheduling.get(cmp);
-				}
-			if(currTask.getId().startsWith("SOURCE_0") || currTask.getId().startsWith("SINK_0"))
+					//pred = scheduling.get(cmp);
+				}					
+			if(currTask.getId().startsWith("SOURCE") || currTask.getId().startsWith("SINK"))
 			{
-				target = this.entryNode;
-				tMin = maxP + currTask.getRuntimeOnNode(pred,target,currentInfrastructure);
-				currTask.setRunTime(tMin);
+				target = currentInfrastructure.getNodeById("entry0");
+				currentRuntime = maxP;
+				
 			}
-			else 
+			else if(currTask.getId().startsWith("BARRIER"))
+			{
+				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
+				{
+					if(cmp.getRunTime() >= maxP) 
+					{
+						maxP = cmp.getRunTime() ;
+						target = scheduling.get(cmp);
+					}
+				}
+				currentRuntime = maxP;
+			}
+			else {
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
 					if(maxP + currTask.getRuntimeOnNode(pred, cn,currentInfrastructure) < tMin &&
 							isValid(scheduling,currTask,cn))
 					{
 						tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
 						target = cn;
-						currTask.setRunTime(tMin);
 					}
-
+				currentRuntime = tMin;
+			}
 			if(target != null)
 			{
+				currTask.setRunTime(currentRuntime);
 				deploy(scheduling,currTask,target);
-				scheduledNodes.add(currTask);
+				scheduledNodes.add(currTask);				
 			}
 			
-			{
-				if(scheduledNodes.isEmpty())
-					target = null;
-			}
-
+			if(scheduledNodes.isEmpty())
+				target = null;
+			
 		}
 		deployments.add(scheduling);
 		return deployments;

@@ -59,7 +59,7 @@ public class FGCSSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 1;
+	public static int iterations = 1000;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;

@@ -51,8 +51,8 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 
 		for(EntryPoint ep : inf.getEntryPoints().values()) 
 		{
-			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
-			double cloudLatency = 200; 
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			//double cloudLatency = 200.0; 
 			QoSProfile qosCloudUL;
 			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(cloudLatency,1000.0),1.0)));
 			for(CloudDataCenter cn1 : inf.getCloudNodes().values())
@@ -98,8 +98,8 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 		 */
 		for(CloudDataCenter cn0 : inf.getCloudNodes().values()) 
 		{
-			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
-			double cloudLatency = 200.0;
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			//double cloudLatency = 200.0;
 			QoSProfile qosCloudUL;
 			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(cloudLatency,1000.0),1.0)));
 
@@ -113,7 +113,7 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 		k=0;
 		for(EdgeNode en : inf.getEdgeNodes().values()) 
 		{
-			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			QoSProfile qosCloudUL;
 			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(latencies[k],bws[k]),1.0)));
 			k++;
@@ -125,9 +125,10 @@ public class WorkflowSchedulingFixedNetworkPlanner {
 		}
 		for(EdgeNode en : inf.getEdgeNodes().values()) 
 		{
-			//double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
+			//double cloudLatency = 200.0;
 			QoSProfile qosCloudUL;
-			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(200.0,1000.0),1.0)));
+			qosCloudUL = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(cloudLatency,1000.0),1.0)));
 			for(CloudDataCenter cn : inf.getCloudNodes().values()) 
 			{
 				inf.addLink(en, cn, qosCloudUL);
