@@ -44,6 +44,7 @@ import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HeftEchoResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
+import scala.Tuple3;
 import scala.Tuple4;
 import scala.Tuple5;
 
@@ -59,16 +60,16 @@ public class SC2019Main {
 		
 		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
-		JavaPairRDD<DataPlacement,Tuple2<Integer,Double>> results = input.flatMapToPair(new 
+		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> results = input.flatMapToPair(new 
 				PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
-				DataPlacement, Tuple2<Integer,Double>>() {
+				DataPlacement, Tuple3<Integer,Double, Double>>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public Iterator<Tuple2<DataPlacement, Tuple2<Integer,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
+					public Iterator<Tuple2<DataPlacement, Tuple3<Integer,Double, Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
 							throws Exception {
-						ArrayList<Tuple2<DataPlacement,Tuple2<Integer,Double>>> output = 
-								new ArrayList<Tuple2<DataPlacement,Tuple2<Integer,Double>>>();
+						ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>> output = 
+								new ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>>();
 						//HEFTResearch search = new HEFTResearch(inputValues);
 						RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(inputValues);
 						ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
@@ -76,10 +77,11 @@ public class SC2019Main {
 							for(DataPlacement dp : offloads) 
 							{
 								output.add(
-										new Tuple2<DataPlacement,Tuple2<Integer,Double>>(dp,
-												new Tuple2<Integer,Double>(
+										new Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>(dp,
+												new Tuple3<Integer,Double, Double>(
 														1,
-														dp.getAverageLatency()
+														dp.getAverageLatency(),
+														dp.getCost()
 														)));
 							}
 						return output.iterator();
@@ -88,11 +90,11 @@ public class SC2019Main {
 		
 		System.out.println(results.first());
 		
-		JavaPairRDD<DataPlacement,Tuple2<Integer,Double>> aggregation = 
+		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> aggregation = 
 				results.reduceByKey(
-				new Function2<Tuple2<Integer,Double>,
-				Tuple2<Integer,Double>,
-				Tuple2<Integer,Double>>()
+				new Function2<Tuple3<Integer,Double, Double>,
+				Tuple3<Integer,Double,Double>,
+				Tuple3<Integer,Double,Double>>()
 				{
 					/**
 					 * 
@@ -100,13 +102,14 @@ public class SC2019Main {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public Tuple2<Integer, Double> call(
-							Tuple2<Integer, Double> off1,
-							Tuple2<Integer, Double> off2) throws Exception {
+					public Tuple3<Integer, Double, Double> call(
+							Tuple3<Integer, Double,Double> off1,
+							Tuple3<Integer, Double,Double> off2) throws Exception {
 						// TODO Auto-generated method stub
-						return new Tuple2<Integer, Double>(
+						return new Tuple3<Integer, Double, Double>(
 								off1._1() + off2._1(),
-								off1._2() + off2._2()
+								off1._2() + off2._2(),
+								off1._3() + off2._3()
 								);
 					}
 					
@@ -115,27 +118,28 @@ public class SC2019Main {
 		
 		//System.out.println(aggregation.first());
 		
-		JavaPairRDD<DataPlacement,Tuple2<Integer,Double>> histogram = 
+		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> histogram = 
 				aggregation.mapToPair(
-						new PairFunction<Tuple2<DataPlacement,Tuple2<Integer, Double>>,
-						DataPlacement,Tuple2<Integer, Double>>()
+						new PairFunction<Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>,
+						DataPlacement,Tuple3<Integer, Double, Double>>()
 						{
 
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public Tuple2<DataPlacement, Tuple2<Integer, Double>> call(
-									Tuple2<DataPlacement, Tuple2<Integer, Double>> arg0)
+							public Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> call(
+									Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> arg0)
 									throws Exception {
-								Tuple2<Integer, Double> val = arg0._2();
-								Tuple2<Integer, Double> tNew 
-									= new Tuple2<Integer, Double>
+								Tuple3<Integer, Double, Double> val = arg0._2();
+								Tuple3<Integer, Double, Double> tNew 
+									= new Tuple3<Integer, Double, Double>
 									(
 										val._1(),
-										val._2()/val._1()
+										val._2()/val._1(),
+										val._3()/val._1()
 									);
 								
-								return new Tuple2<DataPlacement,Tuple2<Integer, Double>>(arg0._1,tNew);
+								return new Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>(arg0._1,tNew);
 							}
 
 							

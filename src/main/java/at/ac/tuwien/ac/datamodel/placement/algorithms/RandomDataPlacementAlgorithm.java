@@ -8,11 +8,14 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ec.model.Hardware;
+import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 import scala.Tuple2;
 
 public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
@@ -38,6 +41,7 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 	public ArrayList<? extends Scheduling> findScheduling() {
 		ArrayList<DataPlacement> dataPlacements = new ArrayList<DataPlacement>();
 		DataPlacement dp = new DataPlacement();
+		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
 		for(DataEntry d: this.dataEntries)
 		{
 			MobileDataDistributionInfrastructure inf = 
@@ -49,7 +53,8 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 				for(MobileDevice mDev : devs)
 				{
 					ComputationalNode target = findTarget(inf);
-					deploy(dp, d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev);
+					VMInstance vm = new VMInstance("m2xlarge", new HardwareCapabilities(new Hardware(1,1.0,1.0),1000.0),1.0);
+					deployOnVM(dp, d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev,vm);
 				}
 			}
 		}

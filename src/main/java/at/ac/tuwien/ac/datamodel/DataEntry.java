@@ -5,11 +5,14 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public class DataEntry extends MobileSoftwareComponent implements Cloneable {
 
 	private String topic, iotDeviceId;
+	private VMInstance vm;
 	
 	public DataEntry(String id, Hardware requirements, double millionsOfInstructions, String iotNode, double inData,
 			double outData, String topic)
@@ -49,7 +52,7 @@ public class DataEntry extends MobileSoftwareComponent implements Cloneable {
 	
 	private double getProcessingTime(ComputationalNode node)
 	{
-		return this.getMillionsOfInstruction() / node.getMipsPerCore();
+		return this.getMillionsOfInstruction() / Math.min(node.getMipsPerCore(), this.getVMInstance().getMipsPerCore());
 	}
 	
 	private double getProcessedDataTransmissionTime(ComputationalNode node, MobileDevice mobile, MobileDataDistributionInfrastructure infrastructure)
@@ -69,10 +72,24 @@ public class DataEntry extends MobileSoftwareComponent implements Cloneable {
 	public void setIotDeviceId(String iotDeviceId) {
 		this.iotDeviceId = iotDeviceId;
 	}
+	
+	public void setVMInstance(VMInstance vm)
+	{
+		this.vm = vm;
+	}
+	
+	public VMInstance getVMInstance() {
+		// TODO Auto-generated method stub
+		return this.vm;
+	}
 
 	public DataEntry clone() throws CloneNotSupportedException
 	{
 		return (DataEntry) super.clone();
 	}
 
+	
+
+	
+	
 }

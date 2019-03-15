@@ -10,6 +10,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 
 public abstract class DataPlacementAlgorithm extends SimIteration implements Serializable{
@@ -37,8 +38,18 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 	
 	protected synchronized void undeploy(DataPlacement dp, DataEntry de, IoTDevice id, ComputationalNode cn, MobileDevice dev)
 	{
-		dp.remove(de);
-		dp.removeEntryLatency(de, id, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
+		//dp.remove(de);
+		//dp.removeEntryLatency(de, id, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
+		ComputationalNode n = (ComputationalNode) dp.get(de);
+		n.undeploy(de.getVMInstance());
+	}
+	
+	protected synchronized void deployOnVM(DataPlacement dp, DataEntry de, IoTDevice id, ComputationalNode cn, MobileDevice dev, VMInstance vm)
+	{
+		de.setVMInstance(vm);
+		dp.put(de, cn);
+		dp.addEntryLatency(de, id, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
+		dp.addCost(de, cn);
 	}
 	
 }

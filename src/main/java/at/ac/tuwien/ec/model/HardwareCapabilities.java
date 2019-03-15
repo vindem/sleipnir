@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.model;
 
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import scala.Serializable;
 
@@ -62,6 +63,22 @@ public class HardwareCapabilities implements Serializable{
 		return true;
 		
 	}
+	
+	public boolean deploy(VMInstance vm){
+		if(!supports(new Hardware(vm.getCapabilities().maxCores, vm.getCapabilities().maxRam, vm.getCapabilities().maxStorage)))
+			return false;
+		capabilities.cores -= vm.getCapabilities().maxCores;
+		capabilities.ram -= vm.getCapabilities().maxRam;
+		capabilities.storage -= vm.getCapabilities().maxStorage;
+		return true;
+		
+	}
+	
+	public void undeploy(VMInstance vm) {
+		capabilities.cores += vm.getCapabilities().maxCores;
+		capabilities.ram += vm.getCapabilities().maxRam;
+		capabilities.storage += vm.getCapabilities().maxStorage;
+	}
 
 	public double getMipsPerCore() {
 		return this.mipsPerCore;
@@ -78,6 +95,8 @@ public class HardwareCapabilities implements Serializable{
 	{
 		return new HardwareCapabilities(capabilities.clone(),mipsPerCore);
 	}
+
+	
 	
 	
 }
