@@ -21,6 +21,8 @@ import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowScheduling
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
 import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
+import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTMaxReliability;
+import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTMinCostScheduler;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.HEFTWorkflowScheduler;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.SchedulingTester;
 import at.ac.tuwien.ec.scheduling.workflow.algorithms.WorkflowScheduler;
@@ -53,7 +55,7 @@ public class FGCSMain {
 					throws Exception {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
-				WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
+				WorkflowScheduler search = new HEFTMaxReliability(inputValues);
 				//WorkflowScheduler search = new SchedulingTester(inputValues);
 				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
@@ -146,10 +148,10 @@ public class FGCSMain {
 		{
 			
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
-			MobileApplication app = new MontageWorkflow();
+			MobileApplication app = new MeteoAGWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
-			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
+			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum * 2);
+			//WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
 			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
 			WorkflowSchedulingFixedNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
