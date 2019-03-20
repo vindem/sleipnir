@@ -150,8 +150,8 @@ public class FGCSMain {
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			MobileApplication app = new MeteoAGWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum * 2);
-			//WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
+			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
+			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
 			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
 			WorkflowSchedulingFixedNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
