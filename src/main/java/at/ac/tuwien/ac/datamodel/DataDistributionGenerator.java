@@ -23,9 +23,9 @@ public class DataDistributionGenerator implements Serializable{
 	{
 		generatedData = new ArrayList<DataEntry>();
 		this.entryNum = entryNum;
-		miDistr = new ExponentialDistribution(20000);
-		inData = new ExponentialDistribution(50000);
-		outData = new ExponentialDistribution(50000);
+		miDistr = new ExponentialDistribution(2);
+		inData = new ExponentialDistribution(5);
+		outData = new ExponentialDistribution(5);
 	}
 	
 	public ArrayList<DataEntry> getGeneratedData()
@@ -37,21 +37,21 @@ public class DataDistributionGenerator implements Serializable{
 
 	private void generateData() {
 		double mi, inD, outD;
-		do
-		{
-			mi = miDistr.sample();
-		}
-		while( mi <= 0);
-		do
-		{
-			inD = miDistr.sample();
-		}
-		while( inD <= 0);
-		do
-		{
-			outD = miDistr.sample();
-		}
-		while( outD <= 0);
+		//do
+		//{
+			mi = 20000 + miDistr.sample();
+		//}
+		//while( mi <= 0);
+		//do
+		//{
+			inD = 50000 + miDistr.sample();
+		//}
+		//while( inD <= 0);
+		//do
+		//{
+			outD = 50000 + miDistr.sample();
+		//}
+		//while( outD <= 0);
 		for(int i = 0; i < entryNum; i++)
 			generatedData.add(
 					new DataEntry("entry"+i,

@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.model.infrastructure.computationalnodes;
 
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 
-public class VMInstance extends ComputationalNode{
+public class VMInstance extends ComputationalNode implements Cloneable{
 
 	private Double pricePerSecond;
 	
@@ -29,7 +29,12 @@ public class VMInstance extends ComputationalNode{
 	public void setPricePerSecond(Double pricePerSecond) {
 		this.pricePerSecond = pricePerSecond;
 	}
-	
+
+	public VMInstance clone() 
+	{
+		return new VMInstance(id, capabilities, pricePerSecond);
+		
+	}
 	
 
 }

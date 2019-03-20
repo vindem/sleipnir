@@ -4,10 +4,12 @@ import org.jgrapht.graph.DefaultEdge;
 
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 
 public class NetworkConnection extends DefaultEdge {
 
 	QoSProfile qosProfile;
+	NetworkedNode source,target;
 	/**
 	 * 
 	 */
@@ -44,14 +46,24 @@ public class NetworkConnection extends DefaultEdge {
 		return qosProfile.getBandwidth();
 	}
 	
-	public ComputationalNode getTarget()
+	public NetworkedNode getTarget()
 	{
-		return (ComputationalNode) super.getTarget();
+		return (NetworkedNode) super.getTarget();
 	}
 	
-	public ComputationalNode getSource()
+	public NetworkedNode getSource()
 	{
-		return (ComputationalNode) super.getSource();
+		return (NetworkedNode) super.getSource();
+	}
+	
+	public void setSource(NetworkedNode n)
+	{
+		this.source = n;
+	}
+	
+	public void setTarget(NetworkedNode n)
+	{
+		this.target = n;
 	}
 	
 }

@@ -20,6 +20,7 @@ import at.ac.tuwien.ac.datamodel.DataDistributionGenerator;
 import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ac.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.SteinerTreeHeuristic;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -72,6 +73,7 @@ public class SC2019Main {
 								new ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>>();
 						//HEFTResearch search = new HEFTResearch(inputValues);
 						RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(inputValues);
+						//SteinerTreeHeuristic search = new SteinerTreeHeuristic(inputValues);
 						ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
 						if(offloads != null)
 							for(DataPlacement dp : offloads) 

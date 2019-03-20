@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.model.infrastructure.network;
 
 import java.io.Serializable;
 
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 
@@ -29,13 +30,17 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 		addVertex(node);
 	}
 	
-	public void addEdge(NetworkedNode v,NetworkedNode u,QoSProfile p)
+	public void addEdge(NetworkedNode u,NetworkedNode v,QoSProfile p)
 	{
 		NetworkConnection conn = new NetworkConnection(p);
-		addEdge(u,v,conn);		
+		addEdge(u,v,conn);
 	}
 	
-	
+	public void setEdgeWeights()
+	{
+		for(NetworkConnection nwConn : edgeSet())
+			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + nwConn.getLatency());
+	}
 	
 	public double getTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{

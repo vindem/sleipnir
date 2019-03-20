@@ -8,6 +8,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.Scheduling;
@@ -52,11 +53,18 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 				ArrayList<MobileDevice> devs = registry.get(d.getTopic());
 				for(MobileDevice mDev : devs)
 				{
+					VMInstance vm = VMPlanner.findExistingVMInstance(d,mDev,(MobileDataDistributionInfrastructure) this.currentInfrastructure);
+					if(vm == null)
+						vm = VMPlanner.instantiateNewVM(d,mDev,(MobileDataDistributionInfrastructure) this.currentInfrastructure);
 					ComputationalNode target = findTarget(inf);
-					VMInstance vm = new VMInstance("m2xlarge", new HardwareCapabilities(new Hardware(1,1.0,1.0),1000.0),1.0);
 					deployOnVM(dp, d, (IoTDevice) inf.getNodeById(d.getIotDeviceId()), target, mDev,vm);
 				}
 			}
+		}
+		for(String mId : this.currentInfrastructure.getMobileDevices().keySet()) 
+		{
+			dp.addVMCost(this.currentInfrastructure.getMobileDevices().get(mId).getLifetime(), mId);
+			//System.out.println("Mobile: " + mId + ": " + currentInfrastructure.getMobileDevices().get(mId).getCost());
 		}
 		dataPlacements.add(dp);
 		return dataPlacements;

@@ -1,5 +1,7 @@
 package at.ac.tuwien.ac.datamodel.placement;
 
+import java.util.ArrayList;
+
 import javax.swing.plaf.IconUIResource;
 
 import at.ac.tuwien.ac.datamodel.DataEntry;
@@ -9,6 +11,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 
 public class DataPlacement extends Scheduling {
 
@@ -63,6 +66,17 @@ public class DataPlacement extends Scheduling {
 
 	public void addCost(DataEntry de, ComputationalNode cn) {
 		cost += cn.computeCost(de, currentInfrastructure);
+	}
+	
+	public void addVMCost(double lifeTime, String uid){
+		double tmpCost = 0.0;
+		ArrayList<VMInstance> vmList = currentInfrastructure.getVMAssignment(uid);
+		for(VMInstance vm : vmList)
+			tmpCost += lifeTime * vm.getPricePerSecond(); 
+		MobileDevice dev = (MobileDevice) currentInfrastructure.getNodeById(uid);
+		dev.setCost(tmpCost);
+		this.cost += tmpCost;
+			
 	}
 	
 	

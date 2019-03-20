@@ -15,7 +15,8 @@ import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 
 public class MobileDevice extends ComputationalNode {
 
-	private double energyBudget = 0.0;
+	private double energyBudget = 0.0, cost = 0.0;
+	private double lifetime = 3600.0;
 	
 	public MobileDevice(String id, HardwareCapabilities capabilities, double energyBudget) {
 		super(id, capabilities);
@@ -53,6 +54,20 @@ public class MobileDevice extends ComputationalNode {
 	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
 	{
 		return 0.0;		
+	}
+
+	public void setCost(double tmpCost) {
+		this.cost = tmpCost;		
+	}
+	
+	public double getCost() 
+	{
+		return this.cost;
+	}
+
+	public double getLifetime() {
+		// TODO Auto-generated method stub
+		return this.lifetime ;
 	}
 	
 	

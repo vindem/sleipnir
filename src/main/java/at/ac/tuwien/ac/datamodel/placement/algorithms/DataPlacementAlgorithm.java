@@ -49,7 +49,6 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 		de.setVMInstance(vm);
 		dp.put(de, cn);
 		dp.addEntryLatency(de, id, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
-		dp.addCost(de, cn);
 	}
 	
 }
