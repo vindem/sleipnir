@@ -18,8 +18,8 @@ public class SimulationSetup {
 	}
 	
 	public static RandomUtils rand = new RandomUtils();
-	public static int MAP_M = 1;
-	public static int MAP_N = 1;
+	public static int MAP_M = 24;
+	public static int MAP_N = 24;
 	public static int cloudMaxHops = 10;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;
@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 10;
+	public static int iterations = 100;
 	public static int cloudNum = 1;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -73,7 +73,7 @@ public class SimulationSetup {
 	public static int iotDevicesNum = 8;
 	
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
-	public static int dataEntryNum = 10;
+	public static int dataEntryNum = 1000;
 	
 
 }

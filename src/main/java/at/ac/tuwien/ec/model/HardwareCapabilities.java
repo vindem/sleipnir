@@ -90,6 +90,10 @@ public class HardwareCapabilities implements Serializable{
 		capabilities.storage += cmp.getHardwareRequirements().storage;
 	}
 
+	public Hardware getHardware()
+	{
+		return capabilities;
+	}
 	
 	public HardwareCapabilities clone()
 	{

@@ -77,7 +77,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						subMddi.addVertex(n);
 					if(n instanceof CloudDataCenter || n instanceof EdgeNode)
 					{
-						bestTargets.add((ComputationalNode) n);
+						if(!bestTargets.contains(n))
+							bestTargets.add((ComputationalNode) n);
 						if(!scoreNodeMap.containsKey(n.getId()))
 							scoreNodeMap.put(n.getId(), 1);
 						else
@@ -85,9 +86,9 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						
 					}
 				}
-				/*for(NetworkConnection nwConn : minPath.getEdgeList())
+				for(NetworkConnection nwConn : minPath.getEdgeList())
 					if(!subMddi.containsEdge(nwConn))
-						subMddi.addEdge(nwConn);*/
+						subMddi.addEdge(nwConn.getSource(), nwConn.getTarget(), nwConn);
 			}
 		}
 		
@@ -102,12 +103,16 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 					VMInstance vm = VMPlanner.findExistingVMInstance(d,mDev,(MobileDataDistributionInfrastructure) this.currentInfrastructure);
 					if(vm == null)
 						vm = VMPlanner.instantiateNewVM(d,mDev,(MobileDataDistributionInfrastructure) this.currentInfrastructure);
-					ComputationalNode target = bestTargets.get(0);
+					
+					ComputationalNode target = null;
 					d.setVMInstance(vm);
 					double minRt = Double.MAX_VALUE;
 					for(ComputationalNode cn : bestTargets)
 					{
-						double tmp = d.getTotalProcessingTime((IoTDevice) mddi.getNodeById(d.getIotDeviceId()),
+						IoTDevice iotD = (IoTDevice) mddi.getNodeById(d.getIotDeviceId());
+						if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
+							continue;
+						double tmp = d.getTotalProcessingTime(iotD,
 								cn,
 								mDev,
 								mddi);
@@ -118,19 +123,25 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						}
 							
 					}
-					deployOnVM(dp, d, (IoTDevice) mddi.getNodeById(d.getIotDeviceId()), target, mDev,vm);
+					if(target == null) 
+					{
+						dp = null;
+						break;
+					}	
+					else 
+						deployOnVM(dp, d, (IoTDevice) mddi.getNodeById(d.getIotDeviceId()), target, mDev,vm);
 				}
 			}
 		}
-		for(String mId : this.currentInfrastructure.getMobileDevices().keySet()) 
-		{
-			dp.addVMCost(this.currentInfrastructure.getMobileDevices().get(mId).getLifetime(), mId);
-			//System.out.println("Mobile: " + mId + ": " + currentInfrastructure.getMobileDevices().get(mId).getCost());
+		if(dp != null) {
+			dataPlacements.add(dp);
+			for(String mId : this.currentInfrastructure.getMobileDevices().keySet()) 
+			{
+				dp.addVMCost(this.currentInfrastructure.getMobileDevices().get(mId).getLifetime(), mId);
+				//System.out.println("Mobile: " + mId + ": " + currentInfrastructure.getMobileDevices().get(mId).getCost());
+			}
 		}
-		dataPlacements.add(dp);
-		
-		
-		
+					
 		return dataPlacements;		
 	}
 

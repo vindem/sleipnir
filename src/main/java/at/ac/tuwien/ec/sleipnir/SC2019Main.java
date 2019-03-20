@@ -26,6 +26,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultIoTPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.DistanceBasedNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
@@ -78,6 +79,7 @@ public class SC2019Main {
 						if(offloads != null)
 							for(DataPlacement dp : offloads) 
 							{
+								if(dp!=null)
 								output.add(
 										new Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>(dp,
 												new Tuple3<Integer,Double, Double>(
@@ -166,7 +168,7 @@ public class SC2019Main {
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
-			EdgeAllCellPlanner.setupEdgeNodes(inf);
+			RandomEdgePlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);

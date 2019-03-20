@@ -10,11 +10,13 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
+import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.QoS;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import scala.Tuple2;
 
@@ -22,7 +24,7 @@ import scala.Tuple2;
  * 
  */
 
-public class DefaultNetworkPlanner {
+public class DistanceBasedNetworkPlanner {
 	
 	static double wifiAvailableProbability = SimulationSetup.wifiAvailableProbability;
 	
@@ -137,7 +139,8 @@ public class DefaultNetworkPlanner {
 			 */
 			
 			for(EdgeNode en : inf.getEdgeNodes().values())
-				inf.addLink(iot,en,qosUL);
+				if(computeDistance(iot,en) < 3.0 )
+					inf.addLink(iot,en,qosUL);
 			
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
@@ -157,9 +160,23 @@ public class DefaultNetworkPlanner {
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
         	
 			for(CloudDataCenter cn : inf.getCloudNodes().values())
-				inf.addLink(iot, cn, qosCloudUL);
+				if(computeDistance(iot,cn) < 3.0 )
+					inf.addLink(iot, cn, qosCloudUL);
 		
 		}
+	}
+	
+	private static double computeDistance(NetworkedNode u, NetworkedNode v) 
+	{
+		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
+			return new NormalDistribution(3.0, 1.5).sample();
+		Coordinates c1,c2;
+		c1 = u.getCoords();
+		c2 = v.getCoords();
+		return (Math.abs(c1.getLatitude()-c2.getLatitude()) 
+				+ Math.max(0, 
+						(Math.abs(c1.getLatitude()-c2.getLatitude())
+								- Math.abs(c1.getLongitude()-c2.getLongitude()) )/2));
 	}
 
 }

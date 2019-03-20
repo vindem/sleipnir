@@ -48,12 +48,12 @@ public class NetworkConnection extends DefaultEdge {
 	
 	public NetworkedNode getTarget()
 	{
-		return (NetworkedNode) super.getTarget();
+		return (NetworkedNode) this.target;
 	}
 	
 	public NetworkedNode getSource()
 	{
-		return (NetworkedNode) super.getSource();
+		return (NetworkedNode) this.source;
 	}
 	
 	public void setSource(NetworkedNode n)

@@ -22,18 +22,16 @@ public class DefaultMobileDevicePlanner {
 	
 	public static void setupMobileDevices(MobileDataDistributionInfrastructure inf, int number)
 	{
-		UniformIntegerDistribution chooser = new UniformIntegerDistribution(0, SimulationSetup.topics.length-1);
 		for(int i = 0; i < number; i++)
 		{
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt(SimulationSetup.MAP_M),
-												RandomUtils.nextInt(SimulationSetup.MAP_N));
+												RandomUtils.nextInt(SimulationSetup.MAP_N*2));
 			device.setCoords(randomCoordinates);
 			inf.addMobileDevice(device);
-			for(int j = 0; j < SimulationSetup.topics.length; j++)
-				inf.subscribeDeviceToTopic(device, SimulationSetup.topics[j]);
+			inf.subscribeDeviceToTopic(device, SimulationSetup.topics[i % SimulationSetup.topics.length]);
 		}
 	}
 

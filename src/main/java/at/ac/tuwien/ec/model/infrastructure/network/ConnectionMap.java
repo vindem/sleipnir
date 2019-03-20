@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.model.infrastructure.network;
 
 import java.io.Serializable;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
@@ -17,7 +18,8 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode, NetworkConnection> implements Serializable{
 	
-	final int maxHops = SimulationSetup.cloudMaxHops;
+	//int cloudHops = SimulationSetup.cloudMaxHops;
+	NormalDistribution nDistr = new NormalDistribution(3.0, 0.5);
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
 	
@@ -33,13 +35,25 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 	public void addEdge(NetworkedNode u,NetworkedNode v,QoSProfile p)
 	{
 		NetworkConnection conn = new NetworkConnection(p);
+		conn.setSource(u);
+		conn.setTarget(v);
 		addEdge(u,v,conn);
 	}
 	
 	public void setEdgeWeights()
 	{
+		double tmp;
 		for(NetworkConnection nwConn : edgeSet())
-			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + nwConn.getLatency());
+		{
+			double mips0,mips1;
+			mips0 = nwConn.getSource().getCapabilities().getMipsPerCore();
+			mips1 = nwConn.getTarget().getCapabilities().getMipsPerCore();
+			mips0 = (mips0 == 0)? Double.MAX_VALUE : mips0;
+			mips1 = (mips1 == 0)? Double.MAX_VALUE : mips1;		
+			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + 
+					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) + 
+					1.0/Math.min(mips0,mips1));
+		}
 	}
 	
 	public double getTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
@@ -131,16 +145,16 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
-	private double computeDistance(NetworkedNode u, NetworkedNode v)
+	public double computeDistance(NetworkedNode u, NetworkedNode v)
 	{
 		Coordinates c1,c2;
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
-			return maxHops;
+			return nDistr.sample();
 		
 		c1 = u.getCoords();
-		c2 = u.getCoords();
+		c2 = v.getCoords();
 		return (Math.abs(c1.getLatitude()-c2.getLatitude()) 
 				+ Math.max(0, 
 						(Math.abs(c1.getLatitude()-c2.getLatitude())
