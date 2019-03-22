@@ -55,7 +55,7 @@ public class FGCSMain {
 					throws Exception {
 				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
 						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
-				WorkflowScheduler search = new HEFTMaxReliability(inputValues);
+				WorkflowScheduler search = new HEFTMinCostScheduler(inputValues);
 				//WorkflowScheduler search = new SchedulingTester(inputValues);
 				search.setEntryNode(inputValues._2.getNodeById("entry0"));
 				//RandomScheduler search = new RandomScheduler(inputValues);
@@ -148,10 +148,10 @@ public class FGCSMain {
 		{
 			
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
-			MobileApplication app = new MeteoAGWorkflow();
+			MobileApplication app = new MontageWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
-			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
+			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum * 2);
+			//WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
 			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
 			WorkflowSchedulingFixedNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);

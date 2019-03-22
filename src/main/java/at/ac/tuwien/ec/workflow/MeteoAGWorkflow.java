@@ -13,9 +13,9 @@ public class MeteoAGWorkflow extends MobileApplication {
 	 * 
 	 */
 	private static final long serialVersionUID = 739162783366447018L;
-	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(500000);
-	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(500000);
-	private static ExponentialDistribution miDistr = new ExponentialDistribution(20000);
+	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(5);
+	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(5);
+	private static ExponentialDistribution miDistr = new ExponentialDistribution(2);
 	//private static ConstantRealDistribution inDataDistr = new ConstantRealDistribution(500000);
 	//private static ConstantRealDistribution outDataDistr = new ConstantRealDistribution(500000);
 	//private static ConstantRealDistribution miDistr = new ConstantRealDistribution(20000);
@@ -62,23 +62,23 @@ public class MeteoAGWorkflow extends MobileApplication {
 		addComponent("SIMULATION_INIT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("CASE_INIT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("RAMS_MAKEVFILE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("BARRIER0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
@@ -90,16 +90,16 @@ public class MeteoAGWorkflow extends MobileApplication {
 		addComponent("RAMS_INIT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("RAMS_ALL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
@@ -111,23 +111,23 @@ public class MeteoAGWorkflow extends MobileApplication {
 		addComponent("REVU_COMPARE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("REVER"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("REVU_ALL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("RAMS_ALL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)

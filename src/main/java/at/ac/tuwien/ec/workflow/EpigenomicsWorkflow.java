@@ -13,9 +13,9 @@ public class EpigenomicsWorkflow extends MobileApplication {
 	 * 
 	 */
 	private static final long serialVersionUID = 739162783366447018L;
-	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(500000);
-	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(500000);
-	private static ExponentialDistribution miDistr = new ExponentialDistribution(20000);
+	private static ExponentialDistribution inDataDistr = new ExponentialDistribution(5);
+	private static ExponentialDistribution outDataDistr = new ExponentialDistribution(5);
+	private static ExponentialDistribution miDistr = new ExponentialDistribution(2);
 	//private static ConstantRealDistribution inDataDistr = new ConstantRealDistribution(500000);
 	//private static ConstantRealDistribution outDataDistr = new ConstantRealDistribution(500000);
 	//private static ConstantRealDistribution miDistr = new ConstantRealDistribution(20000);
@@ -62,149 +62,149 @@ public class EpigenomicsWorkflow extends MobileApplication {
 		addComponent("fastQSplit"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("filterContams0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("filterContams1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("filterContams2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("filterContams3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("sol2sanger0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("sol2sanger1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("sol2sanger2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("sol2sanger3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("fastq2bfb0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("fastq2bfb1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("fastq2bfb2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("fastq2bfb3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("map0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("map1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("map2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("map3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("map3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("mapMerge"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("mapIndex"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("pileUp"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,20000 + miDistr.sample()
+        		,500000 + inDataDistr.sample()
+        		,500000 + outDataDistr.sample()
         		);
 		addComponent("SINK"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
