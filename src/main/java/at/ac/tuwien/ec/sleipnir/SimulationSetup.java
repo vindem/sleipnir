@@ -18,8 +18,8 @@ public class SimulationSetup {
 	}
 	
 	public static RandomUtils rand = new RandomUtils();
-	public static int MAP_M = 24;
-	public static int MAP_N = 24;
+	public static int MAP_M = 6;
+	public static int MAP_N = 6;
 	public static int cloudMaxHops = 10;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;
@@ -31,7 +31,7 @@ public class SimulationSetup {
 	public static double edgeMipsPerCore = 80000.0;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 16;
+	public static int mobileNum = 24;
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
@@ -70,10 +70,10 @@ public class SimulationSetup {
 	public static int appNumber = 25;
 	
 	public static String[] topics = {"temperature", "moisture", "wind"};
-	public static int iotDevicesNum = 8;
+	public static int iotDevicesNum = 36;
 	
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
-	public static int dataEntryNum = 1000;
+	public static int dataEntryNum = 259200;
 	
 
 }

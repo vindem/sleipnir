@@ -92,7 +92,7 @@ public class SC2019Main {
 					}
 		});
 		
-		System.out.println(results.first());
+		//System.out.println(results.first());
 		
 		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> aggregation = 
 				results.reduceByKey(
