@@ -17,15 +17,16 @@ public class DataDistributionGenerator implements Serializable{
 	private ArrayList<DataEntry> generatedData;
 	private int entryNum;
 	
-	private ExponentialDistribution miDistr,inData,outData;
+	private ExponentialDistribution miDistr,inData,outData,coreD;
 	
 	public DataDistributionGenerator(int entryNum)
 	{
 		generatedData = new ArrayList<DataEntry>();
 		this.entryNum = entryNum;
-		miDistr = new ExponentialDistribution(2);
-		inData = new ExponentialDistribution(5);
-		outData = new ExponentialDistribution(5);
+		miDistr = new ExponentialDistribution(2e3);
+		inData = new ExponentialDistribution(5e3);
+		outData = new ExponentialDistribution(5e3);
+		coreD = new ExponentialDistribution(4);
 	}
 	
 	public ArrayList<DataEntry> getGeneratedData()
@@ -37,31 +38,25 @@ public class DataDistributionGenerator implements Serializable{
 
 	private void generateData() {
 		double mi, inD, outD;
-		//do
-		//{
-			mi = 20000 + miDistr.sample();
-		//}
-		//while( mi <= 0);
-		//do
-		//{
-			inD = 50000 + miDistr.sample();
-		//}
-		//while( inD <= 0);
-		//do
-		//{
-			outD = 50000 + miDistr.sample();
-		//}
-		//while( outD <= 0);
-		for(int i = 0; i < entryNum; i++)
+		int coreNum;
+		for(int i = 0; i < entryNum; i++) 
+		{
+			do
+				coreNum = (int) ((int) 1 + coreD.sample());
+			while(coreNum > 16 || coreNum < 1);
+			mi = 1e6 + miDistr.sample();
+			inD = 5e6 + inData.sample();
+			outD = 5e6 + outData.sample();
 			generatedData.add(
 					new DataEntry("entry"+i,
-					new Hardware(1, 1, 1),
-					miDistr.sample(),
+					new Hardware(coreNum, 1, inD + outD),
+					mi,
 					"iot"+(i%SimulationSetup.iotDevicesNum),
-					inData.sample(),
-					outData.sample(),
+					inD,
+					outD,
 					SimulationSetup.topics[i % SimulationSetup.topics.length])
 					);
+		}
 	}
 	
 	

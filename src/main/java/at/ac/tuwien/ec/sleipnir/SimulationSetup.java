@@ -73,7 +73,8 @@ public class SimulationSetup {
 	public static int iotDevicesNum = 36;
 	
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
-	public static int dataEntryNum = 259200;
+	public static int dataEntryNum = 2592;
+	//public static int dataEntryNum = 259200;
 	
 
 }

@@ -34,12 +34,16 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		iotDevices = new HashMap<String,IoTDevice>();
 		registry = new HashMap<String, ArrayList<MobileDevice>>();
 		vmRepository = new HashMap<String, VMInstance>();
-		vmRepository.put("xlarge", new VMInstance("xlarge",new HardwareCapabilities(new Hardware(16,100,1e6), 10000),2.0));
-		vmRepository.put("large", new VMInstance("large",new HardwareCapabilities(new Hardware(8,100,5e5), 7500),1.5));
-		vmRepository.put("medium", new VMInstance("medium",new HardwareCapabilities(new Hardware(4,100,1e5), 5000),1.0));
-		vmRepository.put("small", new VMInstance("small",new HardwareCapabilities(new Hardware(2,100,5e4), 2500),0.5));
-		vmRepository.put("xsmall", new VMInstance("xsmall",new HardwareCapabilities(new Hardware(1,100,1e4), 1000),0.2));
-		
+		vmRepository.put("c5.large", new VMInstance("c5.large",new HardwareCapabilities(new Hardware(2,100,1e6), 10000),0.085));
+		vmRepository.put("c5.xlarge", new VMInstance("c5.xlarge",new HardwareCapabilities(new Hardware(4,100,1e6), 10000),0.17));
+		vmRepository.put("c5.2xlarge", new VMInstance("c5.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e6), 10000),0.34));
+		vmRepository.put("c5.4xlarge", new VMInstance("c5.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e6), 10000),0.68));
+		vmRepository.put("c5d.2xlarge", new VMInstance("c5d.2xlarge",new HardwareCapabilities(new Hardware(8,100,2.5e6), 10000),0.384));
+		vmRepository.put("c5d.4xlarge", new VMInstance("c5d.4xlarge",new HardwareCapabilities(new Hardware(16,100,2.5e6), 10000),0.768));
+		vmRepository.put("h1.2xlarge", new VMInstance("h1.2xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.468));
+		vmRepository.put("h1.4xlarge", new VMInstance("h1.4xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.936));
+		vmRepository.put("i3.2xlarge", new VMInstance("i3.2xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.624));
+		vmRepository.put("i3.4xlarge", new VMInstance("i3.4xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),1.248));
 		vmAssignment = new HashMap<String, ArrayList<VMInstance>>();
 	}
 	
