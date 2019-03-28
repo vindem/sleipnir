@@ -15,7 +15,11 @@ public class FGCSSetup {
 	
 	public static void readFromFile(String url){
 		
-	}
+	} 
+	
+	public static double workflowMips = 20000;
+	public static double workflowIndata = 250000;
+	public static double workflowOutData = 250000;
 	
 	public static RandomUtils rand = new RandomUtils();
 	public static int MAP_M = 3;

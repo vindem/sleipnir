@@ -17,6 +17,8 @@ public class SimulationSetup {
 		
 	}
 	
+	
+	
 	public static RandomUtils rand = new RandomUtils();
 	public static int MAP_M = 1;
 	public static int MAP_N = 1;

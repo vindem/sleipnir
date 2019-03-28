@@ -63,7 +63,7 @@ public class SoftwareComponent implements Serializable{
 	
 
 	public double getRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {
-		return i.getTransmissionTime((MobileSoftwareComponent)this, i.getNodeById(userId), n)*1.0 
+		return i.getTransmissionTime((MobileSoftwareComponent)this, i.getNodeById("entry0"), n)*1.0 
 				+ (millionsOfInstruction/n.getMipsPerCore());
 				
 	}

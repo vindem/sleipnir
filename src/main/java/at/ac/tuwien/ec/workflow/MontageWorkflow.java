@@ -6,6 +6,7 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class MontageWorkflow extends MobileApplication {
 
@@ -66,9 +67,9 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("retrieveImageList"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		//FIRST BARRIER
 		addComponent("BARRIER0"+"_"+getWorkloadId()+","+getUserId(),
@@ -82,37 +83,37 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("calculateOverlaps"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("downloadAndProject0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("downloadAndProject1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("downloadAndProject2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("downloadAndProject3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		//SECOND BARRIER
 		addComponent("BARRIER1"+"_"+getWorkloadId()+","+getUserId(),
@@ -126,58 +127,58 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("calcDiffFitMulti0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,miDistr.sample()
-        		,inDataDistr.sample()
-        		,outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti4"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti5"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti6"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcDiffFitMulti7"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		//THIRD BARRIER
 		addComponent("BARRIER2"+"_"+getWorkloadId()+","+getUserId(),
@@ -191,51 +192,51 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("calcBackgroundModel"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("calcTiles"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bgCorrectionMulti0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bgCorrectionMulti1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bgCorrectionMulti2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bgCorrectionMulti3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bgCorrectionMulti4"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		//FOURTH BARRIER
 		addComponent("BARRIER3"+"_"+getWorkloadId()+","+getUserId(),
@@ -249,37 +250,37 @@ public class MontageWorkflow extends MobileApplication {
 		addComponent("addAndShrink0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("addAndShrink1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("addAndShrink2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("addAndShrink3"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("addTiles"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("SINK"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)

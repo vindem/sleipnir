@@ -142,7 +142,7 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 		if(!msc.isVisited())
 		{
 			msc.setVisited(true);
-			int numberOfNodes = I.getAllNodes().size() + 1;
+			int numberOfNodes = I.getAllNodes().size();
 			for(ComputationalNode cn : I.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
 			w_cmp = w_cmp / numberOfNodes;
@@ -151,7 +151,9 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 				msc.setRank(w_cmp);
 			else
 			{
-								
+				for(ComponentLink neigh : dag.outgoingEdgesOf(msc))
+					upRank(neigh.getTarget(),dag, I);
+				
 				double tmpWRank;
 				double maxSRank = 0;
 				for(ComponentLink neigh : dag.outgoingEdgesOf(msc))

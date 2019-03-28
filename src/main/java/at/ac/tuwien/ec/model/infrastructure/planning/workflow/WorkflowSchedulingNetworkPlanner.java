@@ -37,9 +37,9 @@ public class WorkflowSchedulingNetworkPlanner {
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
 			 * In this planner, there is a link between each mobile device and each edge node.
 			 */
-			double firstHop3GBandwidth = (new ExponentialDistribution(7.2)).sample();
-			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(32.0)).sample(); 
-			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(4.0)).sample();
+			double firstHop3GBandwidth = 7.2 + (new ExponentialDistribution(1.0)).sample();
+			double firstHopWiFiHQBandwidth = 32.0 + (new ExponentialDistribution(2.0)).sample(); 
+			double firstHopWiFiLQBandwidth = 4.0 + (new ExponentialDistribution(1.0)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosUL;//,qosDL;
 			qosUL = (wifiAvailable)? new QoSProfile(asList(
@@ -58,9 +58,9 @@ public class WorkflowSchedulingNetworkPlanner {
 
 		for(EntryPoint ep : inf.getEntryPoints().values()) 
 		{
-			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
-			double CloudWiFiHQBandwidth = (new ExponentialDistribution(1000.0)).sample();
-			double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
+			double Cloud3GBandwidth = 3.6 + (new ExponentialDistribution(0.6)).sample();
+			double CloudWiFiHQBandwidth = 1000.0 + (new ExponentialDistribution(10.0)).sample();
+			double CloudWiFiLQBandwidth = 1000.0 + (new ExponentialDistribution(10.0)).sample();
 			double cloudLatency = (new NormalDistribution(200.0, 33.5)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosCloudUL;//,qosCloudDL
@@ -97,9 +97,9 @@ public class WorkflowSchedulingNetworkPlanner {
 			 * Setting up latency and bandwidth profile between mobile device and Edge nodes.
 			 * In this planner, there is a link between each mobile device and each edge node.
 			 */
-			double firstHop3GBandwidth = (new ExponentialDistribution(7.2)).sample();
-			double firstHopWiFiHQBandwidth = (new ExponentialDistribution(32.0)).sample(); 
-			double firstHopWiFiLQBandwidth = (new ExponentialDistribution(4.0)).sample();
+			double firstHop3GBandwidth = 7.2 + (new ExponentialDistribution(1.0)).sample();
+			double firstHopWiFiHQBandwidth = 32.0 + (new ExponentialDistribution(2.0)).sample(); 
+			double firstHopWiFiLQBandwidth = 4.0 + (new ExponentialDistribution(1.0)).sample();
 			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
 			QoSProfile qosUL;//,qosDL;
 			qosUL = (wifiAvailable)? new QoSProfile(asList(
@@ -147,7 +147,7 @@ public class WorkflowSchedulingNetworkPlanner {
 		}
 		for(EdgeNode en : inf.getEdgeNodes().values()) 
 		{
-			double Cloud3GBandwidth = (new ExponentialDistribution(3.6)).sample();
+			double Cloud3GBandwidth = 3.6 + (new ExponentialDistribution(1.0)).sample();
 			//double CloudWiFiHQBandwidth = (new ExponentialDistribution(1000.0)).sample();
 			//double CloudWiFiLQBandwidth = (new ExponentialDistribution(1000.0)).sample();
 			double CloudWiFiHQBandwidth = 1000.0;

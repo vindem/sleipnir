@@ -6,6 +6,7 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class BWAWorkflow extends MobileApplication {
 
@@ -62,23 +63,23 @@ public class BWAWorkflow extends MobileApplication {
 		addComponent("bwa:split1"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bwa:split2"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bwa:bwaindex"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("BARRIER0"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
@@ -90,23 +91,23 @@ public class BWAWorkflow extends MobileApplication {
 		addComponent("bwa:bwa1ain"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("bwa:concat"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 		addComponent("SINK"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,20000 + miDistr.sample()
-        		,500000 + inDataDistr.sample()
-        		,500000 + outDataDistr.sample()
+				,FGCSSetup.workflowMips + miDistr.sample()
+        		,FGCSSetup.workflowIndata + inDataDistr.sample()
+        		,FGCSSetup.workflowOutData + outDataDistr.sample()
         		);
 	}
 

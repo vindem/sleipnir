@@ -1,6 +1,11 @@
 package at.ac.tuwien.ec.sleipnir;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import org.apache.spark.SparkConf;
@@ -33,113 +38,205 @@ import at.ac.tuwien.ec.workflow.MeteoAGWorkflow;
 import at.ac.tuwien.ec.workflow.MontageWorkflow;
 import scala.Tuple2;
 import scala.Tuple4;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 public class FGCSMain {
 
+	
+	
 	public static void main(String[] args) {
+		Logger.getLogger("org").setLevel(Level.OFF);
+		Logger.getLogger("akka").setLevel(Level.OFF);
+
+		class FrequencyComparator implements Comparator<Tuple2<WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>>, Serializable
+		{
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2034500309733677393L;
+
+			@Override
+			public int compare(Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> o1,
+					Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> o2) {
+				// TODO Auto-generated method stub
+				return o2._2()._1() - o1._2()._1();
+			}
+			
+		}
+		
+		double[] mipsConf = {1000,5000,10000,20000};
+		//double[] mipsConf = {1000,2500,4000,5000};
+		double[] inOutDataConf = {62500,125000,250000,500000};
+
+
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
 
-		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(FGCSSetup.iterations);
-		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
+		String[][] outRT = new String[mipsConf.length + 1][inOutDataConf.length + 1];
+		String[][] outCost = new String[mipsConf.length + 1][inOutDataConf.length + 1];
+		String[][] outRel = new String[mipsConf.length + 1][inOutDataConf.length + 1];
+		
+		outRT[0][0] = "\t";
+		outCost[0][0] = "\t";
+		outRel[0][0] = "\t";
+		
+		for(int i = 1; i < mipsConf.length + 1; i++)
+		{
+			outRT[i][0] = Double.toString(mipsConf[i-1]);
+			outCost[i][0] = Double.toString(mipsConf[i-1]);
+			outRel[i][0] = Double.toString(mipsConf[i-1]);
+		}
+		
+		for(int i = 1; i < inOutDataConf.length + 1; i++ ) 
+		{
+			outRT[0][i] = Double.toString(inOutDataConf[i-1]);
+			outCost[0][i] = Double.toString(inOutDataConf[i-1]);
+			outRel[0][i] = Double.toString(inOutDataConf[i-1]);
+		}
+		
 
-		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> results = input.flatMapToPair(new 
-				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
-				WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>() {
-			private static final long serialVersionUID = 1L;
+		for(int i = 0; i < mipsConf.length; i++)
+			for(int j = 0; j < inOutDataConf.length; j++)
+			{
+				FGCSSetup.workflowMips = mipsConf[i];
+				FGCSSetup.workflowIndata = inOutDataConf[j];
+				FGCSSetup.workflowOutData = inOutDataConf[j];
+				ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(FGCSSetup.iterations);
+				JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
 
-			@Override
-			public Iterator<Tuple2<WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>> call(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues)
-					throws Exception {
-				ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
-						new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
-				WorkflowScheduler search = new HEFTMinCostScheduler(inputValues);
-				//WorkflowScheduler search = new SchedulingTester(inputValues);
-				search.setEntryNode(inputValues._2.getNodeById("entry0"));
-				//RandomScheduler search = new RandomScheduler(inputValues);
-				ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
-				if(schedulings != null)
-					for(WorkflowScheduling os : schedulings) 
-					{
-						output.add(
-								new Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>(os,
-										new Tuple4<Integer,Double,Double,Double>(
-												1,
-												os.getRunTime(),
-												os.getUserCost(),
-												os.getReliability()
-												)));
-					}
-				return output.iterator();
-			}
-		});
+				JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> results = input.flatMapToPair(new 
+						PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
+						WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>() {
+					private static final long serialVersionUID = 1L;
 
-		System.out.println(results.first());
-
-		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> aggregation = 
-				results.reduceByKey(
-						new Function2<Tuple4<Integer,Double,Double,Double>,
-						Tuple4<Integer,Double,Double,Double>,
-						Tuple4<Integer,Double,Double,Double>>()
-						{
-							/**
-							 * 
-							 */
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public Tuple4<Integer, Double, Double, Double> call(
-									Tuple4<Integer, Double, Double, Double> off1,
-									Tuple4<Integer, Double, Double, Double> off2) throws Exception {
-								// TODO Auto-generated method stub
-								return new Tuple4<Integer, Double, Double, Double>(
-										off1._1() + off2._1(),
-										off1._2() + off2._2(),
-										off1._3() + off2._3(),
-										off1._4() + off2._4()
-										);
+					@Override
+					public Iterator<Tuple2<WorkflowScheduling, Tuple4<Integer,Double,Double,Double>>> call(Tuple2<MobileApplication, MobileCloudInfrastructure> inputValues)
+							throws Exception {
+						ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>> output = 
+								new ArrayList<Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>>();
+						WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
+						//WorkflowScheduler search = new SchedulingTester(inputValues);
+						search.setEntryNode(inputValues._2.getNodeById("entry0"));
+						//RandomScheduler search = new RandomScheduler(inputValues);
+						ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
+						if(schedulings != null)
+							for(WorkflowScheduling os : schedulings) 
+							{
+								output.add(
+										new Tuple2<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>>(os,
+												new Tuple4<Integer,Double,Double,Double>(
+														1,
+														os.getRunTime(),
+														os.getUserCost(),
+														os.getReliability()
+														)));
 							}
+						return output.iterator();
+					}
+				});
 
-						}
-						);
+				System.out.println(results.first());
 
-		//System.out.println(aggregation.first());
+				JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> aggregation = 
+						results.reduceByKey(
+								new Function2<Tuple4<Integer,Double,Double,Double>,
+								Tuple4<Integer,Double,Double,Double>,
+								Tuple4<Integer,Double,Double,Double>>()
+								{
+									/**
+									 * 
+									 */
+									private static final long serialVersionUID = 1L;
 
-		JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> histogram = 
-				aggregation.mapToPair(
-						new PairFunction<Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>,
-						WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>()
-						{
+									@Override
+									public Tuple4<Integer, Double, Double, Double> call(
+											Tuple4<Integer, Double, Double, Double> off1,
+											Tuple4<Integer, Double, Double, Double> off2) throws Exception {
+										// TODO Auto-generated method stub
+										return new Tuple4<Integer, Double, Double, Double>(
+												off1._1() + off2._1(),
+												off1._2() + off2._2(),
+												off1._3() + off2._3(),
+												off1._4() + off2._4()
+												);
+									}
 
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> call(
-									Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> arg0)
-											throws Exception {
-								Tuple4<Integer, Double, Double, Double> val = arg0._2();
-								Tuple4<Integer, Double, Double, Double> tNew 
-								= new Tuple4<Integer, Double, Double, Double>
-								(
-										val._1(),
-										val._2()/val._1(),
-										val._3()/val._1(),
-										val._4()/val._1()
+								}
 								);
 
-								return new Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
-							}
+				//System.out.println(aggregation.first());
+
+				JavaPairRDD<WorkflowScheduling,Tuple4<Integer,Double,Double,Double>> histogram = 
+						aggregation.mapToPair(
+								new PairFunction<Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>,
+								WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>()
+								{
+
+									private static final long serialVersionUID = 1L;
+
+									@Override
+									public Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> call(
+											Tuple2<WorkflowScheduling, Tuple4<Integer, Double, Double, Double>> arg0)
+													throws Exception {
+										Tuple4<Integer, Double, Double, Double> val = arg0._2();
+										Tuple4<Integer, Double, Double, Double> tNew 
+										= new Tuple4<Integer, Double, Double, Double>
+										(
+												val._1(),
+												val._2()/val._1(),
+												val._3()/val._1(),
+												val._4()/val._1()
+												);
+
+										return new Tuple2<WorkflowScheduling,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
+									}
 
 
-						}
+								}
 
-						);
-
-		System.out.println(histogram.first());
-
+								);
+				
+				Tuple2<WorkflowScheduling, Tuple4<Integer,Double,Double,Double>> mostFrequent = histogram.max(new FrequencyComparator());
+				System.out.println(mostFrequent);
+				outRT[i+1][j+1] = Double.toString(mostFrequent._2()._2());
+				outCost[i+1][j+1] = Double.toString(mostFrequent._2()._3());
+				outRel[i+1][j+1] = Double.toString(mostFrequent._2()._4());
+			}
 		jscontext.close();
+
+		try {
+			BufferedWriter RTwriter = new BufferedWriter(new FileWriter("RT.out"));
+			BufferedWriter Costwriter = new BufferedWriter(new FileWriter("COST.out"));
+			BufferedWriter RLwriter = new BufferedWriter(new FileWriter("RL.out"));
+						
+			for(int i = 0; i < mipsConf.length + 1; i++)
+			{
+				for(int j = 0; j < inOutDataConf.length + 1; j++)
+				{
+					RTwriter.write(outRT[i][j] + "\t");
+					Costwriter.write(outCost[i][j] + "\t");
+					RLwriter.write(outRel[i][j] + "\t");
+				}
+				RTwriter.write("\n");
+				Costwriter.write("\n");
+				RLwriter.write("\n");
+				RTwriter.flush();
+				Costwriter.flush();
+				RLwriter.flush();
+			}
+			RTwriter.close();
+			Costwriter.close();
+			RLwriter.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
 	}
 
 	private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(int iterations) {
@@ -150,8 +247,8 @@ public class FGCSMain {
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			MobileApplication app = new MontageWorkflow();
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum * 2);
-			//WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
+			WorkflowSchedulingCloudPlanner.setupCloudNodes(inf, FGCSSetup.cloudNum);
+			WorkflowSchedulingEdgePlanner.setupEdgeNodes(inf);
 			WorkflowSchedulingTerminalsPlanner.setupTerminals(inf);
 			WorkflowSchedulingFixedNetworkPlanner.setupNetworkConnections(inf);			
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(app,inf);
