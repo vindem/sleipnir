@@ -68,5 +68,9 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 	public void undeploy(VMInstance vmInstance) {
 		capabilities.undeploy(vmInstance);		
 	}
+
+	public void deployVM(VMInstance vm) {
+		capabilities.deploy(vm);
+	}
 	
 }

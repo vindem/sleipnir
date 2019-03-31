@@ -12,6 +12,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class DataPlacement extends Scheduling {
 
@@ -19,12 +20,11 @@ public class DataPlacement extends Scheduling {
 	 * 
 	 */
 	private static final long serialVersionUID = -2269545400797069724L;
-	private double averageLatency, cost;
+	private double maxLatency ,averageLatency, cost;
 	public double getCost() {
 		return cost;
 	}
 
-	int dataEntries;
 	private MobileDataDistributionInfrastructure currentInfrastructure;
 	
 	public MobileDataDistributionInfrastructure getCurrentInfrastructure() {
@@ -38,20 +38,21 @@ public class DataPlacement extends Scheduling {
 	public DataPlacement()
 	{
 		averageLatency = 0.0;
-		dataEntries = 0;
 		cost = 0.0;
 	}
 	
-	public void addEntryLatency(DataEntry entry, IoTDevice dev, ComputationalNode n, MobileDevice mobile, MobileDataDistributionInfrastructure inf)
+	public void setCost(double cost) {
+		this.cost = cost;
+	}
+
+	public void addEntryLatency(DataEntry entry, int dataEntries,IoTDevice dev, ComputationalNode n, MobileDevice mobile, MobileDataDistributionInfrastructure inf)
 	{
-		dataEntries++;
 		double entryLatency = entry.getTotalProcessingTime(dev, n, mobile, inf);
 		averageLatency += entryLatency / dataEntries;
 	}
 	
-	public void removeEntryLatency(DataEntry entry, IoTDevice dev, ComputationalNode n, MobileDevice mobile, MobileDataDistributionInfrastructure inf) 
+	public void removeEntryLatency(DataEntry entry, int dataEntries, IoTDevice dev, ComputationalNode n, MobileDevice mobile, MobileDataDistributionInfrastructure inf) 
 	{
-		dataEntries--;
 		double entryLatency = entry.getTotalProcessingTime(dev, n, mobile, inf);
 		averageLatency -= entryLatency / dataEntries;
 	}
@@ -72,11 +73,19 @@ public class DataPlacement extends Scheduling {
 		double tmpCost = 0.0;
 		ArrayList<VMInstance> vmList = currentInfrastructure.getVMAssignment(uid);
 		for(VMInstance vm : vmList)
-			tmpCost += lifeTime * vm.getPricePerSecond(); 
+			tmpCost += vm.getPricePerSecond(); 
 		MobileDevice dev = (MobileDevice) currentInfrastructure.getNodeById(uid);
 		dev.setCost(tmpCost);
 		this.cost += tmpCost;
 			
+	}
+
+	public void setAverageMaxLatency(double d) {
+		maxLatency = d;
+	}
+
+	public double getMaxLatency() {
+		return maxLatency;
 	}
 	
 	

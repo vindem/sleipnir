@@ -1,10 +1,15 @@
 package at.ac.tuwien.ec.sleipnir;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Function;
 
+
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -19,8 +24,14 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 import at.ac.tuwien.ac.datamodel.DataDistributionGenerator;
 import at.ac.tuwien.ac.datamodel.DataEntry;
 import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.FFDCPUPlacement;
 import at.ac.tuwien.ac.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
 import at.ac.tuwien.ac.datamodel.placement.algorithms.SteinerTreeHeuristic;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.BestFitCPU;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitCPUDecreasing;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
+import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -54,6 +65,27 @@ public class SC2019Main {
 	
 	public static void main(String[] arg)
 	{
+		Logger.getLogger("org").setLevel(Level.OFF);
+		Logger.getLogger("akka").setLevel(Level.OFF);
+		
+		class FrequencyComparator implements Comparator<Tuple2<DataPlacement, Tuple3<Integer,Double,Double>>>, Serializable
+		{
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2034500309733677393L;
+
+			@Override
+			public int compare(Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> o1,
+					Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> o2) {
+				// TODO Auto-generated method stub
+				return o1._2()._1() - o2._2()._1();
+			}
+			
+		}
+				
+		
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -62,24 +94,34 @@ public class SC2019Main {
 		
 		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
-		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> results = input.flatMapToPair(new 
-				PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
-				DataPlacement, Tuple3<Integer,Double, Double>>() {
-					private static final long serialVersionUID = 1L;
+		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
+		planners.add(new FirstFitCPUIncreasing());
+		planners.add(new FirstFitCPUDecreasing());
+		planners.add(new BestFitCPU());
+		planners.add(new FirstFitDecreasingSizeVMPlanner());
+					
+		for(int i = 0; i < planners.size(); i++) {
+			VMPlanner currentPlanner = planners.get(i);
+			System.out.println(currentPlanner.getClass().getSimpleName());
+			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> results = input.flatMapToPair(new 
+					PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
+					DataPlacement, Tuple3<Integer,Double, Double>>() {
+				private static final long serialVersionUID = 1L;
 
-					@Override
-					public Iterator<Tuple2<DataPlacement, Tuple3<Integer,Double, Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
-							throws Exception {
-						ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>> output = 
-								new ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>>();
-						//HEFTResearch search = new HEFTResearch(inputValues);
-						RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(inputValues);
-						//SteinerTreeHeuristic search = new SteinerTreeHeuristic(inputValues);
-						ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
-						if(offloads != null)
-							for(DataPlacement dp : offloads) 
-							{
-								if(dp!=null)
+				@Override
+				public Iterator<Tuple2<DataPlacement, Tuple3<Integer,Double, Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
+						throws Exception {
+					ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>> output = 
+							new ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>>();
+					//HEFTResearch search = new HEFTResearch(inputValues);
+					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
+					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+					FFDCPUPlacement search = new FFDCPUPlacement(currentPlanner, inputValues);
+					ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
+					if(offloads != null)
+						for(DataPlacement dp : offloads) 
+						{
+							if(dp!=null)
 								output.add(
 										new Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>(dp,
 												new Tuple3<Integer,Double, Double>(
@@ -87,83 +129,85 @@ public class SC2019Main {
 														dp.getAverageLatency(),
 														dp.getCost()
 														)));
-							}
-						return output.iterator();
-					}
-		});
-		
-		//System.out.println(results.first());
-		
-		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> aggregation = 
-				results.reduceByKey(
-				new Function2<Tuple3<Integer,Double, Double>,
-				Tuple3<Integer,Double,Double>,
-				Tuple3<Integer,Double,Double>>()
-				{
-					/**
-					 * 
-					 */
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public Tuple3<Integer, Double, Double> call(
-							Tuple3<Integer, Double,Double> off1,
-							Tuple3<Integer, Double,Double> off2) throws Exception {
-						// TODO Auto-generated method stub
-						return new Tuple3<Integer, Double, Double>(
-								off1._1() + off2._1(),
-								off1._2() + off2._2(),
-								off1._3() + off2._3()
-								);
-					}
-					
+						}
+					return output.iterator();
 				}
-			);
-		
-		//System.out.println(aggregation.first());
-		
-		JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> histogram = 
-				aggregation.mapToPair(
-						new PairFunction<Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>,
-						DataPlacement,Tuple3<Integer, Double, Double>>()
-						{
+			});
 
-							private static final long serialVersionUID = 1L;
+			//System.out.println(results.first());
 
-							@Override
-							public Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> call(
-									Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> arg0)
-									throws Exception {
-								Tuple3<Integer, Double, Double> val = arg0._2();
-								Tuple3<Integer, Double, Double> tNew 
+			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> aggregation = 
+					results.reduceByKey(
+							new Function2<Tuple3<Integer,Double, Double>,
+							Tuple3<Integer,Double,Double>,
+							Tuple3<Integer,Double,Double>>()
+							{
+								/**
+								 * 
+								 */
+								private static final long serialVersionUID = 1L;
+
+								@Override
+								public Tuple3<Integer, Double, Double> call(
+										Tuple3<Integer, Double,Double> off1,
+										Tuple3<Integer, Double,Double> off2) throws Exception {
+									// TODO Auto-generated method stub
+									return new Tuple3<Integer, Double, Double>(
+											off1._1() + off2._1(),
+											off1._2() + off2._2(),
+											off1._3() + off2._3()
+											);
+								}
+
+							}
+							);
+
+			//System.out.println(aggregation.first());
+
+			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> histogram = 
+					aggregation.mapToPair(
+							new PairFunction<Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>,
+							DataPlacement,Tuple3<Integer, Double, Double>>()
+							{
+
+								private static final long serialVersionUID = 1L;
+
+								@Override
+								public Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> call(
+										Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> arg0)
+												throws Exception {
+									Tuple3<Integer, Double, Double> val = arg0._2();
+									Tuple3<Integer, Double, Double> tNew 
 									= new Tuple3<Integer, Double, Double>
 									(
-										val._1(),
-										val._2()/val._1(),
-										val._3()/val._1()
-									);
-								
-								return new Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>(arg0._1,tNew);
+											val._1(),
+											val._2()/val._1(),
+											val._3()/val._1()
+											);
+
+									return new Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>(arg0._1,tNew);
+								}
+
+
 							}
 
-							
-						}
-				
-				);
-				
-		System.out.println(histogram.first());
-		
+							);
+
+			Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			System.out.println(mostFrequent._2());
+			System.out.println(mostFrequent._1.values().size());
+		}
 		jscontext.close();
 	}
 
 	private static ArrayList<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
 		ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>>();
 		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
+		ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
 		for(int i = 0; i < iterations; i++)
 		{
-			ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
-			WorkloadGenerator generator = new WorkloadGenerator();
-			
+			//ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
+			//WorkloadGenerator generator = new WorkloadGenerator();
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();

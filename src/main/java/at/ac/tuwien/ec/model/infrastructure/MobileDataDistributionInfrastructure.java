@@ -34,16 +34,16 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		iotDevices = new HashMap<String,IoTDevice>();
 		registry = new HashMap<String, ArrayList<MobileDevice>>();
 		vmRepository = new HashMap<String, VMInstance>();
-		vmRepository.put("c5.large", new VMInstance("c5.large",new HardwareCapabilities(new Hardware(2,100,1e6), 10000),0.085));
-		vmRepository.put("c5.xlarge", new VMInstance("c5.xlarge",new HardwareCapabilities(new Hardware(4,100,1e6), 10000),0.17));
-		vmRepository.put("c5.2xlarge", new VMInstance("c5.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e6), 10000),0.34));
-		vmRepository.put("c5.4xlarge", new VMInstance("c5.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e6), 10000),0.68));
-		vmRepository.put("c5d.2xlarge", new VMInstance("c5d.2xlarge",new HardwareCapabilities(new Hardware(8,100,2.5e6), 10000),0.384));
-		vmRepository.put("c5d.4xlarge", new VMInstance("c5d.4xlarge",new HardwareCapabilities(new Hardware(16,100,2.5e6), 10000),0.768));
-		vmRepository.put("h1.2xlarge", new VMInstance("h1.2xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.468));
-		vmRepository.put("h1.4xlarge", new VMInstance("h1.4xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.936));
-		vmRepository.put("i3.2xlarge", new VMInstance("i3.2xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),0.624));
-		vmRepository.put("i3.4xlarge", new VMInstance("i3.4xlarge",new HardwareCapabilities(new Hardware(1,100,1e6), 10000),1.248));
+		vmRepository.put("c5.large", new VMInstance("c5.large",new HardwareCapabilities(new Hardware(2,100,1e7), 10000),0.085));
+		vmRepository.put("c5.xlarge", new VMInstance("c5.xlarge",new HardwareCapabilities(new Hardware(4,100,1e7), 10000),0.17));
+		vmRepository.put("c5.2xlarge", new VMInstance("c5.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e7), 10000),0.34));
+		vmRepository.put("c5.4xlarge", new VMInstance("c5.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e7), 10000),0.68));
+		vmRepository.put("c5d.2xlarge", new VMInstance("c5d.2xlarge",new HardwareCapabilities(new Hardware(8,100,2.5e7), 10000),0.384));
+		vmRepository.put("c5d.4xlarge", new VMInstance("c5d.4xlarge",new HardwareCapabilities(new Hardware(16,100,2.5e7), 10000),0.768));
+		vmRepository.put("h1.2xlarge", new VMInstance("h1.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e8), 10000),0.468));
+		vmRepository.put("h1.4xlarge", new VMInstance("h1.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e8), 10000),0.936));
+		vmRepository.put("i3.2xlarge", new VMInstance("i3.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e8), 10000),0.624));
+		vmRepository.put("i3.4xlarge", new VMInstance("i3.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e8), 10000),1.248));
 		vmAssignment = new HashMap<String, ArrayList<VMInstance>>();
 	}
 	

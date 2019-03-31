@@ -11,29 +11,42 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 
-public interface VMPlanner {
-	
-	class VMCPUComparator implements Comparator<VMInstance>, Serializable
+public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4748429963179361944L;
+
+	class DataSizeDecreasingComparator implements Comparator<DataEntry>, Serializable
 	{
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3058420470358519683L;
-
 		@Override
-		public int compare(VMInstance o1, VMInstance o2) {
-			return (int) Double.compare(o1.getCapabilities().getMipsPerCore()*o1.getCapabilities().getAvailableCores()
-					,o2.getCapabilities().getMipsPerCore()*o2.getCapabilities().getAvailableCores());
+		public int compare(DataEntry o1, DataEntry o2) {
+			return (int) ((o2.getInData() + o2.getOutData()) - (o1.getInData() + o1.getOutData()));
 		}
 		
 	}
 	
-	abstract ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev, MobileDataDistributionInfrastructure inf);
+	@Override
+	public ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
+			MobileDataDistributionInfrastructure inf) {
+		ArrayList<VMInstance> vmPlan = new ArrayList<VMInstance>();
+		Collections.sort(dList,new DataSizeDecreasingComparator());
+		for(DataEntry d : dList)
+		{
+			VMInstance vm = findExistingVMInstance(d,mDev,inf);
+			if(vm == null)
+			{
+				vm = instantiateNewVM(d, mDev, inf);
+				vmPlan.add(vm);
+			}
+			d.setVMInstance(vm);
+		}
+		return vmPlan;
+	}
 	
-	
-	default VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
-		System.out.println("VMP");
+	public VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
 		VMInstance targetVM = null;
 		ArrayList<VMInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
 		if(instancesForUid != null) 
@@ -49,19 +62,19 @@ public interface VMPlanner {
 		}
 		return targetVM;
 	}
-
-	default VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
+	
+	public VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
 		HashMap<String,VMInstance> repo = currentInfrastructure.getVMRepository();
 		double minCost = Double.MAX_VALUE;
 		VMInstance targetVM = null;
 		for(VMInstance vm : repo.values()) 
 		{
-			double tmp = (d.getMillionsOfInstruction() / vm.getMipsPerCore()) * vm.getPricePerSecond();
-			if(tmp < minCost) 
+			double tmp = vm.getPricePerSecond();
+			if(tmp < minCost && vm.getCapabilities().supports(d.getHardwareRequirements())) 
 			{
 				minCost = tmp;
-				targetVM = vm;
+				targetVM = vm.clone();
 			}
 		}
 		currentInfrastructure.instantiateVMForUser(mDev.getId(), (VMInstance) targetVM.clone());

@@ -67,8 +67,8 @@ public class HardwareCapabilities implements Serializable{
 	public boolean deploy(VMInstance vm){
 		if(!supports(new Hardware(vm.getCapabilities().maxCores, vm.getCapabilities().maxRam, vm.getCapabilities().maxStorage)))
 			return false;
-		capabilities.cores -= vm.getCapabilities().maxCores;
-		capabilities.ram -= vm.getCapabilities().maxRam;
+		//capabilities.cores -= vm.getCapabilities().maxCores;
+		//capabilities.ram -= vm.getCapabilities().maxRam;
 		capabilities.storage -= vm.getCapabilities().maxStorage;
 		return true;
 		

@@ -87,7 +87,8 @@ public class DefaultNetworkPlanner {
 			double Cloud3GBandwidth = 3.6 + exponentialGeneration(1.6);
         	double CloudWiFiHQBandwidth = 16.0 + exponentialGeneration(1.6);
         	double CloudWiFiLQBandwidth = 2.0 + exponentialGeneration(1.0);
-        	double cloudLatency = normalGeneration();
+        	double cloudLatency = normalGeneration() * SimulationSetup.MAP_M;
+			//double cloudLatency = normalGeneration();
 			
         	QoSProfile qosCloudUL;//,qosCloudDL
         	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
@@ -145,7 +146,8 @@ public class DefaultNetworkPlanner {
 			double Cloud3GBandwidth = 3.6 + exponentialGeneration(1.6);
         	double CloudWiFiHQBandwidth = 16.0 + exponentialGeneration(1.6);
         	double CloudWiFiLQBandwidth = 2.0 + exponentialGeneration(1.0);
-        	double cloudLatency = normalGeneration();
+        	double cloudLatency = normalGeneration() * SimulationSetup.MAP_M;
+			//double cloudLatency = normalGeneration();
 			
         	QoSProfile qosCloudUL;//,qosCloudDL
         	qosCloudUL = (wifiAvailable)? new QoSProfile(asList(

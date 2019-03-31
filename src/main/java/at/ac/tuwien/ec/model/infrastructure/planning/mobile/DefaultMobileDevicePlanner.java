@@ -31,7 +31,9 @@ public class DefaultMobileDevicePlanner {
 												RandomUtils.nextInt(SimulationSetup.MAP_N*2));
 			device.setCoords(randomCoordinates);
 			inf.addMobileDevice(device);
-			inf.subscribeDeviceToTopic(device, SimulationSetup.topics[i % SimulationSetup.topics.length]);
+			//depending on setup of traffic
+			for(int j = 0; j < SimulationSetup.iotDevicesNum; j++)
+				inf.subscribeDeviceToTopic(device, "iot"+j);
 		}
 	}
 
