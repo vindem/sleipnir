@@ -1,9 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.ac.tuwien.ec</groupId>
-  <artifactId>sleipnir</artifactId>
+  <artifactId>core-java</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Sleipnir</name>
+  <packaging>jar</packaging>
+  
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+  
   
 	<dependencies>
 		<dependency>
@@ -82,35 +89,48 @@
             <artifactId>jmetal-problem</artifactId>
             <version>5.6</version>
         </dependency>
-	<properties>
-	<java.version>1.6</java.version>
-	</properties>
+		
 	</dependencies>
 		
 	<build>
-        <finalName>maven-unit-test</finalName>
+        <finalName>sleipnir</finalName>
         <plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
-            </plugin>
+           	<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-dependency-plugin</artifactId>
+   				<executions>
+        			<execution>
+            		<id>copy-dependencies</id>
+            		<phase>prepare-package</phase>
+            	<goals>
+                	<goal>copy-dependencies</goal>
+            	</goals>
+            	<configuration>
+                <outputDirectory>
+                    ${project.build.directory}/libs
+                </outputDirectory>
+            </configuration>
+        	</execution>
+    		</executions>
+			</plugin>
 
-        
-    		<plugin>
-      			<artifactId>maven-assembly-plugin</artifactId>
-      				<configuration>
-        			<archive>
-          			<manifest>
-            			<mainClass>at.ac.tuwien.ec.sleipnir.Main</mainClass>
-          			</manifest>
-        			</archive>
-        		<descriptorRefs>
-          			<descriptorRef>sleipnir.jar</descriptorRef>
-        		</descriptorRefs>
-      			</configuration>
-    	</plugin>
+			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-jar-plugin</artifactId>
+    			<configuration>
+        		<archive>
+            	<manifest>
+                	<addClasspath>true</addClasspath>
+                	<classpathPrefix>libs/</classpathPrefix>
+                	<mainClass>
+                    	at.ac.tuwien.ec.sleipnir.SC2019Main
+                	</mainClass>
+            	</manifest>
+        		</archive>
+    			</configuration>
+			</plugin>
+
   		</plugins>
 	</build>
 	
@@ -128,7 +148,6 @@
       <email>vincenzo@ec.tuwien.ac.at</email>
       <organization>Vienna University of Technology</organization>
       <organizationUrl>http://www.tuwien.ac.at</organizationUrl>
-      <personalUrl>http://www.vincenzodemaio.info</personalUrl>
     </developer>
 </developers>
 	

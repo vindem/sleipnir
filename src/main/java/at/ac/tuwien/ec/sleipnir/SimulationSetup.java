@@ -75,6 +75,11 @@ public class SimulationSetup {
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
 	public static int dataEntryNum = 2592;
 	//public static int dataEntryNum = 259200;
-	
+	public static String placementAlgorithm = "STH";
+	public static String filename = "testFile";
+	public static String traffic ="HIGH";
+	public static String area = "SIMMERING";
+	public static double dataRate = 2.0;
+	public static String workloadType = "DATA3";
 
 }

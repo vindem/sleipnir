@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 
 import org.jgrapht.Graph;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;

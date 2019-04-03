@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.datamodel;
+package at.ac.tuwien.ec.datamodel;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;

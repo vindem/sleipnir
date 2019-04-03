@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.datamodel.placement;
+package at.ac.tuwien.ec.datamodel.placement;
 
 import java.util.HashMap;
 

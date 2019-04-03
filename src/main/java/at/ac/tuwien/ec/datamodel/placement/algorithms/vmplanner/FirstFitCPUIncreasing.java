@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner;
+package at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,24 +6,31 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner.DataSizeDecreasingComparator;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner.VMCPUComparator;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 
-public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
+public class FirstFitCPUIncreasing implements VMPlanner, Serializable{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4748429963179361944L;
+	private static final long serialVersionUID = 4444287679807134492L;
 
-	class DataSizeDecreasingComparator implements Comparator<DataEntry>, Serializable
+	class MIPSRequirementComparator implements Comparator<DataEntry>, Serializable
 	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2143189179495737463L;
 
 		@Override
 		public int compare(DataEntry o1, DataEntry o2) {
-			return (int) ((o2.getInData() + o2.getOutData()) - (o1.getInData() + o1.getOutData()));
+			return (int) (Double.compare(o1.getMillionsOfInstruction(), o2.getMillionsOfInstruction()));
 		}
 		
 	}
@@ -32,7 +39,8 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 	public ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
 			MobileDataDistributionInfrastructure inf) {
 		ArrayList<VMInstance> vmPlan = new ArrayList<VMInstance>();
-		Collections.sort(dList,new DataSizeDecreasingComparator());
+		Collections.sort(dList,new MIPSRequirementComparator());
+		//System.out.println("FF");
 		for(DataEntry d : dList)
 		{
 			VMInstance vm = findExistingVMInstance(d,mDev,inf);
@@ -45,7 +53,7 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 		}
 		return vmPlan;
 	}
-	
+
 	public VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
 		VMInstance targetVM = null;
 		ArrayList<VMInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
@@ -62,23 +70,23 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 		}
 		return targetVM;
 	}
-	
+
 	public VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
 		HashMap<String,VMInstance> repo = currentInfrastructure.getVMRepository();
-		double minCost = Double.MAX_VALUE;
+		ArrayList<VMInstance> repoInst = new ArrayList<VMInstance>(repo.values());
+		Collections.sort(repoInst, new VMCPUComparator());
 		VMInstance targetVM = null;
-		for(VMInstance vm : repo.values()) 
+		for(VMInstance vm : repoInst) 
 		{
-			double tmp = vm.getPricePerSecond();
-			if(tmp < minCost && vm.getCapabilities().supports(d.getHardwareRequirements())) 
+			if(vm.isCompatible(d)) 
 			{
-				minCost = tmp;
 				targetVM = vm.clone();
+				break;
 			}
 		}
 		currentInfrastructure.instantiateVMForUser(mDev.getId(), (VMInstance) targetVM.clone());
 		return targetVM;
 	} 
-
+	
 }

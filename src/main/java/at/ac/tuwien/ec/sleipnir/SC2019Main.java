@@ -1,5 +1,8 @@
 package at.ac.tuwien.ec.sleipnir;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,17 +24,18 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.jgrapht.Graph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import at.ac.tuwien.ac.datamodel.DataDistributionGenerator;
-import at.ac.tuwien.ac.datamodel.DataEntry;
-import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.FFDCPUPlacement;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.SteinerTreeHeuristic;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.BestFitCPU;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitCPUDecreasing;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
+import at.ac.tuwien.ec.datamodel.DataDistributionGenerator;
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.DataPlacementAlgorithm;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.FFDCPUPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.SteinerTreeHeuristic;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.BestFitCPU;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUDecreasing;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -68,7 +72,7 @@ public class SC2019Main {
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
 		
-		class FrequencyComparator implements Comparator<Tuple2<DataPlacement, Tuple3<Integer,Double,Double>>>, Serializable
+		class FrequencyComparator implements Comparator<Tuple2<DataPlacement, Tuple4<Integer,Double,Double,Double>>>, Serializable
 		{
 
 			/**
@@ -77,15 +81,40 @@ public class SC2019Main {
 			private static final long serialVersionUID = -2034500309733677393L;
 
 			@Override
-			public int compare(Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> o1,
-					Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> o2) {
+			public int compare(Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o1,
+					Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o2) {
 				// TODO Auto-generated method stub
 				return o1._2()._1() - o2._2()._1();
 			}
 			
 		}
 				
-		
+		processArgs(arg);
+		switch(SimulationSetup.area)
+		{
+		case "HERNALS":
+			SimulationSetup.MAP_M = 6;
+			SimulationSetup.MAP_N = 6;
+			SimulationSetup.iotDevicesNum = 36;
+			SimulationSetup.mobileNum = 24;
+			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
+			break;
+		case "LEOPOLDSTADT":
+			SimulationSetup.MAP_M = 10;
+			SimulationSetup.MAP_N = 10;
+			SimulationSetup.iotDevicesNum = 100;
+			SimulationSetup.mobileNum = 40;
+			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
+			break;
+		case "SIMMERING":
+			SimulationSetup.MAP_M = 12;
+			SimulationSetup.MAP_N = 12;
+			SimulationSetup.iotDevicesNum = 144;
+			SimulationSetup.mobileNum = 48;
+			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
+			break;
+		}
+	
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -95,38 +124,61 @@ public class SC2019Main {
 		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
 		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
-		planners.add(new FirstFitCPUIncreasing());
-		planners.add(new FirstFitCPUDecreasing());
-		planners.add(new BestFitCPU());
+		//planners.add(new FirstFitCPUIncreasing());
+		//planners.add(new FirstFitCPUDecreasing());
+		//planners.add(new BestFitCPU());
 		planners.add(new FirstFitDecreasingSizeVMPlanner());
-					
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
+			writer.append("AREA: " + SimulationSetup.MAP_M + "x" + SimulationSetup.MAP_N +"\n");
+			writer.append("ALGORITHM: " + SimulationSetup.placementAlgorithm+"\n");
+			writer.append("IoTNUM: " + SimulationSetup.iotDevicesNum+"\n");
+			writer.append("MobileNUM: " + SimulationSetup.mobileNum+"\n");
+			writer.append("TRAFFIC: " + SimulationSetup.traffic+"\n");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}			
 		for(int i = 0; i < planners.size(); i++) {
 			VMPlanner currentPlanner = planners.get(i);
 			System.out.println(currentPlanner.getClass().getSimpleName());
-			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> results = input.flatMapToPair(new 
+			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
-					DataPlacement, Tuple3<Integer,Double, Double>>() {
+					DataPlacement, Tuple4<Integer,Double, Double,Double>>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public Iterator<Tuple2<DataPlacement, Tuple3<Integer,Double, Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
+				public Iterator<Tuple2<DataPlacement, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
 						throws Exception {
-					ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>> output = 
-							new ArrayList<Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>>();
+					ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
+							new ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>>();
 					//HEFTResearch search = new HEFTResearch(inputValues);
+					DataPlacementAlgorithm search;
+					switch(SimulationSetup.placementAlgorithm)
+					{
+					case "FFDCPU":
+						search = new FFDCPUPlacement(currentPlanner, inputValues);
+						break;
+					case "STH":
+						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+						break;
+					default:
+						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-					FFDCPUPlacement search = new FFDCPUPlacement(currentPlanner, inputValues);
 					ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
 					if(offloads != null)
 						for(DataPlacement dp : offloads) 
 						{
 							if(dp!=null)
 								output.add(
-										new Tuple2<DataPlacement,Tuple3<Integer,Double, Double>>(dp,
-												new Tuple3<Integer,Double, Double>(
+										new Tuple2<DataPlacement,Tuple4<Integer,Double, Double, Double>>(dp,
+												new Tuple4<Integer,Double, Double,Double>(
 														1,
 														dp.getAverageLatency(),
+														dp.getMaxLatency(),
 														dp.getCost()
 														)));
 						}
@@ -136,11 +188,11 @@ public class SC2019Main {
 
 			//System.out.println(results.first());
 
-			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> aggregation = 
+			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
 					results.reduceByKey(
-							new Function2<Tuple3<Integer,Double, Double>,
-							Tuple3<Integer,Double,Double>,
-							Tuple3<Integer,Double,Double>>()
+							new Function2<Tuple4<Integer,Double, Double,Double>,
+							Tuple4<Integer,Double,Double,Double>,
+							Tuple4<Integer,Double,Double,Double>>()
 							{
 								/**
 								 * 
@@ -148,14 +200,15 @@ public class SC2019Main {
 								private static final long serialVersionUID = 1L;
 
 								@Override
-								public Tuple3<Integer, Double, Double> call(
-										Tuple3<Integer, Double,Double> off1,
-										Tuple3<Integer, Double,Double> off2) throws Exception {
+								public Tuple4<Integer, Double, Double, Double> call(
+										Tuple4<Integer, Double,Double, Double> off1,
+										Tuple4<Integer, Double,Double, Double> off2) throws Exception {
 									// TODO Auto-generated method stub
-									return new Tuple3<Integer, Double, Double>(
+									return new Tuple4<Integer, Double, Double, Double>(
 											off1._1() + off2._1(),
 											off1._2() + off2._2(),
-											off1._3() + off2._3()
+											off1._3() + off2._3(),
+											off1._4() + off2._4()
 											);
 								}
 
@@ -164,38 +217,55 @@ public class SC2019Main {
 
 			//System.out.println(aggregation.first());
 
-			JavaPairRDD<DataPlacement,Tuple3<Integer,Double, Double>> histogram = 
+			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
 					aggregation.mapToPair(
-							new PairFunction<Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>,
-							DataPlacement,Tuple3<Integer, Double, Double>>()
+							new PairFunction<Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>,
+							DataPlacement,Tuple4<Integer, Double, Double, Double>>()
 							{
 
 								private static final long serialVersionUID = 1L;
 
 								@Override
-								public Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> call(
-										Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> arg0)
+								public Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> call(
+										Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> arg0)
 												throws Exception {
-									Tuple3<Integer, Double, Double> val = arg0._2();
-									Tuple3<Integer, Double, Double> tNew 
-									= new Tuple3<Integer, Double, Double>
+									Tuple4<Integer, Double, Double, Double> val = arg0._2();
+									Tuple4<Integer, Double, Double, Double> tNew 
+									= new Tuple4<Integer, Double, Double, Double>
 									(
 											val._1(),
 											val._2()/val._1(),
-											val._3()/val._1()
+											val._3()/val._1(),
+											val._4()/val._1()
 											);
 
-									return new Tuple2<DataPlacement,Tuple3<Integer, Double, Double>>(arg0._1,tNew);
+									return new Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
 								}
 
 
 							}
 
 							);
-
-			Tuple2<DataPlacement, Tuple3<Integer, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			
+			Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			try {
+				 writer.append("\n");
+				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");
+				 writer.append((CharSequence) mostFrequent._2().toString()+"\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 			System.out.println(mostFrequent._2());
 			System.out.println(mostFrequent._1.values().size());
+		}
+		try {
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		jscontext.close();
 	}
@@ -213,8 +283,8 @@ public class SC2019Main {
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			RandomEdgePlanner.setupEdgeNodes(inf);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
+			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
@@ -222,6 +292,58 @@ public class SC2019Main {
 		return samples;
 	}
 
+	private static void processArgs(String[] args)
+	{
+		for(String arg: args)
+		{
+			if(arg.startsWith("-placement="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.placementAlgorithm = pars[1];
+			}
+			if(arg.startsWith("-filename="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.filename = pars[1];
+			}
+			if(arg.startsWith("-area="))
+			{
+				String[] pars = arg.split("=");
+				switch(pars[1])
+				{
+				case "HERNALS":
+					SimulationSetup.MAP_M = 6;
+					SimulationSetup.MAP_N = 6;
+					SimulationSetup.iotDevicesNum = 36;
+					SimulationSetup.mobileNum = 24;
+					SimulationSetup.dataEntryNum = 2592;
+					break;
+				case "LEOPOLDSTADT":
+					SimulationSetup.MAP_M = 10;
+					SimulationSetup.MAP_N = 10;
+					SimulationSetup.iotDevicesNum = 100;
+					SimulationSetup.mobileNum = 40;
+					SimulationSetup.dataEntryNum = 2880;
+					break;
+				case "SIMMERING":
+					SimulationSetup.MAP_M = 12;
+					SimulationSetup.MAP_N = 12;
+					SimulationSetup.iotDevicesNum = 144;
+					SimulationSetup.mobileNum = 48;
+					SimulationSetup.dataEntryNum = 10368;
+					break;
+				}
+			}
+			if(arg.startsWith("-traffic="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.traffic = pars[1];
+			}
+				
+				
+		}
+	}
+	
 		//Creates samples for each spark worker
 	
 

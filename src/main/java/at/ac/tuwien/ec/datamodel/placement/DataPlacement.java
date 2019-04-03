@@ -1,10 +1,10 @@
-package at.ac.tuwien.ac.datamodel.placement;
+package at.ac.tuwien.ec.datamodel.placement;
 
 import java.util.ArrayList;
 
 import javax.swing.plaf.IconUIResource;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;

@@ -1,12 +1,12 @@
-package at.ac.tuwien.ac.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.placement.algorithms;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
-import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -65,8 +65,9 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 		HashMap<String, ArrayList<MobileDevice>> registry 
 			= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
 		for(DataEntry de : dataEntries)
-			if(registry.get(de.getTopic()).contains(dev))
-				filtered.add(de);
+			if(registry.containsKey(de.getTopic()))
+				if(registry.get(de.getTopic()).contains(dev))
+					filtered.add(de);
 				
 		return filtered;	
 	}

@@ -1,12 +1,12 @@
-package at.ac.tuwien.ac.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.placement.algorithms;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
-import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -103,8 +103,9 @@ public class FFDCPUPlacement extends DataPlacementAlgorithm {
 				avgCost += dev.getCost();
 				maxLat += dev.getMaxLatency();
 			}
-			dp.setAverageLatency(maxLat / currentInfrastructure.getMobileDevices().size());
-			dp.setAverageMaxLatency(avgLat / currentInfrastructure.getMobileDevices().size());
+			
+			dp.setAverageLatency(avgLat / currentInfrastructure.getMobileDevices().size());
+			dp.setAverageMaxLatency(maxLat / currentInfrastructure.getMobileDevices().size());
 			dp.setCost(avgCost / currentInfrastructure.getMobileDevices().size());
 			dataPlacements.add(dp);
 		}

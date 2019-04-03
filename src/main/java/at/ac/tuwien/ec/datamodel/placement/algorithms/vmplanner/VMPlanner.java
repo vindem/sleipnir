@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner;
+package at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;

@@ -1,6 +1,6 @@
 package at.ac.tuwien.ec.model.pricing;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;

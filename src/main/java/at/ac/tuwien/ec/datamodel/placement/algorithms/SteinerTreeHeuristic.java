@@ -1,4 +1,4 @@
-package at.ac.tuwien.ac.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.placement.algorithms;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,10 +8,10 @@ import java.util.LinkedHashMap;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
-import at.ac.tuwien.ac.datamodel.DataEntry;
-import at.ac.tuwien.ac.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
-import at.ac.tuwien.ac.datamodel.placement.algorithms.vmplanner.VMPlanner;
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.Scheduling;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
@@ -32,6 +32,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	 * 
 	 */
 	private static final long serialVersionUID = -896252400024798173L;
+	private MobileDataDistributionInfrastructure mddi;
+	private ArrayList<ComputationalNode> bestTargets;
 	
 
 	public SteinerTreeHeuristic(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
@@ -46,6 +48,50 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		super(planner);
 		setInfrastructure(arg._2);
 		this.dataEntries = arg._1;
+		
+		
+		this.mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
+		mddi.setEdgeWeights();
+		HashMap<String, ArrayList<MobileDevice>> registry 
+		= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
+		ConnectionMap subMddi = new ConnectionMap(NetworkConnection.class);
+		LinkedHashMap<String,Integer> scoreNodeMap = new LinkedHashMap<String,Integer>();
+		this.bestTargets = new ArrayList<ComputationalNode>();
+		for(IoTDevice d: mddi.getIotDevices().values())
+		{
+			//get data entry publisher
+			NetworkedNode source = d;
+			//get terminal nodes
+			ArrayList<MobileDevice> devs = registry.get(d.getId());
+			//calculate the shortest path between each publisher and each subscriber
+			if(devs != null)
+				for(MobileDevice mDev : devs)
+				{
+					GraphPath<NetworkedNode, NetworkConnection> minPath 
+					= DijkstraShortestPath.findPathBetween(mddi.getConnectionMap(), source, mDev);
+					// add all path vertices and edges, avoiding duplicates, and sets up scores for vertices
+					if(minPath == null)
+						return;
+					for(NetworkedNode n : minPath.getVertexList())
+					{
+						if(!subMddi.containsVertex(n))
+							subMddi.addVertex(n);
+						if(n instanceof CloudDataCenter || n instanceof EdgeNode)
+						{
+							if(!bestTargets.contains(n))
+								bestTargets.add((ComputationalNode) n);
+							if(!scoreNodeMap.containsKey(n.getId()))
+								scoreNodeMap.put(n.getId(), 1);
+							else
+								scoreNodeMap.replace(n.getId(), scoreNodeMap.get(n.getId()), scoreNodeMap.get(n.getId()) + 1);
+
+						}
+					}
+					for(NetworkConnection nwConn : minPath.getEdgeList())
+						if(!subMddi.containsEdge(nwConn))
+							subMddi.addEdge(nwConn.getSource(), nwConn.getTarget(), nwConn);
+				}
+		}
 	}
 	
 	@Override
@@ -53,48 +99,6 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		ArrayList<DataPlacement> dataPlacements = new ArrayList<DataPlacement>();
 		DataPlacement dp = new DataPlacement();
 		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
-		MobileDataDistributionInfrastructure mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
-		mddi.setEdgeWeights();
-		HashMap<String, ArrayList<MobileDevice>> registry 
-		= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
-		ConnectionMap subMddi = new ConnectionMap(NetworkConnection.class);
-		LinkedHashMap<String,Integer> scoreNodeMap = new LinkedHashMap<String,Integer>();
-		ArrayList<ComputationalNode> bestTargets = new ArrayList<ComputationalNode>();
-		for(DataEntry d: this.dataEntries)
-		{
-			//get data entry publisher
-			NetworkedNode source = mddi.getNodeById(d.getIotDeviceId());
-			//get terminal nodes
-			ArrayList<MobileDevice> devs = registry.get(d.getTopic());
-			//calculate the shortest path between each publisher and each subscriber
-			for(MobileDevice mDev : devs)
-			{
-				GraphPath<NetworkedNode, NetworkConnection> minPath 
-				= DijkstraShortestPath.findPathBetween(mddi.getConnectionMap(), source, mDev);
-				// add all path vertices and edges, avoiding duplicates, and sets up scores for vertices
-				if(minPath == null) 
-					return dataPlacements;
-				
-				for(NetworkedNode n : minPath.getVertexList())
-				{
-					if(!subMddi.containsVertex(n))
-						subMddi.addVertex(n);
-					if(n instanceof CloudDataCenter || n instanceof EdgeNode)
-					{
-						if(!bestTargets.contains(n))
-							bestTargets.add((ComputationalNode) n);
-						if(!scoreNodeMap.containsKey(n.getId()))
-							scoreNodeMap.put(n.getId(), 1);
-						else
-							scoreNodeMap.replace(n.getId(), scoreNodeMap.get(n.getId()), scoreNodeMap.get(n.getId()) + 1);
-
-					}
-				}
-				for(NetworkConnection nwConn : minPath.getEdgeList())
-					if(!subMddi.containsEdge(nwConn))
-						subMddi.addEdge(nwConn.getSource(), nwConn.getTarget(), nwConn);
-			}
-		}
 
 		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 		{
@@ -160,13 +164,15 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		
 		if(dp != null)
 		{
-			double avgLat = 0.0,avgCost=0.0;
+			double avgLat = 0.0,avgCost=0.0,avgMaxLat=0.0;
 			for(MobileDevice dev: currentInfrastructure.getMobileDevices().values()) 
 			{
+				avgMaxLat += dev.getMaxLatency();
 				avgLat += dev.getAverageLatency();
 				avgCost += dev.getCost();
 			}
 			dp.setAverageLatency(avgLat / currentInfrastructure.getMobileDevices().size());
+			dp.setAverageMaxLatency(avgMaxLat / currentInfrastructure.getMobileDevices().size());
 			dp.setCost(avgCost / currentInfrastructure.getMobileDevices().size());
 			dataPlacements.add(dp);
 		}
@@ -183,8 +189,9 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		HashMap<String, ArrayList<MobileDevice>> registry 
 			= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
 		for(DataEntry de : dataEntries)
-			if(registry.get(de.getTopic()).contains(dev))
-				filtered.add(de);
+			if(registry.containsKey(de.getTopic()))
+				if(registry.get(de.getTopic()).contains(dev))
+					filtered.add(de);
 				
 		return filtered;	
 	}
