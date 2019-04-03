@@ -81,5 +81,4 @@ public class SimulationSetup {
 	public static String area = "SIMMERING";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
-
 }

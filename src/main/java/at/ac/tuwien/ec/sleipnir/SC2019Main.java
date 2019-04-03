@@ -90,31 +90,6 @@ public class SC2019Main {
 		}
 				
 		processArgs(arg);
-		switch(SimulationSetup.area)
-		{
-		case "HERNALS":
-			SimulationSetup.MAP_M = 6;
-			SimulationSetup.MAP_N = 6;
-			SimulationSetup.iotDevicesNum = 36;
-			SimulationSetup.mobileNum = 24;
-			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
-			break;
-		case "LEOPOLDSTADT":
-			SimulationSetup.MAP_M = 10;
-			SimulationSetup.MAP_N = 10;
-			SimulationSetup.iotDevicesNum = 100;
-			SimulationSetup.mobileNum = 40;
-			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
-			break;
-		case "SIMMERING":
-			SimulationSetup.MAP_M = 12;
-			SimulationSetup.MAP_N = 12;
-			SimulationSetup.iotDevicesNum = 144;
-			SimulationSetup.mobileNum = 48;
-			SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
-			break;
-		}
-	
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -251,7 +226,10 @@ public class SC2019Main {
 			try {
 				 writer.append("\n");
 				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");
-				 writer.append((CharSequence) mostFrequent._2().toString()+"\n");
+				 writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
+				 writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
+				 writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
+						 +mostFrequent._2()._3()+"\t"+mostFrequent._2()._4() + "\t"+mostFrequent._1.values().size()+"\n");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -309,6 +287,7 @@ public class SC2019Main {
 			if(arg.startsWith("-area="))
 			{
 				String[] pars = arg.split("=");
+				SimulationSetup.area = pars[1];
 				switch(pars[1])
 				{
 				case "HERNALS":
@@ -316,21 +295,18 @@ public class SC2019Main {
 					SimulationSetup.MAP_N = 6;
 					SimulationSetup.iotDevicesNum = 36;
 					SimulationSetup.mobileNum = 24;
-					SimulationSetup.dataEntryNum = 2592;
 					break;
 				case "LEOPOLDSTADT":
 					SimulationSetup.MAP_M = 10;
 					SimulationSetup.MAP_N = 10;
 					SimulationSetup.iotDevicesNum = 100;
 					SimulationSetup.mobileNum = 40;
-					SimulationSetup.dataEntryNum = 2880;
 					break;
 				case "SIMMERING":
 					SimulationSetup.MAP_M = 12;
 					SimulationSetup.MAP_N = 12;
 					SimulationSetup.iotDevicesNum = 144;
 					SimulationSetup.mobileNum = 48;
-					SimulationSetup.dataEntryNum = 10368;
 					break;
 				}
 			}
@@ -339,7 +315,21 @@ public class SC2019Main {
 				String[] pars = arg.split("=");
 				SimulationSetup.traffic = pars[1];
 			}
-				
+			if(arg.startsWith("-workload="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.workloadType = pars[1];
+			}
+			if(arg.startsWith("-iter="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.iterations = Integer.parseInt(pars[1]);
+			}
+			if(arg.startsWith("-dr="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.dataRate = Double.parseDouble(pars[1]);
+			}
 				
 		}
 	}
