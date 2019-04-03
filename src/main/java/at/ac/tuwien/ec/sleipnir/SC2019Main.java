@@ -106,11 +106,11 @@ public class SC2019Main {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
-			writer.append("AREA: " + SimulationSetup.MAP_M + "x" + SimulationSetup.MAP_N +"\n");
-			writer.append("ALGORITHM: " + SimulationSetup.placementAlgorithm+"\n");
-			writer.append("IoTNUM: " + SimulationSetup.iotDevicesNum+"\n");
-			writer.append("MobileNUM: " + SimulationSetup.mobileNum+"\n");
-			writer.append("TRAFFIC: " + SimulationSetup.traffic+"\n");
+			writer.append("AREA:\t" + SimulationSetup.area+"\n");
+			writer.append("IoT-NUM:\t" + SimulationSetup.iotDevicesNum+"\n");
+			writer.append("MOBILE-NUM:\t" + SimulationSetup.mobileNum+"\n");
+			writer.append("DATA-RATE:\t" + SimulationSetup.dataRate+"\n");
+			writer.append("WORKLOAD:\t" + SimulationSetup.workloadType+"\n");
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
