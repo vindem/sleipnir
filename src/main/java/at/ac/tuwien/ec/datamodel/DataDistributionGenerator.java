@@ -84,26 +84,26 @@ public class DataDistributionGenerator implements Serializable{
 			else if(SimulationSetup.workloadType.equals("DATA0"))
 			{
 				mi = 1e3 + miDistr.sample(); // data-bound
-				inD = 5e3 + inData.sample(); //data-bound
-				outD = 5e3 + outData.sample(); //data-bound
+				inD = 5e5 + inData.sample(); //data-bound
+				outD = 5e5 + outData.sample(); //data-bound
 			}
 			else if(SimulationSetup.workloadType.equals("DATA1"))
 			{
 				mi = 1e3 + miDistr.sample(); // data-bound
-				inD = 1e4 + inData.sample(); //data-bound
-				outD = 1e4 + outData.sample(); //data-bound
+				inD = 1e6 + inData.sample(); //data-bound
+				outD = 1e6 + outData.sample(); //data-bound
 			}
 			else if(SimulationSetup.workloadType.equals("DATA2"))
 			{
 				mi = 1e3 + miDistr.sample(); // data-bound
-				inD = 5e4 + inData.sample(); //data-bound
-				outD = 5e4 + outData.sample(); //data-bound
+				inD = 5e6 + inData.sample(); //data-bound
+				outD = 5e6 + outData.sample(); //data-bound
 			}
 			else //(SimulationSetup.workloadType.equals("DATA3"))
 			{
 				mi = 1e3 + miDistr.sample(); // data-bound
-				inD = 1e5 + inData.sample(); //data-bound
-				outD = 1e5 + outData.sample(); //data-bound
+				inD = 1e7 + inData.sample(); //data-bound
+				outD = 1e7 + outData.sample(); //data-bound
 			}
 			generatedData.add(
 					new DataEntry("entry"+i,

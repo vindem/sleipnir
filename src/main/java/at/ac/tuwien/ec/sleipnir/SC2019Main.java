@@ -90,6 +90,7 @@ public class SC2019Main {
 		}
 				
 		processArgs(arg);
+		SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.mobileNum * SimulationSetup.dataRate);
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -99,9 +100,9 @@ public class SC2019Main {
 		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
 		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
-		//planners.add(new FirstFitCPUIncreasing());
-		//planners.add(new FirstFitCPUDecreasing());
-		//planners.add(new BestFitCPU());
+		planners.add(new FirstFitCPUIncreasing());
+		planners.add(new FirstFitCPUDecreasing());
+		planners.add(new BestFitCPU());
 		planners.add(new FirstFitDecreasingSizeVMPlanner());
 		BufferedWriter writer = null;
 		try {
