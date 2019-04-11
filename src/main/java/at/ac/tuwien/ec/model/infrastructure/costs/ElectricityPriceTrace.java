@@ -11,6 +11,11 @@ public class ElectricityPriceTrace implements Serializable{
 	private String filename,timezoneName;
 	private ArrayList<Double> trace;
 	
+	public ElectricityPriceTrace(ArrayList<Double> trace)
+	{
+		this.trace = trace;
+	}
+	
 	public ElectricityPriceTrace(String filename, String timezoneName) throws Exception
 	{
 		trace = new ArrayList<Double>();

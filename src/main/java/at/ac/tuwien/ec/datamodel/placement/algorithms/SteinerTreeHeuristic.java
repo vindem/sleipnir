@@ -108,6 +108,7 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 			for(DataEntry de : dataEntriesForDev)
 			{
 				double minRt = Double.MAX_VALUE;
+				double minNorm = Double.MAX_VALUE;
 				ComputationalNode target = null;
 				for(ComputationalNode cn : bestTargets)
 				{
@@ -120,13 +121,10 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
-					double tmp = de.getTotalProcessingTime(iotD,
-							cn,
-							dev,
-							mddi);
-					if(tmp < minRt && cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware()))
+					double tmp = norm(de.getVMInstance(),cn);
+					if(tmp < minNorm )
 					{
-						minRt = tmp;
+						minNorm = tmp;
 						target = cn;
 					}
 
@@ -138,13 +136,10 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
 						if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
 							continue;
-						double tmp = de.getTotalProcessingTime(iotD,
-								cn,
-								dev,
-								mddi);
-						if(tmp < minRt && cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware()))
+						double tmp = norm(de.getVMInstance(),cn);
+						if(tmp < minNorm )
 						{
-							minRt = tmp;
+							minNorm = tmp;
 							target = cn;
 						}
 
@@ -194,6 +189,12 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 					filtered.add(de);
 				
 		return filtered;	
+	}
+	
+	private double norm(VMInstance vmInstance, ComputationalNode cn) {
+		return Math.pow((vmInstance.getCapabilities().getAvailableCores() - cn.getCapabilities().getAvailableCores())
+				+ (vmInstance.getCapabilities().getMaxRam() - cn.getCapabilities().getMaxRam())
+				+ (vmInstance.getCapabilities().getMaxStorage() - cn.getCapabilities().getMaxStorage()),2.0);
 	}
 
 }

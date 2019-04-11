@@ -43,6 +43,7 @@ public class MobileCloudInfrastructure implements Serializable{
 		edgeNodes = new HashMap<String,EdgeNode>();
 		cloudNodes = new HashMap<String,CloudDataCenter>();
 		connectionMap = new ConnectionMap(NetworkConnection.class);
+		this.priceMap = new PriceMap();
 	}
 	
 	public void addMobileDevice(MobileDevice device) throws IllegalArgumentException

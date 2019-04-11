@@ -29,6 +29,8 @@ import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.DataPlacementAlgorithm;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.FFDCPUPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.FFDPRODPlacement;
+import at.ac.tuwien.ec.datamodel.placement.algorithms.L2NormPlacement;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.SteinerTreeHeuristic;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.BestFitCPU;
@@ -138,6 +140,12 @@ public class SC2019Main {
 						break;
 					case "STH":
 						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+						break;
+					case "FFDPROD":
+						search = new FFDPRODPlacement(currentPlanner, inputValues);
+						break;
+					case "L2NORM":
+						search = new L2NormPlacement(currentPlanner, inputValues);
 						break;
 					default:
 						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
