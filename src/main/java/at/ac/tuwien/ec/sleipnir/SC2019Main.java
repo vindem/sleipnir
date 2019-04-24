@@ -7,23 +7,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.function.Function;
-
-
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
-import org.jgrapht.Graph;
-import org.jgrapht.traverse.TopologicalOrderIterator;
-
 import at.ac.tuwien.ec.datamodel.DataDistributionGenerator;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
@@ -31,41 +23,21 @@ import at.ac.tuwien.ec.datamodel.placement.algorithms.DataPlacementAlgorithm;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.FFDCPUPlacement;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.FFDPRODPlacement;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.L2NormPlacement;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.RandomDataPlacementAlgorithm;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.SteinerTreeHeuristic;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.BestFitCPU;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUDecreasing;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
-import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultIoTPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.DistanceBasedNetworkPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
-import at.ac.tuwien.ec.model.software.ComponentLink;
-import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.model.software.MobileWorkload;
-import at.ac.tuwien.ec.model.software.mobileapps.AntivirusApp;
-import at.ac.tuwien.ec.model.software.mobileapps.ChessApp;
-import at.ac.tuwien.ec.model.software.mobileapps.FacebookApp;
-import at.ac.tuwien.ec.model.software.mobileapps.FacerecognizerApp;
-import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
-import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HeftEchoResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.heuristics.MinMinResearch;
-import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
-import scala.Tuple3;
 import scala.Tuple4;
-import scala.Tuple5;
+
 
 public class SC2019Main {
 	

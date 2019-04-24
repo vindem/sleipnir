@@ -9,10 +9,12 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
+import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 
 
 public class MobileDevice extends ComputationalNode {
@@ -22,9 +24,9 @@ public class MobileDevice extends ComputationalNode {
 	 */
 	private static final long serialVersionUID = -6426397070719700535L;
 	private double energyBudget = 0.0, cost = 0.0;
-	private double lifetime = 24.0;
 	private double averageLatency = 0.0;
 	private double maxLatency = 0.0;
+	private SumoTraceMobility mobilityTrace;
 	
 	public double getAverageLatency() {
 		return averageLatency / (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
@@ -63,6 +65,12 @@ public class MobileDevice extends ComputationalNode {
 		int y = RandomUtils.nextInt(SimulationSetup.MAP_N);;
 		this.setCoords(x, y);
 	}
+	
+	public void updateCoordsWithMobility(double timestep)
+	{
+		Coordinates newCoords = mobilityTrace.getCoordinatesForTimestep(timestep);
+		this.setCoords(newCoords);
+	}
 
 	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
 	{
@@ -78,11 +86,6 @@ public class MobileDevice extends ComputationalNode {
 		return this.cost;
 	}
 
-	public double getLifetime() {
-		// TODO Auto-generated method stub
-		return this.lifetime ;
-	}
-
 	public void addEntryLatency(DataEntry de, int dataEntries, IoTDevice id, ComputationalNode cn, MobileDevice dev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
 		double entryLatency = de.getTotalProcessingTime(id, cn, dev, currentInfrastructure);
@@ -93,6 +96,11 @@ public class MobileDevice extends ComputationalNode {
 
 	public double getMaxLatency() {
 		return maxLatency;
+	}
+
+
+	public void setMobilityTrace(SumoTraceMobility mobilityTrace ) {
+		this.mobilityTrace = mobilityTrace;
 	}
 	
 	

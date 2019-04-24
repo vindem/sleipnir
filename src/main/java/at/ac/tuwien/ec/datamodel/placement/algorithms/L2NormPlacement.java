@@ -44,11 +44,12 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
 		MobileDataDistributionInfrastructure mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
 		ArrayList<ComputationalNode> sortedTargets = mddi.getAllNodes();
+		double timestep = 0.0;
 		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 		{
 			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
 			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
-
+			dev.updateCoordsWithMobility(timestep);
 			for(DataEntry de : dataEntriesForDev)
 			{
 				ComputationalNode target = null;
