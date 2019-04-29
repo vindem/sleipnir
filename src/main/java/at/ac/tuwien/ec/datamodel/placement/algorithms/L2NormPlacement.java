@@ -44,68 +44,73 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
 		MobileDataDistributionInfrastructure mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
 		ArrayList<ComputationalNode> sortedTargets = mddi.getAllNodes();
-		double timestep = 0.0;
-		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
-		{
-			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
-			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
-			dev.updateCoordsWithMobility(timestep);
-			for(DataEntry de : dataEntriesForDev)
+		
+			for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 			{
-				ComputationalNode target = null;
-				double minNorm = Double.MAX_VALUE;
-				for(ComputationalNode cn : sortedTargets)
+				ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
+				ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
+				double timeStep = 0.0;
+				int j = 0;
+				for(DataEntry de : dataEntriesForDev)
 				{
-					IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
-					if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
-						continue;
-					if(mddi.getConnectionMap().getEdge(iotD, cn).getBandwidth() == 0 ||
-							!Double.isFinite(mddi.getConnectionMap().getEdge(iotD, cn).getLatency()))
-						continue;
-					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
-							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
-						continue;
-					
-					double tmp = norm(de.getVMInstance(),cn);
-					if(tmp < minNorm )
+					ComputationalNode target = null;
+					double minNorm = Double.MAX_VALUE;
+					for(ComputationalNode cn : sortedTargets)
 					{
-						minNorm = tmp;
-						target = cn;
-					}
+						IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
+						if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
+							continue;
+						if(mddi.getConnectionMap().getEdge(iotD, cn).getBandwidth() == 0 ||
+								!Double.isFinite(mddi.getConnectionMap().getEdge(iotD, cn).getLatency()))
+							continue;
+						if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
+								!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
+							continue;
 
+						double tmp = norm(de.getVMInstance(),cn);
+						if(tmp < minNorm )
+						{
+							minNorm = tmp;
+							target = cn;
+						}
+
+					}
+					if(target == null)
+					{
+						dp = null;
+						break;
+					}
+					else 
+						deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
+					j++;
+					if(j%10 == 0) 
+					{
+						timeStep++;
+						dev.updateCoordsWithMobility(timeStep);
+					}
 				}
-				if(target == null)
-				{
-					dp = null;
-					break;
-				}
-				else 
-					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
+				double vmCost = 0.0;
+				for(VMInstance vm : instancesPerUser)
+					vmCost += vm.getPricePerSecond(); 
+				dev.setCost(vmCost);
 			}
-			double vmCost = 0.0;
-			for(VMInstance vm : instancesPerUser)
-				vmCost += vm.getPricePerSecond(); 
-			dev.setCost(vmCost);
-		}
-		
-		
-		if(dp != null)
-		{
-			double avgLat = 0.0,avgCost=0.0,maxLat=0.0;
-			for(MobileDevice dev: currentInfrastructure.getMobileDevices().values()) 
+
+
+			if(dp != null)
 			{
-				avgLat += dev.getAverageLatency();
-				avgCost += dev.getCost();
-				maxLat += dev.getMaxLatency();
+				double avgLat = 0.0,avgCost=0.0,maxLat=0.0;
+				for(MobileDevice dev: currentInfrastructure.getMobileDevices().values()) 
+				{
+					avgLat += dev.getAverageLatency();
+					avgCost += dev.getCost();
+					maxLat += dev.getMaxLatency();
+				}
+
+				dp.setAverageLatency(avgLat / currentInfrastructure.getMobileDevices().size());
+				dp.setAverageMaxLatency(maxLat / currentInfrastructure.getMobileDevices().size());
+				dp.setCost(avgCost / currentInfrastructure.getMobileDevices().size());
+				dataPlacements.add(dp);
 			}
-			
-			dp.setAverageLatency(avgLat / currentInfrastructure.getMobileDevices().size());
-			dp.setAverageMaxLatency(maxLat / currentInfrastructure.getMobileDevices().size());
-			dp.setCost(avgCost / currentInfrastructure.getMobileDevices().size());
-			dataPlacements.add(dp);
-		}
-			
-			
 
 		return dataPlacements;
 	}

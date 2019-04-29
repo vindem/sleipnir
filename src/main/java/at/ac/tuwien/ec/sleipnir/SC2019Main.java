@@ -33,8 +33,10 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultIoTPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
+import at.ac.tuwien.ec.model.infrastructure.planning.mobile.MobileDevicePlannerWithMobility;
 import scala.Tuple2;
 import scala.Tuple4;
 
@@ -241,9 +243,9 @@ public class SC2019Main {
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
-			RandomEdgePlanner.setupEdgeNodes(inf);
+			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
+			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);

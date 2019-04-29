@@ -14,10 +14,8 @@ class EdgeAllCellPlannerTest {
 	@Test
 	void testSetupEdgeNodesAllFine() {
 		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-		EdgeAllCellPlanner planner = new EdgeAllCellPlanner();
 		Assert.assertNotNull(inf);
-		Assert.assertNotNull(planner);
-		planner.setupEdgeNodes(inf);
+		EdgeAllCellPlanner.setupEdgeNodes(inf);
 		Assert.assertFalse(inf.getEdgeNodes().isEmpty());
 		Assert.assertTrue(inf.getEdgeNodes().size() == SimulationSetup.MAP_M * SimulationSetup.MAP_N);
 	}

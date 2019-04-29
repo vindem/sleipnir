@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 100;
+	public static int iterations = 1;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -73,12 +73,14 @@ public class SimulationSetup {
 	public static int iotDevicesNum = 36;
 	
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
-	public static int dataEntryNum = 2592;
+	public static int dataEntryNum = 2592 ;
 	//public static int dataEntryNum = 259200;
-	public static String placementAlgorithm = "STH";
+	public static String placementAlgorithm = "L2NORM";
 	public static String filename = "testFile";
 	public static String traffic ="HIGH";
-	public static String area = "SIMMERING";
+	public static String area = "HERNALS";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
+	public static double y_max = 4000;
+	public static double x_max = 2000;
 }

@@ -1,8 +1,13 @@
 package at.ac.tuwien.ec.model.infrastructure.planning.mobile;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.xml.sax.SAXException;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
@@ -16,7 +21,7 @@ import at.ac.tuwien.ec.model.infrastructure.planning.mobile.utils.SumoTraceParse
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class MobileDevicePlannerWithMobility {
+public class MobileDevicePlannerWithMobility implements Serializable{
 	
 	static int mobileNum = SimulationSetup.mobileNum;
 	static double mobileEnergyBudget = SimulationSetup.mobileEnergyBudget;
@@ -33,13 +38,21 @@ public class MobileDevicePlannerWithMobility {
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			
-			File inputSumoFile = new File("filename");
+			System.out.println("Parsing mobility traces of device "+i);
+			File inputSumoFile = new File("traces/eichstatt.coords");
 			String deviceId = null;
 			
-			SumoTraceMobility mobilityTrace = SumoTraceParser.parse(inputSumoFile,deviceId);
+			SumoTraceMobility mobilityTrace = null;
+			try {
+				mobilityTrace = SumoTraceParser.parse(inputSumoFile,""+((double)i));
+			} catch (ParserConfigurationException | SAXException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			device.setMobilityTrace(mobilityTrace);
-			
+			System.out.println("Mobility traces set for device "+i);
 			inf.addMobileDevice(device);
+			device.setCoords(mobilityTrace.getCoordinatesForTimestep(0.0));
 			//depending on setup of traffic
 			
 			switch(SimulationSetup.traffic)

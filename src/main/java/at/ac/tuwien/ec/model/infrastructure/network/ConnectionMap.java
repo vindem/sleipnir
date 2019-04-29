@@ -152,13 +152,16 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
 			return nDistr.sample();
+		//mapping coordinates to cells
+		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
+		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);
 		
 		c1 = u.getCoords();
 		c2 = v.getCoords();
-		return (Math.abs(c1.getLatitude()-c2.getLatitude()) 
+		return (Math.abs((c1.getLatitude()/size_x)-(c2.getLatitude()/size_x)) 
 				+ Math.max(0, 
-						(Math.abs(c1.getLatitude()-c2.getLatitude())
-								- Math.abs(c1.getLongitude()-c2.getLongitude()) )/2));
+						(Math.abs((c1.getLatitude()/size_x)-(c2.getLatitude()/size_x))
+								- Math.abs((c1.getLongitude()/size_y)-(c2.getLongitude()/size_y)) )/2));
 	}
 	
 	private static final long serialVersionUID = 1L;

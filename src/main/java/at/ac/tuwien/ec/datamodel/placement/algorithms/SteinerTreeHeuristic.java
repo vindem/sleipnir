@@ -104,7 +104,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		{
 			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
 			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
-
+			double timeStep = 0.0;
+			int j = 0;
 			for(DataEntry de : dataEntriesForDev)
 			{
 				double minRt = Double.MAX_VALUE;
@@ -149,6 +150,12 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 				}	
 				else 
 					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
+				j++;
+				if(j%10 == 0) 
+				{
+					timeStep++;
+					dev.updateCoordsWithMobility(timeStep);
+				}
 			}
 			double vmCost = 0.0;
 			for(VMInstance vm : instancesPerUser)
