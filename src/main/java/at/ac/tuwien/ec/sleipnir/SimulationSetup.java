@@ -81,6 +81,6 @@ public class SimulationSetup {
 	public static String area = "HERNALS";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
-	public static double y_max = 4000;
-	public static double x_max = 2000;
+	public static double y_max = 3200;
+	public static double x_max = 3200;
 }

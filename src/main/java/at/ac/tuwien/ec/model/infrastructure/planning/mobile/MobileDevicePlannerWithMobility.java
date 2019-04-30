@@ -3,6 +3,7 @@ package at.ac.tuwien.ec.model.infrastructure.planning.mobile;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,25 +33,29 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	
 	public static void setupMobileDevices(MobileDataDistributionInfrastructure inf, int number)
 	{
+		File inputSumoFile = new File("traces/hernals.coords");
+		System.out.println("Mobility traces parsing started...");
+		ArrayList<String> devIds = new ArrayList<String>();
+		for(int i = 0; i < SimulationSetup.mobileNum; i++)
+			devIds.add(""+((double)i));
+		try {
+			SumoTraceParser.preParse(inputSumoFile, devIds);
+		} catch (ParserConfigurationException | SAXException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("Mobility traces parsing completed.");
+		
 		for(int i = 0; i < number; i++)
 		{
+			
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
-			
-			System.out.println("Parsing mobility traces of device "+i);
-			File inputSumoFile = new File("traces/eichstatt.coords");
 			String deviceId = null;
-			
 			SumoTraceMobility mobilityTrace = null;
-			try {
-				mobilityTrace = SumoTraceParser.parse(inputSumoFile,""+((double)i));
-			} catch (ParserConfigurationException | SAXException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mobilityTrace = SumoTraceParser.getTrace(""+((double)i));
 			device.setMobilityTrace(mobilityTrace);
-			System.out.println("Mobility traces set for device "+i);
 			inf.addMobileDevice(device);
 			device.setCoords(mobilityTrace.getCoordinatesForTimestep(0.0));
 			//depending on setup of traffic

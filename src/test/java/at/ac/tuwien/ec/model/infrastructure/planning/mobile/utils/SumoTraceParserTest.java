@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -28,10 +29,11 @@ class SumoTraceParserTest {
 	 * @throws ParserConfigurationException 
 	 */
 	@Test
-	void testParse() throws ParserConfigurationException, SAXException, IOException {
-		File testFile = new File("../traces/eichstatt.coords");
-		String id="0.0";
-		SumoTraceMobility trace = SumoTraceParser.parse(testFile, id);
+	void testPreParse() throws ParserConfigurationException, SAXException, IOException {
+		File testFile = new File("./traces/simmering.coords");
+		ArrayList<String> ids = new ArrayList<String>();
+		ids.add("0.0");
+		SumoTraceParser.preParse(testFile, ids);
 		//TODO: make it a real unit test...
 	}
 

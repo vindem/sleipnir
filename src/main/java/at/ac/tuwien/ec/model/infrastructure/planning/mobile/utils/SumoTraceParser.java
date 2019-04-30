@@ -3,6 +3,7 @@ package at.ac.tuwien.ec.model.infrastructure.planning.mobile.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,14 +16,14 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 public class SumoTraceParser {
+	public static HashMap<String,ArrayList<Coordinates>> tracesList = new HashMap<String,ArrayList<Coordinates>>();
 
-	public static SumoTraceMobility parse(File inputSumoFile, String deviceId) throws ParserConfigurationException, SAXException, IOException {
+	public static void preParse(File inputSumoFile, ArrayList<String> deviceIdList) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(inputSumoFile);
 		doc.getDocumentElement().normalize();
-		ArrayList<Coordinates> coordsForDevId = new ArrayList<Coordinates>();
-		
+			
 		NodeList nList = doc.getElementsByTagName("timestep");
 		for(int i = 0; i < nList.getLength(); i++)
 		{
@@ -33,18 +34,29 @@ public class SumoTraceParser {
 				if(vehicles.item(j).getNodeType() == Node.ELEMENT_NODE)
 				{
 					Element vehicle = (Element) vehicles.item(j);
-					if(vehicle.getAttribute("id").equals(deviceId) )
+					String currId = vehicle.getAttribute("id");
+					if(deviceIdList.contains(currId) )
 					{
 						double x = Double.parseDouble(vehicle.getAttribute("x"));
 						double y = Double.parseDouble(vehicle.getAttribute("y"));
 						Coordinates coords = new Coordinates(x,y);
-						coordsForDevId.add(coords);
+						if(tracesList.containsKey(currId))
+							tracesList.get(currId).add(coords);
+						else
+						{
+							tracesList.put(currId,new ArrayList<Coordinates>());
+							tracesList.get(currId).add(coords);
+						}
 					}
 				}	
 			}
 
 		}
-		return new SumoTraceMobility(coordsForDevId);
+	}
+
+	public static SumoTraceMobility getTrace(String string) {
+		ArrayList<Coordinates> currCoords = tracesList.get(string);
+		return new SumoTraceMobility(currCoords);
 	}
 
 }

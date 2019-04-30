@@ -158,10 +158,10 @@ public class ConnectionMap extends DefaultUndirectedWeightedGraph<NetworkedNode,
 		
 		c1 = u.getCoords();
 		c2 = v.getCoords();
-		return (Math.abs((c1.getLatitude()/size_x)-(c2.getLatitude()/size_x)) 
+		return (Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x)) 
 				+ Math.max(0, 
-						(Math.abs((c1.getLatitude()/size_x)-(c2.getLatitude()/size_x))
-								- Math.abs((c1.getLongitude()/size_y)-(c2.getLongitude()/size_y)) )/2));
+						(Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x))
+								- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2));
 	}
 	
 	private static final long serialVersionUID = 1L;
