@@ -75,12 +75,13 @@ public class SimulationSetup {
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
 	public static int dataEntryNum = 2592 ;
 	//public static int dataEntryNum = 259200;
-	public static String placementAlgorithm = "L2NORM";
+	public static String placementAlgorithm = "STH";
 	public static String filename = "testFile";
 	public static String traffic ="HIGH";
 	public static String area = "HERNALS";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
-	public static double y_max = 3200;
-	public static double x_max = 3200;
+	public static double y_max = 3224;
+	public static double x_max = 3119;
+	public static String mobilityTraceFile = "traces/hernals.coords";
 }

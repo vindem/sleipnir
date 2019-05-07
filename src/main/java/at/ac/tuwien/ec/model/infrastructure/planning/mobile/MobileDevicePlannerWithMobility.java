@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
@@ -52,7 +53,6 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
-			String deviceId = null;
 			SumoTraceMobility mobilityTrace = null;
 			mobilityTrace = SumoTraceParser.getTrace(""+((double)i));
 			device.setMobilityTrace(mobilityTrace);
@@ -94,13 +94,16 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	public static double nodeDistance(NetworkedNode n1, NetworkedNode n2) {
 		Coordinates c1,c2;
 		
+		//mapping coordinates to cells
+		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
+		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);
+		
 		c1 = n1.getCoords();
 		c2 = n2.getCoords();
-		
-		return (Math.abs(c1.getLatitude()-c2.getLatitude()) 
+		return (Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x)) 
 				+ Math.max(0, 
-						(Math.abs(c1.getLatitude()-c2.getLatitude())
-								- Math.abs(c1.getLongitude()-c2.getLongitude()) )/2));
+						(Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x))
+								- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2));
 	}
 	
 

@@ -108,7 +108,6 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 			int j = 0;
 			for(DataEntry de : dataEntriesForDev)
 			{
-				double minRt = Double.MAX_VALUE;
 				double minNorm = Double.MAX_VALUE;
 				ComputationalNode target = null;
 				for(ComputationalNode cn : bestTargets)
@@ -122,13 +121,14 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
-					double tmp = norm(de.getVMInstance(),cn);
-					if(tmp < minNorm )
-					{
-						minNorm = tmp;
-						target = cn;
+					if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
+						double tmp = norm(de.getVMInstance(),cn);
+						if(Double.compare(tmp,minNorm) < 0 )
+						{
+							minNorm = tmp;
+							target = cn;
+						}
 					}
-
 				}
 				if(target == null) 
 				{
@@ -137,17 +137,20 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
 						if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
 							continue;
-						double tmp = norm(de.getVMInstance(),cn);
-						if(tmp < minNorm )
-						{
-							minNorm = tmp;
-							target = cn;
+						if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
+							double tmp = norm(de.getVMInstance(),cn);
+							if(Double.compare(tmp,minNorm) < 0 )
+							{
+								minNorm = tmp;
+								target = cn;
+							}
 						}
 
 					}
-					if( target == null)
-						break;
-				}	
+					
+				}
+				if( target == null)
+					break;
 				else 
 					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
 				j++;
@@ -199,9 +202,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	}
 	
 	private double norm(VMInstance vmInstance, ComputationalNode cn) {
-		return Math.pow((vmInstance.getCapabilities().getAvailableCores() - cn.getCapabilities().getAvailableCores())
-				+ (vmInstance.getCapabilities().getMaxRam() - cn.getCapabilities().getMaxRam())
-				+ (vmInstance.getCapabilities().getMaxStorage() - cn.getCapabilities().getMaxStorage()),2.0);
+		return Math.pow((vmInstance.getCapabilities().getAvailableCores() 
+				- cn.getCapabilities().getAvailableCores()),2.0);
 	}
 
 }

@@ -19,8 +19,8 @@ public class DefaultIoTPlanner {
 		{
 			IoTDevice device = new IoTDevice("iot"+i, capabilities.clone());
 			
-			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt(SimulationSetup.MAP_M),
-												RandomUtils.nextInt(SimulationSetup.MAP_N*2));
+			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt((int)SimulationSetup.x_max),
+												RandomUtils.nextInt((int)SimulationSetup.y_max));
 			device.setCoords(randomCoordinates);
 			inf.addIoTDevice(device);			
 		}

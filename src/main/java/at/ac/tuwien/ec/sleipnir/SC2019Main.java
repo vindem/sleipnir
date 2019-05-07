@@ -278,18 +278,27 @@ public class SC2019Main {
 					SimulationSetup.MAP_N = 6;
 					SimulationSetup.iotDevicesNum = 36;
 					SimulationSetup.mobileNum = 24;
+					SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
+					SimulationSetup.x_max = 3119;
+					SimulationSetup.y_max = 3224;
 					break;
 				case "LEOPOLDSTADT":
 					SimulationSetup.MAP_M = 10;
 					SimulationSetup.MAP_N = 10;
 					SimulationSetup.iotDevicesNum = 100;
 					SimulationSetup.mobileNum = 40;
+					SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
+					SimulationSetup.x_max = 11098;
+					SimulationSetup.y_max = 9099;
 					break;
 				case "SIMMERING":
 					SimulationSetup.MAP_M = 12;
 					SimulationSetup.MAP_N = 12;
 					SimulationSetup.iotDevicesNum = 144;
 					SimulationSetup.mobileNum = 48;
+					SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
+					SimulationSetup.x_max = 6720;
+					SimulationSetup.y_max = 5623;
 					break;
 				}
 			}
@@ -317,7 +326,6 @@ public class SC2019Main {
 		}
 	}
 	
-		//Creates samples for each spark worker
-	
+		
 
 }

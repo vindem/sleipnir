@@ -76,8 +76,10 @@ public class FFDCPUPlacement extends DataPlacementAlgorithm {
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
 					if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware()))
+					{
 						target = cn;
-					
+						break;
+					}
 
 				}
 				if(target == null)
