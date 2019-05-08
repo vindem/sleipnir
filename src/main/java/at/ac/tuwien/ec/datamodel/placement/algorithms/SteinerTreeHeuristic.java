@@ -137,6 +137,12 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 						IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
 						if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
 							continue;
+						if(mddi.getConnectionMap().getEdge(iotD, cn).getBandwidth() == 0 ||
+								!Double.isFinite(mddi.getConnectionMap().getEdge(iotD, cn).getLatency()))
+							continue;
+						if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
+								!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
+							continue;
 						if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
 							double tmp = norm(de.getVMInstance(),cn);
 							if(Double.compare(tmp,minNorm) < 0 )
