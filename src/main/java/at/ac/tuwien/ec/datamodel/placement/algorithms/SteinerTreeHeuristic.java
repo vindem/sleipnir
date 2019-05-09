@@ -33,8 +33,7 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	 */
 	private static final long serialVersionUID = -896252400024798173L;
 	private MobileDataDistributionInfrastructure mddi;
-	private ArrayList<ComputationalNode> bestTargets;
-	
+		
 
 	public SteinerTreeHeuristic(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
@@ -49,49 +48,7 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		setInfrastructure(arg._2);
 		this.dataEntries = arg._1;
 		
-		
-		this.mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
-		mddi.setEdgeWeights();
-		HashMap<String, ArrayList<MobileDevice>> registry 
-		= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
-		ConnectionMap subMddi = new ConnectionMap(NetworkConnection.class);
-		LinkedHashMap<String,Integer> scoreNodeMap = new LinkedHashMap<String,Integer>();
-		this.bestTargets = new ArrayList<ComputationalNode>();
-		for(IoTDevice d: mddi.getIotDevices().values())
-		{
-			//get data entry publisher
-			NetworkedNode source = d;
-			//get terminal nodes
-			ArrayList<MobileDevice> devs = registry.get(d.getId());
-			//calculate the shortest path between each publisher and each subscriber
-			if(devs != null)
-				for(MobileDevice mDev : devs)
-				{
-					GraphPath<NetworkedNode, NetworkConnection> minPath 
-					= DijkstraShortestPath.findPathBetween(mddi.getConnectionMap(), source, mDev);
-					// add all path vertices and edges, avoiding duplicates, and sets up scores for vertices
-					if(minPath == null)
-						return;
-					for(NetworkedNode n : minPath.getVertexList())
-					{
-						if(!subMddi.containsVertex(n))
-							subMddi.addVertex(n);
-						if(n instanceof CloudDataCenter || n instanceof EdgeNode)
-						{
-							if(!bestTargets.contains(n))
-								bestTargets.add((ComputationalNode) n);
-							if(!scoreNodeMap.containsKey(n.getId()))
-								scoreNodeMap.put(n.getId(), 1);
-							else
-								scoreNodeMap.replace(n.getId(), scoreNodeMap.get(n.getId()), scoreNodeMap.get(n.getId()) + 1);
-
-						}
-					}
-					for(NetworkConnection nwConn : minPath.getEdgeList())
-						if(!subMddi.containsEdge(nwConn))
-							subMddi.addEdge(nwConn.getSource(), nwConn.getTarget(), nwConn);
-				}
-		}
+		//computeBestTargets();	
 	}
 	
 	@Override
@@ -99,16 +56,19 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 		ArrayList<DataPlacement> dataPlacements = new ArrayList<DataPlacement>();
 		DataPlacement dp = new DataPlacement();
 		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
-
+		
 		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 		{
 			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
 			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
 			double timeStep = 0.0;
 			int j = 0;
+			ArrayList<ComputationalNode> bestTargets = computeBestTargets(dev);
 			for(DataEntry de : dataEntriesForDev)
 			{
-				double minNorm = Double.MAX_VALUE;
+				if(j%50==0) 
+					computeBestTargets(dev);
+				double minRT = Double.MAX_VALUE;
 				ComputationalNode target = null;
 				for(ComputationalNode cn : bestTargets)
 				{
@@ -122,10 +82,10 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
 					if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
-						double tmp = norm(de.getVMInstance(),cn);
-						if(Double.compare(tmp,minNorm) < 0 )
+						double tmp = de.getTotalProcessingTime(iotD, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
+						if(Double.compare(tmp,minRT) < 0 )
 						{
-							minNorm = tmp;
+							minRT = tmp;
 							target = cn;
 						}
 					}
@@ -144,10 +104,10 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 								!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 							continue;
 						if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
-							double tmp = norm(de.getVMInstance(),cn);
-							if(Double.compare(tmp,minNorm) < 0 )
+							double tmp = de.getTotalProcessingTime(iotD, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
+							if(Double.compare(tmp,minRT) < 0 )
 							{
-								minNorm = tmp;
+								minRT = tmp;
 								target = cn;
 							}
 						}
@@ -165,6 +125,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 					timeStep++;
 					dev.updateCoordsWithMobility(timeStep);
 				}
+				
+								
 			}
 			double vmCost = 0.0;
 			for(VMInstance vm : instancesPerUser)
@@ -210,6 +172,46 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	private double norm(VMInstance vmInstance, ComputationalNode cn) {
 		return Math.pow((vmInstance.getCapabilities().getAvailableCores() 
 				- cn.getCapabilities().getAvailableCores()),2.0);
+	}
+	
+	private ArrayList<ComputationalNode> computeBestTargets(MobileDevice dev)
+	{
+		this.mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
+		mddi.setEdgeWeights();
+		HashMap<String, ArrayList<MobileDevice>> registry 
+		= ((MobileDataDistributionInfrastructure)this.getInfrastructure()).getRegistry();
+		ConnectionMap subMddi = new ConnectionMap(NetworkConnection.class);
+		ArrayList<ComputationalNode> bestTargets = new ArrayList<ComputationalNode>();
+		for(IoTDevice d: mddi.getIotDevices().values())
+		{
+			//get data entry publisher
+			NetworkedNode source = d;
+			//get terminal nodes
+			ArrayList<MobileDevice> devs = registry.get(d.getId());
+			//calculate the shortest path between each publisher and each subscriber
+			if(devs != null)
+			{
+				GraphPath<NetworkedNode, NetworkConnection> minPath 
+				= DijkstraShortestPath.findPathBetween(mddi.getConnectionMap(), source, dev);
+				// add all path vertices and edges, avoiding duplicates, and sets up scores for vertices
+				if(minPath == null)
+					continue;
+				for(NetworkedNode n : minPath.getVertexList())
+				{
+					if(!subMddi.containsVertex(n))
+						subMddi.addVertex(n);
+					if(n instanceof CloudDataCenter || n instanceof EdgeNode)
+					{
+						if(!bestTargets.contains(n))
+							bestTargets.add((ComputationalNode) n);
+					}
+				}
+				for(NetworkConnection nwConn : minPath.getEdgeList())
+					if(!subMddi.containsEdge(nwConn))
+						subMddi.addEdge(nwConn.getSource(), nwConn.getTarget(), nwConn);
+			}
+		}
+		return bestTargets;
 	}
 
 }
