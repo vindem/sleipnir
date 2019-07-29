@@ -243,7 +243,7 @@ public class SC2019Main {
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
-			EdgeAllCellPlanner.setupEdgeNodes(inf);
+			RandomEdgePlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);

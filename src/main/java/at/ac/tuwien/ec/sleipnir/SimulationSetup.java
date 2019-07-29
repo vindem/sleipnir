@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 10;
+	public static int iterations = 100;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -75,7 +75,7 @@ public class SimulationSetup {
 	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
 	public static int dataEntryNum = 2592 ;
 	//public static int dataEntryNum = 259200;
-	public static String placementAlgorithm = "STH";
+	public static String placementAlgorithm = "FFDCPU";
 	public static String filename = "testFile";
 	public static String traffic ="HIGH";
 	public static String area = "HERNALS";

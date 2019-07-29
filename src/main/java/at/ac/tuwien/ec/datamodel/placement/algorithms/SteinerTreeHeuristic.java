@@ -24,6 +24,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import scala.Tuple2;
 
 public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
@@ -66,8 +67,8 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 			ArrayList<ComputationalNode> bestTargets = computeBestTargets(dev);
 			for(DataEntry de : dataEntriesForDev)
 			{
-				if(j%50==0) 
-					computeBestTargets(dev);
+				if(j%(SimulationSetup.dataEntryNum/10)==0) 
+					bestTargets = computeBestTargets(dev);
 				double minRT = Double.MAX_VALUE;
 				ComputationalNode target = null;
 				for(ComputationalNode cn : bestTargets)
@@ -194,8 +195,7 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 				GraphPath<NetworkedNode, NetworkConnection> minPath 
 				= DijkstraShortestPath.findPathBetween(mddi.getConnectionMap(), source, dev);
 				// add all path vertices and edges, avoiding duplicates, and sets up scores for vertices
-				if(minPath == null)
-					continue;
+				
 				for(NetworkedNode n : minPath.getVertexList())
 				{
 					if(!subMddi.containsVertex(n))
