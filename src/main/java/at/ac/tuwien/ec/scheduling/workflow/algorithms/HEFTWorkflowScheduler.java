@@ -49,6 +49,7 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 		
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
+		long startTime = System.nanoTime();
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
 		//ArrayList<MobileSoftwareComponent> tasks = new ArrayList<MobileSoftwareComponent>();
@@ -122,6 +123,8 @@ public class HEFTWorkflowScheduler extends WorkflowScheduler {
 				target = null;
 			
 		}
+		long endTime = System.nanoTime();
+		scheduling.addWallClock((endTime-startTime)/1e6);
 		deployments.add(scheduling);
 		return deployments;
 	}

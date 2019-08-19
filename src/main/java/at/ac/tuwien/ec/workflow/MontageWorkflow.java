@@ -1,10 +1,17 @@
 package at.ac.tuwien.ec.workflow;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.distribution.ConstantRealDistribution;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.AbstractBaseGraph;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import at.ac.tuwien.ec.model.Hardware;
+import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
@@ -504,4 +511,35 @@ public class MontageWorkflow extends MobileApplication {
 		0.1);
 	}
 
+	public void joinSequentially(MobileApplication app)
+	{
+		
+		if(taskDependencies.vertexSet().isEmpty())
+		{
+			taskDependencies = (DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink>) ((AbstractBaseGraph)app.taskDependencies).clone();
+			this.componentList.putAll(app.componentList);
+		}
+		else 
+		{
+			ArrayList<MobileSoftwareComponent> sinks = new ArrayList<MobileSoftwareComponent>();
+			for(MobileSoftwareComponent msc : this.taskDependencies.vertexSet())
+				if(taskDependencies.outgoingEdgesOf(msc).isEmpty())
+					sinks.add(msc);
+		
+			this.componentList.putAll(app.componentList);
+			Graphs.addGraph(this.taskDependencies, app.getTaskDependencies());
+						
+			ArrayList<MobileSoftwareComponent> sources = new ArrayList<MobileSoftwareComponent>();
+			for(MobileSoftwareComponent msc : app.getTaskDependencies().vertexSet())
+				if(app.getTaskDependencies().incomingEdgesOf(msc).isEmpty())
+					sources.add(msc);
+			
+			for(MobileSoftwareComponent mscSrc : sinks)
+				for(MobileSoftwareComponent mscTrg: sources )
+					if(!taskDependencies.containsEdge(mscSrc, mscTrg)) 
+						addLink(mscSrc.getId(), mscTrg.getId(),Double.MAX_VALUE,0);
+		}
+		
+	}
+	
 }

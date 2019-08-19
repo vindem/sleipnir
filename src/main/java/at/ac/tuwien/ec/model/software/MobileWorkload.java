@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.model.software;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.AbstractBaseGraph;
@@ -16,7 +17,7 @@ public class MobileWorkload extends MobileApplication {
 					
 	public MobileWorkload()
 	{
-		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
+		this.componentList  = new LinkedHashMap<String,MobileSoftwareComponent>();
 		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
 		this.workload = new ArrayList<MobileApplication>();
 		
@@ -24,7 +25,7 @@ public class MobileWorkload extends MobileApplication {
 
 	public MobileWorkload(ArrayList<MobileApplication> workload)
 	{
-		this.componentList  = new HashMap<String,MobileSoftwareComponent>();
+		this.componentList  = new LinkedHashMap<String,MobileSoftwareComponent>();
 		this.taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
 		this.workload = new ArrayList<MobileApplication>();
 		for(MobileApplication app:workload)

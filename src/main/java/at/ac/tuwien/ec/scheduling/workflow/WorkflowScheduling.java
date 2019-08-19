@@ -15,6 +15,7 @@ public class WorkflowScheduling extends Scheduling {
 	private double reliability;
 	private double userCost;
 	private int hashCode = Integer.MIN_VALUE;
+	private double wallClock;
 
 	public WorkflowScheduling()
 	{
@@ -130,6 +131,16 @@ public class WorkflowScheduling extends Scheduling {
 		else
 			availability = 1.0;
 		this.reliability = this.reliability / availability;
+	}
+
+	public void addWallClock(double d) {
+		this.wallClock = d;
+		
+	}
+	
+	public double getWallClock() 
+	{
+		return this.wallClock;
 	}
 
 }

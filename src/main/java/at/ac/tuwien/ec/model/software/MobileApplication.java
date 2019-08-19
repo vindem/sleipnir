@@ -3,6 +3,11 @@ package at.ac.tuwien.ec.model.software;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
@@ -14,12 +19,12 @@ import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public abstract class MobileApplication implements Serializable{
+public abstract class MobileApplication implements Serializable, Cloneable{
 
 	private int workloadId;
 	private String userId;
-	protected DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> taskDependencies;
-	protected HashMap<String,MobileSoftwareComponent> componentList = new HashMap<String,MobileSoftwareComponent>();
+	public DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> taskDependencies;
+	public LinkedHashMap<String,MobileSoftwareComponent> componentList = new LinkedHashMap<String,MobileSoftwareComponent>();
 	/**
 	 * 
 	 */
@@ -29,7 +34,7 @@ public abstract class MobileApplication implements Serializable{
 	{
 		workloadId = 0;
 		taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
-		componentList = new HashMap<String,MobileSoftwareComponent>();
+		componentList = new LinkedHashMap<String,MobileSoftwareComponent>();
 		setupTasks();
 		setupLinks();
 	}
@@ -38,7 +43,7 @@ public abstract class MobileApplication implements Serializable{
 	{
 		workloadId = wId;
 		taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
-		componentList = new HashMap<String,MobileSoftwareComponent>();
+		componentList = new LinkedHashMap<String,MobileSoftwareComponent>();
 		setupTasks();
 		setupLinks();
 	}
@@ -48,7 +53,7 @@ public abstract class MobileApplication implements Serializable{
 		workloadId = wId;
 		userId = uId;
 		taskDependencies = new DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink>(ComponentLink.class);
-		componentList = new HashMap<String,MobileSoftwareComponent>();
+		componentList = new LinkedHashMap<String,MobileSoftwareComponent>();
 		setupTasks();
 		setupLinks();
 	}
@@ -114,9 +119,10 @@ public abstract class MobileApplication implements Serializable{
 	public ArrayList<MobileSoftwareComponent> getPredecessors(MobileSoftwareComponent msc)
 	{
 		ArrayList<MobileSoftwareComponent> preds = new ArrayList<MobileSoftwareComponent>();
-		for(MobileSoftwareComponent p : Graphs.predecessorListOf(taskDependencies, msc))
-			if(!preds.contains(p))
-				preds.add(p);
+		if(taskDependencies.containsVertex(msc))
+			for(MobileSoftwareComponent p : Graphs.predecessorListOf(taskDependencies, msc))
+				if(!preds.contains(p))
+					preds.add(p);
 		return preds;
 	}
 		
@@ -192,6 +198,25 @@ public abstract class MobileApplication implements Serializable{
 		taskDependencies.removeAllEdges(outgoing);
 	}
 	
+	public ArrayList<MobileSoftwareComponent> getTasks()
+	{
+		ArrayList<MobileSoftwareComponent> comps = new ArrayList<MobileSoftwareComponent>();
+		for(Entry<String,MobileSoftwareComponent> e : componentList.entrySet())
+			comps.add(e.getValue());
+		
+		return comps;
+	}	
+	
+	public MobileSoftwareComponent getTaskByIndex(int num)
+	{
+		return getTasks().get(num);
+	}
+	
+	public int getTaskIndex(MobileSoftwareComponent msc)
+	{
+		return getTasks().indexOf(msc);
+	}
+	
 	public ArrayList<MobileSoftwareComponent> readyTasks()
 	{
 		ArrayList<MobileSoftwareComponent> readyTasks = new ArrayList<MobileSoftwareComponent>();
@@ -218,6 +243,7 @@ public abstract class MobileApplication implements Serializable{
 	public DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> getTaskDependencies() {
 		return taskDependencies;
 	}
+		
 	
 	public abstract void sampleTasks();
 	
