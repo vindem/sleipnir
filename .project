@@ -20,4 +20,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>libz3</name>
+			<type>2</type>
+			<location>/home/vincenzo/z3/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>
