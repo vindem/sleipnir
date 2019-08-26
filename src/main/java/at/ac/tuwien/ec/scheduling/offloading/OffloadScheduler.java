@@ -15,6 +15,7 @@ import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
@@ -41,13 +42,13 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	}
 
 	private boolean checkLinks(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
-		for (MobileSoftwareComponent c : deployment.keySet()) {
+		for (SoftwareComponent c : deployment.keySet()) {
 			if(!c.getUserId().equals(s.getUserId()))
 				continue;
 			
-			if(currentApp.hasDependency(c,s))
+			if(currentApp.hasDependency((MobileSoftwareComponent) c,s))
 			{
-				ComponentLink link = currentApp.getDependency(c,s);
+				ComponentLink link = currentApp.getDependency((MobileSoftwareComponent) c,s);
 				if(link==null)
 					return false;
 				QoSProfile requirements = link.getDesiredQoS();

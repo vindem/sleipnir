@@ -72,12 +72,12 @@ public class HEFTMaxReliability extends WorkflowScheduler {
 				//currentRuntime = firstTaskToTerminate.getRunTime();
 				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				//currentApp.removeTask(firstTaskToTerminate);
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double tMin = Double.MAX_VALUE;
 			double maxRel = Double.MIN_VALUE;
-			ComputationalNode pred = currentInfrastructure.getNodeById("entry0"),target = null;
+			ComputationalNode pred = (ComputationalNode) currentInfrastructure.getNodeById("entry0"),target = null;
 			
 			double maxP = 0.0;
 			for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
@@ -88,7 +88,7 @@ public class HEFTMaxReliability extends WorkflowScheduler {
 				}					
 			if(currTask.getId().startsWith("SOURCE") || currTask.getId().startsWith("SINK"))
 			{
-				target = currentInfrastructure.getNodeById("entry0");
+				target = (ComputationalNode) currentInfrastructure.getNodeById("entry0");
 				currentRuntime = maxP;
 				
 			}
@@ -99,7 +99,7 @@ public class HEFTMaxReliability extends WorkflowScheduler {
 					if(cmp.getRunTime() >= maxP) 
 					{
 						maxP = cmp.getRunTime() ;
-						target = scheduling.get(cmp);
+						target = (ComputationalNode) scheduling.get(cmp);
 					}
 				}
 				currentRuntime = maxP;

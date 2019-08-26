@@ -20,6 +20,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
@@ -54,7 +55,7 @@ public class OffloadScheduling extends Scheduling{
     public String toString(){
         String result ="";
 
-        for (MobileSoftwareComponent s : super.keySet()){
+        for (SoftwareComponent s : super.keySet()){
             result+="["+s.getId()+"->" +super.get(s).getId()+"]" ;
         }
         
@@ -94,7 +95,7 @@ public class OffloadScheduling extends Scheduling{
     }
     
     public void removeRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	this.runTime -= s.getRuntimeOnNode(super.get(s), I);
+    	this.runTime -= s.getRuntimeOnNode((ComputationalNode) super.get(s), I);
     }
     
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {

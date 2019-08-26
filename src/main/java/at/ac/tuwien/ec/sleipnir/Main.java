@@ -167,8 +167,8 @@ public class Main {
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			DefaultNetworkPlanner.setupNetworkConnections(inf);
+			//DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
+			//DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}

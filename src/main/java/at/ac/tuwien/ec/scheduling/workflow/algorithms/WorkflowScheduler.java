@@ -44,13 +44,13 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 	}
 
 	private boolean checkLinks(WorkflowScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
-		for (MobileSoftwareComponent c : deployment.keySet()) {
+		for (SoftwareComponent c : deployment.keySet()) {
 			if(!c.getUserId().equals(s.getUserId()))
 				continue;
 			
-			if(currentApp.hasDependency(c,s))
+			if(currentApp.hasDependency((MobileSoftwareComponent) c,s))
 			{
-				ComponentLink link = currentApp.getDependency(c,s);
+				ComponentLink link = currentApp.getDependency((MobileSoftwareComponent) c,s);
 				if(link==null)
 					return false;
 				QoSProfile requirements = link.getDesiredQoS();
@@ -94,7 +94,7 @@ public abstract class WorkflowScheduler extends SimIteration implements Serializ
 		ArrayList<MobileSoftwareComponent> preds = currentApp.getPredecessors(s);
 		for(MobileSoftwareComponent p : preds)
 		{
-			ComputationalNode source = deployment.get(p);
+			ComputationalNode source = (ComputationalNode) deployment.get(p);
 			if(!source.equals(n) && currentInfrastructure.getLink(source, n) == null)
 				return false;
 		}

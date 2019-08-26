@@ -30,12 +30,13 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
  */
 public class MobileCloudInfrastructure implements Serializable{
     
-	private HashMap<String, MobileDevice> mobileDevices;
-	private HashMap<String, EdgeNode> edgeNodes;
-	private HashMap<String, CloudDataCenter> cloudNodes;
+	protected HashMap<String, MobileDevice> mobileDevices;
+	protected HashMap<String, EdgeNode> edgeNodes;
+	protected HashMap<String, CloudDataCenter> cloudNodes;
 	private HashMap<String, EntryPoint> terminals;
-	private ConnectionMap connectionMap;
-	private PriceMap priceMap;
+	protected ConnectionMap connectionMap;
+	protected PriceMap priceMap;
+
 	private static final long serialVersionUID = 1L;
 	
 	public MobileCloudInfrastructure()
@@ -45,6 +46,7 @@ public class MobileCloudInfrastructure implements Serializable{
 		edgeNodes = new HashMap<String,EdgeNode>();
 		cloudNodes = new HashMap<String,CloudDataCenter>();
 		connectionMap = new ConnectionMap(NetworkConnection.class);
+		this.priceMap = new PriceMap();
 	}
 	
 	public void addTerminal(EntryPoint terminal) throws IllegalArgumentException
@@ -71,7 +73,7 @@ public class MobileCloudInfrastructure implements Serializable{
 		connectionMap.addVertex(cloudDC);
 	}
 
-	public void addLink(ComputationalNode u, ComputationalNode v, QoSProfile profile) throws IllegalArgumentException
+	public void addLink(NetworkedNode u, NetworkedNode v, QoSProfile profile) throws IllegalArgumentException
 	{
 		if(u == null)
 			throw new IllegalArgumentException("Node 1 is null");
@@ -84,7 +86,7 @@ public class MobileCloudInfrastructure implements Serializable{
 		connectionMap.addEdge(u, v, profile);
 	}
 	
-	public void addLink(ComputationalNode u, ComputationalNode v, double latency, double bandwidth) throws IllegalArgumentException
+	public void addLink(NetworkedNode u, NetworkedNode v, double latency, double bandwidth) throws IllegalArgumentException
 	{
 		
 		if(latency < 0.0) throw new IllegalArgumentException("Invalid latency: " + latency);
@@ -103,7 +105,7 @@ public class MobileCloudInfrastructure implements Serializable{
 			m.sampleNode();
 	}
 	
-	public ComputationalNode getNodeById(String id)
+	public NetworkedNode getNodeById(String id)
 	{
 		if(mobileDevices.containsKey(id))
 			return mobileDevices.get(id);
@@ -150,15 +152,15 @@ public class MobileCloudInfrastructure implements Serializable{
 		this.cloudNodes = cloudNodes;
 	}
 	
-	public double getTransmissionTime(MobileSoftwareComponent sc, ComputationalNode u, ComputationalNode v)
+	public double getTransmissionTime(MobileSoftwareComponent sc, NetworkedNode networkedNode, NetworkedNode n)
 	{
 		//return 0.0;
-		return connectionMap.getTransmissionTime(sc, u, v);
+		return connectionMap.getTransmissionTime(sc, networkedNode, n);
 	}
 	
-	public double getDesiredTransmissionTime(MobileSoftwareComponent sc, ComputationalNode u, ComputationalNode v, QoSProfile profile) 
+	public double getDesiredTransmissionTime(MobileSoftwareComponent sc, NetworkedNode networkedNode, NetworkedNode n, QoSProfile profile) 
 	{
-		return connectionMap.getDesiredTransmissionTime(sc, u, v, profile);
+		return connectionMap.getDesiredTransmissionTime(sc, networkedNode, n, profile);
 	}
 
 	public String toString(){
@@ -177,7 +179,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	}
 
 	public NetworkConnection getLink(String srcId, String trgId) {
-		ComputationalNode src,trg;
+		NetworkedNode src,trg;
 		src = getNodeById(srcId);
 		trg = getNodeById(trgId);
 		if(src == null || trg == null)
@@ -185,7 +187,7 @@ public class MobileCloudInfrastructure implements Serializable{
 		return getLink(src, trg);
 	}
 
-	public NetworkConnection getLink(ComputationalNode src, ComputationalNode trg) {
+	public NetworkConnection getLink(NetworkedNode src, NetworkedNode trg) {
 		if(!connectionMap.containsVertex(src) || !connectionMap.containsVertex(trg))
 			return null;
 		return connectionMap.getEdge(src, trg);
@@ -211,11 +213,9 @@ public class MobileCloudInfrastructure implements Serializable{
 		return connectionMap.edgeSet();
 	}
 
-	public Set<NetworkConnection> getOutgoingLinksFrom(ComputationalNode cn) {
+	public Set<NetworkConnection> getOutgoingLinksFrom(NetworkedNode networkedNode) {
 		// TODO Auto-generated method stub
-		if(!connectionMap.containsVertex(cn))
-			System.err.println("cn.getId()");
-		return connectionMap.outgoingEdgesOf(cn);
+		return connectionMap.outgoingEdgesOf(networkedNode);
 	}
 
 	public Set<NetworkConnection> getIncomingLinksTo(ComputationalNode cn) {

@@ -34,7 +34,7 @@ public abstract class HeuristicResearch extends OffloadScheduler {
 				currentRuntime = firstTaskToTerminate.getRunTime();
 				currentApp.removeEdgesFrom(firstTaskToTerminate);
 				currentApp.removeTask(firstTaskToTerminate);
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);;
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);;
 				scheduledNodes.remove(firstTaskToTerminate);
 			}
 			

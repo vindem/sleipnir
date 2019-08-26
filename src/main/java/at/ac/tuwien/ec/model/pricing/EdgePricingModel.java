@@ -12,7 +12,7 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class EdgePricingModel implements PricingModel,Serializable{
 
-	private PricingModel cloudPricing = new CloudFixedPricingModel();
+	private PricingModel cloudPricing = new CloudVMPricingModel();
 	
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
@@ -26,9 +26,10 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	double minEdgeLatency = 10e6;
     	double minCloudLatency = 10e6;
     	
-    	for(NetworkConnection l : i.getIncomingLinksTo(cn))
+
+    	for(NetworkConnection l : i.getOutgoingLinksFrom(cn))
     	{
-    		ComputationalNode n = l.getTarget();
+    		ComputationalNode n = (ComputationalNode) l.getTarget();
     		if(i.getCloudNodes().containsValue(n) && l.getLatency() < minCloudLatency)
     			minCloudLatency = l.getLatency();
     		else if(i.getEdgeNodes().containsValue(n) && l.getLatency() < minEdgeLatency)

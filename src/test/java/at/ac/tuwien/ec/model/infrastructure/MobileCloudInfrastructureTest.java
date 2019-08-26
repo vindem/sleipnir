@@ -2,6 +2,9 @@ package at.ac.tuwien.ec.model.infrastructure;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,8 +12,11 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
+import at.ac.tuwien.ec.model.infrastructure.costs.ElectricityPriceTrace;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
@@ -38,8 +44,9 @@ public class MobileCloudInfrastructureTest {
 				10.0);
 		Assert.assertNotNull(md);
 		inf.addMobileDevice(md);
-		Assert.assertTrue(inf.getMobileDevices().size()==1);
-		Assert.assertSame(md, inf.getMobileDevices().get(0));
+		ArrayList<MobileDevice> devsArray = new ArrayList<MobileDevice>(inf.getMobileDevices().values());
+		Assert.assertTrue(devsArray.size()==1);
+		Assert.assertTrue(devsArray.get(0).equals(md));
 	}
 
 	@Test
@@ -50,8 +57,9 @@ public class MobileCloudInfrastructureTest {
 				SimulationSetup.defaultEdgeNodeCapabilities);
 		Assert.assertNotNull(en);
 		inf.addEdgeNode(en);
-		Assert.assertTrue(inf.getEdgeNodes().size()==1);
-		Assert.assertSame(en, inf.getEdgeNodes().get(0));
+		ArrayList<EdgeNode> eNodes = new ArrayList<EdgeNode>(inf.getEdgeNodes().values());
+		Assert.assertTrue(eNodes.size()==1);
+		Assert.assertEquals(eNodes.get(0), en);
 	}
 
 	@Test
@@ -62,8 +70,9 @@ public class MobileCloudInfrastructureTest {
 				SimulationSetup.defaultCloudCapabilities);
 		Assert.assertNotNull(cdc);
 		inf.addCloudDataCenter(cdc);
-		Assert.assertTrue(inf.getEdgeNodes().size()==1);
-		Assert.assertSame(cdc, inf.getCloudNodes().get(0));
+		ArrayList<CloudDataCenter> cNodes = new ArrayList<CloudDataCenter>(inf.getCloudNodes().values());
+		Assert.assertTrue(cNodes.size()==1);
+		Assert.assertEquals(cNodes.get(0),cdc);
 	}
 
 	@Test
@@ -209,32 +218,78 @@ public class MobileCloudInfrastructureTest {
 	
 	@Test
 	public void testSampleInfrastructure() {
-		fail("Not yet implemented");
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		ArrayList<ComputationalNode> nodes = inf.getAllNodes();
+		Assert.assertTrue(nodes.size()==0);
+		CloudDataCenter cdc = new CloudDataCenter("test",
+				SimulationSetup.defaultCloudCapabilities);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		inf.addCloudDataCenter(cdc);
+		inf.addEdgeNode(en);
+		inf.sampleInfrastructure();
 	}
 
 	@Test
 	public void testSetMobileDevices() {
-		fail("Not yet implemented");
+		HashMap<String,MobileDevice> devs = new HashMap<String,MobileDevice>();
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Assert.assertTrue(inf.getMobileDevices().size()==0);
+		MobileDevice md = new MobileDevice("test",
+				SimulationSetup.defaultMobileDeviceHardwareCapabilities,
+				10.0);
+		devs.put(md.getId(),md);
+		inf.setMobileDevices(devs);
+		Assert.assertTrue(inf.getMobileDevices().size()==devs.size());
+		Assert.assertEquals(devs, inf.getMobileDevices());
 	}
 
 	@Test
 	public void testSetEdgeNodes() {
-		fail("Not yet implemented");
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		HashMap<String,EdgeNode> eNodes = new HashMap<String,EdgeNode>();
+		Assert.assertTrue(inf.getEdgeNodes().size()==0);
+		EdgeNode en = new EdgeNode("test",
+				SimulationSetup.defaultEdgeNodeCapabilities);
+		inf.setEdgeNodes(eNodes);
+		Assert.assertTrue(inf.getEdgeNodes().size()==eNodes.size());
+		Assert.assertEquals(eNodes, inf.getEdgeNodes());
 	}
 
 	@Test
 	public void testSetCloudNodes() {
-		fail("Not yet implemented");
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		HashMap<String,CloudDataCenter> cNodes = new HashMap<String,CloudDataCenter>();
+		Assert.assertTrue(inf.getCloudNodes().size()==0);
+		CloudDataCenter cdc = new CloudDataCenter("test",
+				SimulationSetup.defaultCloudCapabilities);
+		inf.setCloudNodes(cNodes);
+		Assert.assertTrue(inf.getCloudNodes().size()==cNodes.size());
+		Assert.assertEquals(cNodes, inf.getCloudNodes());
 	}
 
 	@Test
 	public void testToString() {
-		fail("Not yet implemented");
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		HashMap<String,CloudDataCenter> cNodes = inf.getCloudNodes();
+		HashMap<String,EdgeNode> eNodes = inf.getEdgeNodes();
+		HashMap<String,MobileDevice> mDevices = inf.getMobileDevices();
+		String toString = inf.toString();
+		String tmp = "CLOUD NODES:\n"+cNodes+" ;\nEDGE NODES:\n"+eNodes+" ;\nMOBILE DEVICES:\n"+mDevices+".\n";
+		Assert.assertEquals(tmp, toString);
 	}
 
 	@Test
 	public void testAddPrices() {
-		fail("Not yet implemented");
+		MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+		Coordinates coords = new Coordinates(1.0,2.0);
+		Assert.assertNotNull(inf.getPriceForLocation(coords,0));
+		ArrayList<Double> trace = new ArrayList<Double>();
+		trace.add(1.0);
+		trace.add(3.0);
+		ElectricityPriceTrace t = new ElectricityPriceTrace(trace);
+		inf.addPrices(coords, t);
+		Assert.assertNotNull(inf.getPriceForLocation(coords, 0));
 	}
 
 }

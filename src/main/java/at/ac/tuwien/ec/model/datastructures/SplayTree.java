@@ -1,10 +1,12 @@
 package at.ac.tuwien.ec.model.datastructures;
 
+import scala.math.Ordering.IntOrdering;
+
 public class SplayTree<Key extends Comparable<Key>,Value> {
 	   private Node root;   // root of the BST
 
 	    // BST helper node data type
-	    private class Node {
+	    class Node {
 	        private Key key;            // key
 	        private Value value;        // associated data
 	        private Node left, right;   // left and right subtrees
@@ -13,6 +15,16 @@ public class SplayTree<Key extends Comparable<Key>,Value> {
 	            this.key   = key;
 	            this.value = value;
 	        }
+
+			public Value getValue() {
+				// TODO Auto-generated method stub
+				return value;
+			}
+			
+			public Key getKey()
+			{
+				return key;
+			}
 	    }
 
 	    public boolean contains(Key key) {
@@ -157,7 +169,19 @@ public class SplayTree<Key extends Comparable<Key>,Value> {
 	    }
 
 
-	   /***************************************************************************
+	    public String toString()
+	    {
+	    	return inOrderTrasversal(this.root);
+	    }
+	    
+	   private String inOrderTrasversal(SplayTree<Key, Value>.Node root2) {
+		    if(root2 == null)
+		    	return "";
+			return inOrderTrasversal(root2.left) 
+					+ "," + root2.value + "," + inOrderTrasversal(root2.right);
+		}
+
+	/***************************************************************************
 	    *  Helper functions.
 	    ***************************************************************************/
 
@@ -194,4 +218,9 @@ public class SplayTree<Key extends Comparable<Key>,Value> {
 	        return x;
 	    }
 
+		public Node getRoot() {
+			// TODO Auto-generated method stub
+			return root;
+		}
+	    
 }

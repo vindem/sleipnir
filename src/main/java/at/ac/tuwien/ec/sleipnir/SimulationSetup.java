@@ -20,23 +20,25 @@ public class SimulationSetup {
 	
 	
 	public static RandomUtils rand = new RandomUtils();
-	public static int MAP_M = 1;
-	public static int MAP_N = 1;
+	public static int MAP_M = 6;
+	public static int MAP_N = 6;
 	public static int cloudMaxHops = 10;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;
-	public static double cloudStorage = 5000;
+	public static double cloudStorage = Double.MAX_VALUE;
 	public static double cloudMipsPerCore = 6400000.0;
 	public static int edgeCoreNum = 16;
 	public static double edgeRam = 128;
-	public static double edgeStorage = 1000;
+	public static double edgeStorage = 5e9;
 	public static double edgeMipsPerCore = 80000.0;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 2;
+	public static int mobileNum = 24;
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
+	public static HardwareCapabilities defaultIoTDeviceHardwareCapabilities = 
+			new HardwareCapabilities(new Hardware(1,1,1),0);
 	public static CPUEnergyModel defaultMobileDeviceCPUModel = new SamsungS2DualEnergyModel();
 	public static NETEnergyModel defaultMobileDeviceNETModel = new Mobile3GNETEnergyModel();
 	public static double wifiAvailableProbability;
@@ -61,13 +63,27 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 1;
-	public static int cloudNum = 1;
+	public static int iterations = 100;
+	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
 	public static double EchoBeta;
 	public static double Eta = 1.0;
 	public static int appNumber = 25;
 	
-
+	public static String[] topics = {"temperature", "moisture", "wind"};
+	public static int iotDevicesNum = 36;
+	
+	public static Hardware defaultDataEntryRequirements = new Hardware(1,1,1);
+	public static int dataEntryNum = 2592 ;
+	//public static int dataEntryNum = 259200;
+	public static String placementAlgorithm = "FFDCPU";
+	public static String filename = "testFile";
+	public static String traffic ="HIGH";
+	public static String area = "HERNALS";
+	public static double dataRate = 2.0;
+	public static String workloadType = "DATA3";
+	public static double y_max = 3224;
+	public static double x_max = 3119;
+	public static String mobilityTraceFile = "traces/hernals.coords";
 }

@@ -72,7 +72,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 		double currentRuntime = 0.0;
 		MobileSoftwareComponent currTask;
 		WorkflowScheduling scheduling = new WorkflowScheduling();
-		ComputationalNode pred = currentInfrastructure.getNodeById("entry0"),target = null;
+		ComputationalNode pred = (ComputationalNode) currentInfrastructure.getNodeById("entry0"),target = null;
 		while((currTask = tasks.poll())!=null)
 		{
 			if(!scheduledNodes.isEmpty())
@@ -81,9 +81,9 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 				if(currentRuntime < firstTaskToTerminate.getRunTime())
 				{
 					currentRuntime = firstTaskToTerminate.getRunTime();
-					pred = scheduling.get(firstTaskToTerminate);
+					pred = (ComputationalNode) scheduling.get(firstTaskToTerminate);
 				}
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);				
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);				
 			}
 			double OeftMin = Double.MAX_VALUE, tMin = Double.MAX_VALUE;
 			
@@ -97,7 +97,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 				}					
 			if(currTask.getId().startsWith("SOURCE") || currTask.getId().startsWith("SINK"))
 			{
-				target = currentInfrastructure.getNodeById("entry0");
+				target = (ComputationalNode) currentInfrastructure.getNodeById("entry0");
 				currentRuntime = maxP;
 				
 			}
@@ -108,7 +108,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 					if(cmp.getRunTime() >= maxP) 
 					{
 						maxP = cmp.getRunTime() ;
-						target = scheduling.get(cmp);
+						target = (ComputationalNode) scheduling.get(cmp);
 					}
 				}
 				target = pred;

@@ -12,8 +12,13 @@ import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.pricing.PricingModel;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
-public abstract class ComputationalNode implements Serializable{
+public abstract class ComputationalNode extends NetworkedNode implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3728294299293549641L;
+
 	private class DefaultPriceModel implements PricingModel,Serializable
 	{
 		public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
@@ -21,59 +26,24 @@ public abstract class ComputationalNode implements Serializable{
 		}
 	}
 	
-	protected String id;
-	protected Coordinates coords;
-	protected HardwareCapabilities capabilities;
+	
+	
 	protected CPUEnergyModel cpuEnergyModel;
-	protected NETEnergyModel netEnergyModel;
 	protected PricingModel priceModel;
 	protected double bandwidth, latency;
 		
 	public ComputationalNode(String id, HardwareCapabilities capabilities)
 	{
-		this.id = id;
-		setCapabilities(capabilities);
+		super(id,capabilities);
 		setPricingModel(new DefaultPriceModel());
 	}
-	
-	public String getId()
-	{
-		return this.id;
-	}
-	
-	public void setCapabilities(HardwareCapabilities capabilities)
-	{
-		this.capabilities = capabilities;
-	}
-	
+		
 	private void setPricingModel(DefaultPriceModel pricingModel) {
 		this.priceModel = pricingModel;		
 	}
-	
-	public HardwareCapabilities getCapabilities()
-	{
-		return this.capabilities;
-	}
-	
+		
 	public double getMipsPerCore(){
 		return this.capabilities.getMipsPerCore();
-	}
-
-	public Coordinates getCoords() {
-		return coords;
-	}
-
-	public void setCoords(Coordinates coords) {
-		this.coords = coords;
-	}
-	
-	public void setCoords(Timezone tz) 
-	{
-		setCoords(tz.getX(),tz.getY());
-	}
-	
-	public void setCoords(double x, double y){
-		this.coords = new Coordinates(x,y);
 	}
 	
 	public CPUEnergyModel getCPUEnergyModel() {
@@ -83,20 +53,7 @@ public abstract class ComputationalNode implements Serializable{
 	public void setCPUEnergyModel(CPUEnergyModel cpuEnergyModel) {
 		this.cpuEnergyModel = cpuEnergyModel;
 	}
-
-	public NETEnergyModel getNetEnergyModel() {
-		return netEnergyModel;
-	}
-
-	public void setNetEnergyModel(NETEnergyModel netEnergyModel) {
-		this.netEnergyModel = netEnergyModel;
-	}
 		
-	public boolean isCompatible(SoftwareComponent sc)
-	{
-		return capabilities.supports(sc.getHardwareRequirements());
-	}
-	
 	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
 	{
 		return priceModel.computeCost(sc, this, i);
@@ -128,6 +85,14 @@ public abstract class ComputationalNode implements Serializable{
 
 	public void setLatency(double latency) {
 		this.latency = latency;
+	}
+
+	public void undeploy(VMInstance vmInstance) {
+		capabilities.undeploy(vmInstance);		
+	}
+
+	public void deployVM(VMInstance vm) {
+		capabilities.deploy(vm);
 	}
 	
 }

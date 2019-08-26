@@ -4,10 +4,13 @@ import org.jgrapht.graph.DefaultEdge;
 
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 
 public class NetworkConnection extends DefaultEdge {
 
-	QoSProfile qosProfileULDL;
+
+	QoSProfile qosProfile;
+	NetworkedNode source,target;
 	/**
 	 * 
 	 */
@@ -21,37 +24,47 @@ public class NetworkConnection extends DefaultEdge {
 
 	public void sampleLink()
 	{
-		qosProfileULDL.sampleQoS();
+		qosProfile.sampleQoS();
 	}
 	
 	private void setQoSProfile(QoSProfile profile) 
 	{
-		this.qosProfileULDL = profile;
+		this.qosProfile = profile;
 	}
 	
 	public QoSProfile getQoSProfile()
 	{
-		return qosProfileULDL;
+		return qosProfile;
 	}
 	
 	public double getLatency()
 	{
-		return qosProfileULDL.getLatency();
+		return qosProfile.getLatency();
 	}
 	
 	public double getBandwidth()
 	{
-		return qosProfileULDL.getBandwidth();
+		return qosProfile.getBandwidth();
 	}
 	
-	public ComputationalNode getTarget()
+	public NetworkedNode getTarget()
 	{
-		return (ComputationalNode) super.getTarget();
+		return (NetworkedNode) this.target;
 	}
 	
-	public ComputationalNode getSource()
+	public NetworkedNode getSource()
 	{
-		return (ComputationalNode) super.getSource();
+		return (NetworkedNode) this.source;
+	}
+	
+	public void setSource(NetworkedNode n)
+	{
+		this.source = n;
+	}
+	
+	public void setTarget(NetworkedNode n)
+	{
+		this.target = n;
 	}
 	
 }

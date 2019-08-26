@@ -17,6 +17,7 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.workflow.WorkflowSchedulingEdgePlanner;
@@ -121,7 +122,7 @@ public class FGCSMain {
 								new ArrayList<Tuple2<WorkflowScheduling,Tuple5<Integer,Double,Double,Double, Double>>>();
 						WorkflowScheduler search = new HEFTWorkflowScheduler(inputValues);
 						//WorkflowScheduler search = new SchedulingTester(inputValues);
-						search.setEntryNode(inputValues._2.getNodeById("entry0"));
+						search.setEntryNode((ComputationalNode) inputValues._2.getNodeById("entry0"));
 						//RandomScheduler search = new RandomScheduler(inputValues);
 						ArrayList<WorkflowScheduling> schedulings = (ArrayList<WorkflowScheduling>) search.findScheduling();
 						if(schedulings != null)

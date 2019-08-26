@@ -70,7 +70,7 @@ public class HEFTCostResearch extends OffloadScheduler {
 				currentRuntime = firstTaskToTerminate.getRunTime();
 				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				//currentApp.removeTask(firstTaskToTerminate);
-				scheduling.get(firstTaskToTerminate).undeploy(firstTaskToTerminate);
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double minCost = Double.MAX_VALUE;
@@ -78,9 +78,9 @@ public class HEFTCostResearch extends OffloadScheduler {
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
-				if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
+				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
-					target = currentInfrastructure.getNodeById(currTask.getUserId());
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 					scheduledNodes.add(currTask);
 				}
 				else
@@ -103,9 +103,9 @@ public class HEFTCostResearch extends OffloadScheduler {
 						}
 					}
 				}
-				else if(isValid(scheduling,currTask,currentInfrastructure.getNodeById(currTask.getUserId())))
+				else if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
-						target = currentInfrastructure.getNodeById(currTask.getUserId());
+						target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 						minCost = 0.0;
 				}
 			}
@@ -144,7 +144,7 @@ public class HEFTCostResearch extends OffloadScheduler {
 			int numberOfNodes = I.getAllNodes().size() + 1;
 			for(ComputationalNode cn : I.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
-			w_cmp += msc.getLocalRuntimeOnNode(I.getNodeById(msc.getUserId()), I);
+			w_cmp += msc.getLocalRuntimeOnNode((ComputationalNode) I.getNodeById(msc.getUserId()), I);
 			w_cmp = w_cmp / numberOfNodes;
 			
 			if(dag.outgoingEdgesOf(msc).isEmpty())

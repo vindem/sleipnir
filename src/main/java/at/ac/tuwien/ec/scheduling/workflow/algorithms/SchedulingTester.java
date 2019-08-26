@@ -61,8 +61,8 @@ public class SchedulingTester extends WorkflowScheduler {
 			MobileSoftwareComponent curr = toi.next();
 			double currRuntime = 0.0;
 			double maxPredecessorRuntime = 0.0;
-			ComputationalNode target, pred = currentInfrastructure.getNodeById("entry0");
-			target = currentInfrastructure.getNodeById("entry0");
+			ComputationalNode target, pred = (ComputationalNode) currentInfrastructure.getNodeById("entry0");
+			target = (ComputationalNode) currentInfrastructure.getNodeById("entry0");
 			if(curr.getId().contains("SOURCE") || curr.getId().contains("SINK"))
 			{
 				
@@ -80,7 +80,7 @@ public class SchedulingTester extends WorkflowScheduler {
 					if(cmp.getRunTime() >= maxPredecessorRuntime) 
 					{
 						maxPredecessorRuntime = cmp.getRunTime() ;
-						target = scheduling.get(cmp);
+						target = (ComputationalNode) scheduling.get(cmp);
 					}
 				}
 				currRuntime = maxPredecessorRuntime;
@@ -103,7 +103,7 @@ public class SchedulingTester extends WorkflowScheduler {
 					if(tmp >= currRuntime) 
 					{ 
 						currRuntime = tmp;
-						pred = scheduling.get(cmp); 
+						pred = (ComputationalNode) scheduling.get(cmp); 
 					}
 				}
 				//System.out.println(pred.getId()+ "," + target.getId());
