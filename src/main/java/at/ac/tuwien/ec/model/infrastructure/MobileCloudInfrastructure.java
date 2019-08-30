@@ -33,7 +33,7 @@ public class MobileCloudInfrastructure implements Serializable{
 	protected HashMap<String, MobileDevice> mobileDevices;
 	protected HashMap<String, EdgeNode> edgeNodes;
 	protected HashMap<String, CloudDataCenter> cloudNodes;
-	private HashMap<String, EntryPoint> terminals;
+	protected HashMap<String, EntryPoint> terminals;
 	protected ConnectionMap connectionMap;
 	protected PriceMap priceMap;
 
