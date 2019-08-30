@@ -29,6 +29,7 @@ import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUDecre
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitDecreasingSizeVMPlanner;
 import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
+import at.ac.tuwien.ec.model.infrastructure.MobileBlockchainInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultIoTPlanner;
@@ -37,6 +38,9 @@ import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.MobileDevicePlannerWithMobility;
+import at.ac.tuwien.ec.scheduling.offloading.pos.PoSOffloadingAlgorithm;
+import at.ac.tuwien.ec.scheduling.offloading.pos.ValidationOffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.pos.Z3PoSBroker;
 import at.ac.tuwien.ec.scheduling.utils.blockchain.TransactionPool;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -49,10 +53,8 @@ public class UCC2019Main {
 	{
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
-		
-		TransactionPool transactionPool = new TransactionPool();
-		
-		class FrequencyComparator implements Comparator<Tuple2<DataPlacement, Tuple4<Integer,Double,Double,Double>>>, Serializable
+
+		class FrequencyComparator implements Comparator<Tuple2<ValidationOffloadScheduling, Tuple4<Integer,Double,Double,Double>>>, Serializable
 		{
 
 			/**
@@ -61,184 +63,134 @@ public class UCC2019Main {
 			private static final long serialVersionUID = -2034500309733677393L;
 
 			@Override
-			public int compare(Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o1,
-					Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o2) {
+			public int compare(Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double,Double>> o1,
+					Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double,Double>> o2) {
 				// TODO Auto-generated method stub
 				return o1._2()._1() - o2._2()._1();
 			}
-			
+
 		}
-		
-		
-				
+
+
+
 		processArgs(arg);
-		SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.mobileNum * SimulationSetup.dataRate);
+
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
-		
-		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
-		
-		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
-		planners.add(new FirstFitCPUIncreasing());
-		planners.add(new FirstFitCPUDecreasing());
-		planners.add(new BestFitCPU());
-		planners.add(new FirstFitDecreasingSizeVMPlanner());
+		ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+
+		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure>> input = jscontext.parallelize(test);
+
 		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
-			writer.append("AREA:\t" + SimulationSetup.area+"\n");
-			writer.append("IoT-NUM:\t" + SimulationSetup.iotDevicesNum+"\n");
-			writer.append("MOBILE-NUM:\t" + SimulationSetup.mobileNum+"\n");
-			writer.append("DATA-RATE:\t" + SimulationSetup.dataRate+"\n");
-			writer.append("WORKLOAD:\t" + SimulationSetup.workloadType+"\n");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}			
-		for(int i = 0; i < planners.size(); i++) {
-			VMPlanner currentPlanner = planners.get(i);
-			System.out.println(currentPlanner.getClass().getSimpleName());
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
-					PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
-					DataPlacement, Tuple4<Integer,Double, Double,Double>>() {
-				private static final long serialVersionUID = 1L;
+		
+		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
+				PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>, 
+				ValidationOffloadScheduling, Tuple4<Integer,Double, Double,Double>>() {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public Iterator<Tuple2<DataPlacement, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
-						throws Exception {
-					ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
-							new ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>>();
-					//HEFTResearch search = new HEFTResearch(inputValues);
-					DataPlacementAlgorithm search;
-					switch(SimulationSetup.placementAlgorithm)
+			@Override
+			public Iterator<Tuple2<ValidationOffloadScheduling, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure> inputValues)
+					throws Exception {
+				ArrayList<Tuple2<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>>> output = 
+						new ArrayList<Tuple2<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>>>();
+				//HEFTResearch search = new HEFTResearch(inputValues);
+				PoSOffloadingAlgorithm search = new Z3PoSBroker(inputValues);
+
+				//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
+				//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+				ArrayList<ValidationOffloadScheduling> offloads = (ArrayList<ValidationOffloadScheduling>) search.findScheduling();
+				if(offloads != null)
+					for(ValidationOffloadScheduling dp : offloads) 
 					{
-					case "FFDCPU":
-						search = new FFDCPUPlacement(currentPlanner, inputValues);
-						break;
-					case "STH":
-						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-						break;
-					case "FFDPROD":
-						search = new FFDPRODPlacement(currentPlanner, inputValues);
-						break;
-					case "L2NORM":
-						search = new L2NormPlacement(currentPlanner, inputValues);
-						break;
-					default:
-						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+						if(dp!=null)
+							output.add(
+									new Tuple2<ValidationOffloadScheduling,Tuple4<Integer,Double, Double, Double>>(dp,
+											new Tuple4<Integer,Double, Double,Double>(
+													1,
+													dp.getRunTime(),
+													dp.getUserCost(),
+													dp.getBatteryLifetime())
+											));
 					}
-					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
-					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-					ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
-					if(offloads != null)
-						for(DataPlacement dp : offloads) 
-						{
-							if(dp!=null)
-								output.add(
-										new Tuple2<DataPlacement,Tuple4<Integer,Double, Double, Double>>(dp,
-												new Tuple4<Integer,Double, Double,Double>(
-														1,
-														dp.getAverageLatency(),
-														dp.getMaxLatency(),
-														dp.getCost()
-														)));
-						}
-					return output.iterator();
-				}
-			});
-
-			//System.out.println(results.first());
-
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
-					results.reduceByKey(
-							new Function2<Tuple4<Integer,Double, Double,Double>,
-							Tuple4<Integer,Double,Double,Double>,
-							Tuple4<Integer,Double,Double,Double>>()
-							{
-								/**
-								 * 
-								 */
-								private static final long serialVersionUID = 1L;
-
-								@Override
-								public Tuple4<Integer, Double, Double, Double> call(
-										Tuple4<Integer, Double,Double, Double> off1,
-										Tuple4<Integer, Double,Double, Double> off2) throws Exception {
-									// TODO Auto-generated method stub
-									return new Tuple4<Integer, Double, Double, Double>(
-											off1._1() + off2._1(),
-											off1._2() + off2._2(),
-											off1._3() + off2._3(),
-											off1._4() + off2._4()
-											);
-								}
-
-							}
-							);
-
-			//System.out.println(aggregation.first());
-
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
-					aggregation.mapToPair(
-							new PairFunction<Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>,
-							DataPlacement,Tuple4<Integer, Double, Double, Double>>()
-							{
-
-								private static final long serialVersionUID = 1L;
-
-								@Override
-								public Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> call(
-										Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> arg0)
-												throws Exception {
-									Tuple4<Integer, Double, Double, Double> val = arg0._2();
-									Tuple4<Integer, Double, Double, Double> tNew 
-									= new Tuple4<Integer, Double, Double, Double>
-									(
-											val._1(),
-											val._2()/val._1(),
-											val._3()/val._1(),
-											val._4()/val._1()
-											);
-
-									return new Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
-								}
-
-
-							}
-
-							);
-			
-			Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
-			try {
-				 writer.append("\n");
-				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");
-				 writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
-				 writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
-				 writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
-						 +mostFrequent._2()._3()+"\t"+mostFrequent._2()._4() + "\t"+mostFrequent._1.values().size()+"\n");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return output.iterator();
 			}
-			
-			
-			System.out.println(mostFrequent._2());
-			System.out.println(mostFrequent._1.values().size());
-		}
-		try {
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		});
+
+		//System.out.println(results.first());
+
+		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double, Double>> aggregation = 
+				results.reduceByKey(
+						new Function2<Tuple4<Integer,Double, Double,Double>,
+						Tuple4<Integer,Double,Double,Double>,
+						Tuple4<Integer,Double,Double,Double>>()
+						{
+							/**
+							 * 
+							 */
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public Tuple4<Integer, Double, Double, Double> call(
+									Tuple4<Integer, Double,Double, Double> off1,
+									Tuple4<Integer, Double,Double, Double> off2) throws Exception {
+								// TODO Auto-generated method stub
+								return new Tuple4<Integer, Double, Double, Double>(
+										off1._1() + off2._1(),
+										off1._2() + off2._2(),
+										off1._3() + off2._3(),
+										off1._4() + off2._4()
+										);
+							}
+
+						}
+						);
+
+		//System.out.println(aggregation.first());
+
+		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double, Double>> histogram = 
+				aggregation.mapToPair(
+						new PairFunction<Tuple2<ValidationOffloadScheduling,Tuple4<Integer, Double, Double, Double>>,
+						ValidationOffloadScheduling,Tuple4<Integer, Double, Double, Double>>()
+						{
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double, Double>> call(
+									Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double, Double>> arg0)
+											throws Exception {
+								Tuple4<Integer, Double, Double, Double> val = arg0._2();
+								Tuple4<Integer, Double, Double, Double> tNew 
+								= new Tuple4<Integer, Double, Double, Double>
+								(
+										val._1(),
+										val._2()/val._1(),
+										val._3()/val._1(),
+										val._4()/val._1()
+										);
+
+								return new Tuple2<ValidationOffloadScheduling,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
+							}
+
+
+						}
+
+						);
+
+		Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+
+
+		System.out.println(mostFrequent._2());
+		System.out.println(mostFrequent._1.values().size());
+
+
 		jscontext.close();
 	}
 
-	private static ArrayList<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>>();
+	private static ArrayList<Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure>> generateSamples(int iterations) {
+		ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>> samples = new ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>>();
 		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
 		ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
 		for(int i = 0; i < iterations; i++)
@@ -247,13 +199,12 @@ public class UCC2019Main {
 			//WorkloadGenerator generator = new WorkloadGenerator();
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
-			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
+			MobileBlockchainInfrastructure inf = new MobileBlockchainInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			RandomEdgePlanner.setupEdgeNodes(inf);
-			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>(globalWorkload,inf);
+			Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
 		return samples;
@@ -263,11 +214,6 @@ public class UCC2019Main {
 	{
 		for(String arg: args)
 		{
-			if(arg.startsWith("-placement="))
-			{
-				String[] pars = arg.split("=");
-				SimulationSetup.placementAlgorithm = pars[1];
-			}
 			if(arg.startsWith("-filename="))
 			{
 				String[] pars = arg.split("=");
@@ -308,11 +254,6 @@ public class UCC2019Main {
 					break;
 				}
 			}
-			if(arg.startsWith("-traffic="))
-			{
-				String[] pars = arg.split("=");
-				SimulationSetup.traffic = pars[1];
-			}
 			if(arg.startsWith("-workload="))
 			{
 				String[] pars = arg.split("=");
@@ -323,12 +264,6 @@ public class UCC2019Main {
 				String[] pars = arg.split("=");
 				SimulationSetup.iterations = Integer.parseInt(pars[1]);
 			}
-			if(arg.startsWith("-dr="))
-			{
-				String[] pars = arg.split("=");
-				SimulationSetup.dataRate = Double.parseDouble(pars[1]);
-			}
-				
 		}
 	}
 	

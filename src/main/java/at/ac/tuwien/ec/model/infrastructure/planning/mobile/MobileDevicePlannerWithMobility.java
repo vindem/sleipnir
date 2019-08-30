@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
@@ -32,7 +33,7 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
 	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
 	
-	public static void setupMobileDevices(MobileDataDistributionInfrastructure inf, int number)
+	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
 	{
 		File inputSumoFile = new File("traces/hernals.coords");
 		System.out.println("Mobility traces parsing started...");
@@ -60,33 +61,6 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 			device.setCoords(mobilityTrace.getCoordinatesForTimestep(0.0));
 			//depending on setup of traffic
 			
-			switch(SimulationSetup.traffic)
-			{
-			case "LOW": //subscription only to the closest
-				double minDist = Double.MAX_VALUE;
-				String targetId = "";
-				for(IoTDevice iot : inf.getIotDevices().values())
-				{
-					double tmpDist = nodeDistance(device,iot);
-					if(tmpDist < minDist)
-					{
-						minDist = tmpDist;
-						targetId = iot.getId();
-					}
-						
-				}
-				inf.subscribeDeviceToTopic(device, targetId);
-				break;
-			case "MEDIUM":
-				int startIndex = (i%2==0)? 0 : 1;
-				for(int j = startIndex; j < SimulationSetup.iotDevicesNum; j+=2)
-					inf.subscribeDeviceToTopic(device, "iot"+j);
-				break;
-			case "HIGH":
-				for(int j = 0; j < SimulationSetup.iotDevicesNum; j++)
-					inf.subscribeDeviceToTopic(device, "iot"+j);
-				break;
-			}
 			
 		}
 	}

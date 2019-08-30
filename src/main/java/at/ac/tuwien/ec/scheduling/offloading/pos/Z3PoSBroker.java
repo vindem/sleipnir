@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.offloading.smt.z3;
+package at.ac.tuwien.ec.scheduling.offloading.pos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +17,8 @@ import com.microsoft.z3.RealExpr;
 import com.microsoft.z3.Solver;
 import com.microsoft.z3.Status;
 
+import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.model.infrastructure.MobileBlockchainInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
@@ -27,7 +29,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import scala.Tuple2;
 
-public class Z3PoSBroker extends OffloadScheduler {
+public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 
 	/**
 	 * 
@@ -35,46 +37,55 @@ public class Z3PoSBroker extends OffloadScheduler {
 	private static final long serialVersionUID = -4979418341371131767L;
 	private MobileDevice currentVehicle;
 
-	public Z3PoSBroker(MobileApplication A, MobileCloudInfrastructure I, MobileDevice current) {
+	public Z3PoSBroker(ArrayList<DataEntry> a, MobileBlockchainInfrastructure I) {
 		super();
-		setMobileApplication(A);
+		//setMobileApplication(A);
 		setInfrastructure(I);
-		this.currentVehicle = current;
 	}
-	
-	public Z3PoSBroker(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+
+	public Z3PoSBroker(Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure> t) {
 		super();
 		loadLibrary();
-		setMobileApplication(t._1());
+		//setMobileApplication(t._1());
 		setInfrastructure(t._2());
 	}
-	
+
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
-		ArrayList<MobileSoftwareComponent> candidateBlock = createCandidateBlock();
-		ArrayList<ComputationalNode> candidateNodes = selectCandidateNodes();
-		
+		ArrayList<ValidationOffloadScheduling> scheduling = new ArrayList<ValidationOffloadScheduling>();
+		for(MobileDevice vehicle : this.currentInfrastructure.getMobileDevices().values())
+		{
+			ArrayList<MobileSoftwareComponent> candidateBlock = createCandidateBlock(vehicle);
+			ArrayList<ComputationalNode> candidateNodes = selectCandidateNodes(vehicle);
+
+			final int blockSize = candidateBlock.size();
+			final int nodeNum = candidateNodes.size();
+			final double[] goals = calculateGoals(vehicle);
+
+			ValidationOffloadScheduling currScheduling= Z3Solver(candidateBlock, candidateNodes, nodeNum, nodeNum, goals);
+
+			scheduling.add(currScheduling);
+		}
+		return scheduling;
+	}
+
+	private ValidationOffloadScheduling Z3Solver(ArrayList<MobileSoftwareComponent> candidateBlock, ArrayList<ComputationalNode> candidateNodes,int blockSize, int nodeNum, double[] goals)
+	{
+		ValidationOffloadScheduling currScheduling = new ValidationOffloadScheduling();
+
 		Map<String, String> config = new HashMap<String, String>();
 		config.put("model", "true");
 		Context ctx = new Context(config);
 		Solver solver = ctx.mkSolver();
-		
-		ArrayList<OffloadScheduling> scheduling = new ArrayList<OffloadScheduling>();
-		
-		OffloadScheduling currScheduling = new OffloadScheduling();
-		
-		final int blockSize = candidateBlock.size();
-		final int nodeNum = candidateNodes.size();
-		final double[] goals = calculateGoals(this.currentVehicle);
-		
+
 		IntExpr[][] assVar = new IntExpr[blockSize][nodeNum];
-		
+
 		for(int i = 0; i < blockSize; i++)
 			for(int j = 0; j < nodeNum; j++)
 				assVar[i][j] = ctx.mkIntConst("x"+i+""+j);
-		
+
 		BoolExpr[] assignment = new BoolExpr[blockSize];
-		
+
 		for(int i = 0; i < blockSize; i++)
 		{
 			BoolExpr domain = ctx.mkBool(true);
@@ -91,25 +102,25 @@ public class Z3PoSBroker extends OffloadScheduler {
 			}
 			assignment[i] = ctx.mkAnd(domain,ctx.mkEq(sum, ctx.mkInt(1)));
 		}
-		
+
 		RealExpr[][] runtimes = new RealExpr[blockSize][nodeNum];
 		RealExpr[][] costMatrix = new RealExpr[blockSize][nodeNum];
 		RealExpr[][] energyMatrix = new RealExpr[blockSize][nodeNum];
-		
+
 		//System.out.println("RUNTIME");
 		for(int i = 0; i < blockSize; i++)
 		{
 			for(int j = 0; j < nodeNum; j++)
 			{
 				MobileSoftwareComponent curr = candidateBlock.get(i);
-				
+
 				runtimes[i][j] = ctx.mkReal(""+curr.getRuntimeOnNode(this.currentVehicle, candidateNodes.get(j), this.currentInfrastructure));
 				costMatrix[i][j] = ctx.mkReal(""+candidateNodes.get(j).computeCost(curr, this.currentInfrastructure));
 				energyMatrix[i][j] = ctx.mkReal(""+computeEnergyFor(this.currentVehicle,candidateNodes.get(j),this.currentInfrastructure));
 			}
 			//System.out.println("");
 		}
-		
+
 		ArithExpr[] runtimeForTask = new ArithExpr[blockSize];
 		BoolExpr[] rtConstraints = new BoolExpr[blockSize];
 		ArithExpr[] costForTask = new ArithExpr[blockSize];
@@ -133,24 +144,24 @@ public class Z3PoSBroker extends OffloadScheduler {
 				energy = ctx.mkMul(energyMatrix[i][j],assVar[i][j]);
 				energyForTask[i] = ctx.mkAdd(energyForTask[i],energy);
 			}
-			
+
 			rtConstraints[i] = ctx.mkLe(runtimeForTask[i], ctx.mkReal(""+goals[0]));
 			costConstraints[i] = ctx.mkLe(costForTask[i], ctx.mkReal(""+goals[1]));
 			energyConstraints[i] = ctx.mkLe(energyForTask[i], ctx.mkReal(""+goals[2]));
 			//System.out.println(rtConstraints[i]);
-			
+
 		}
-		
+
 		BoolExpr taskConstraints[] = new BoolExpr[blockSize];
 		for(int i = 0; i < blockSize; i++)
 			taskConstraints[i] = ctx.mkAnd(rtConstraints[i],costConstraints[i],energyConstraints[i]);
-		
+
 		solver.add(assignment);
 		solver.add(taskConstraints);
-				
+
 		Status status = solver.check();
-		
-		
+
+
 		Model model = null;
 		if(status == Status.SATISFIABLE)
 		{
@@ -161,17 +172,15 @@ public class Z3PoSBroker extends OffloadScheduler {
 				{
 					if(model.getConstInterp(assVar[i][j]).equals(ctx.mkInt(1))) 
 					{
-							currScheduling.put(candidateBlock.get(i), candidateNodes.get(j));
-							currScheduling.addRuntime(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
-							currScheduling.addCost(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
-							currScheduling.addEnergyConsumption(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
+						currScheduling.put(candidateBlock.get(i), candidateNodes.get(j));
+						currScheduling.addRuntime(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
+						currScheduling.addCost(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
+						currScheduling.addEnergyConsumption(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
 					}
 				}
-			scheduling.add(currScheduling);
-			return scheduling;
+			return currScheduling;
 		}
 		return null;
-		
 	}
 
 	private double[] calculateGoals(MobileDevice currentVehicle) {
@@ -185,22 +194,22 @@ public class Z3PoSBroker extends OffloadScheduler {
 		return 0;
 	}
 
-	private ArrayList<ComputationalNode> selectCandidateNodes() {
+	private ArrayList<ComputationalNode> selectCandidateNodes(MobileDevice vehicle) {
 		ArrayList<ComputationalNode> candidateNodes = new ArrayList<ComputationalNode>();
-		
+
 		candidateNodes.add(currentVehicle);
-		
+
 		for(ComputationalNode cn : this.currentInfrastructure.getEdgeNodes().values()) 
 			candidateNodes.add(cn);
-		
+
 		return candidateNodes;
 	}
 
-	private ArrayList<MobileSoftwareComponent> createCandidateBlock() {
+	private ArrayList<MobileSoftwareComponent> createCandidateBlock(MobileDevice vehicle) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	private void loadLibrary()
 	{
 		System.err.println("java.library.path = " + System.getProperty("java.library.path"));
@@ -218,7 +227,7 @@ public class Z3PoSBroker extends OffloadScheduler {
 			}
 		}
 	}
-	
+
 	private static double doubleValue(RealExpr realExpr) {
 		Expr value = realExpr.simplify();
 		if(value.isRatNum())
