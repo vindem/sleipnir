@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.scheduling.offloading.pos;
 
+import at.ac.tuwien.ec.blockchain.Transaction;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -25,8 +26,8 @@ public class ValidationOffloadScheduling extends Scheduling{
         userCost = 0.0;
 	}
 	
-	public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	double tmp = s.getRuntimeOnNode(n, I);
+	public void addRuntime(Transaction s, ComputationalNode n, MobileCloudInfrastructure I){
+    	double tmp = s.getRuntimeOnNode(n, s.getOffloadTarget(), I);
     	s.setRunTime(tmp);
     	if(this.runTime < tmp)
     		this.runTime = tmp;
@@ -36,7 +37,7 @@ public class ValidationOffloadScheduling extends Scheduling{
     	this.runTime -= s.getRuntimeOnNode((ComputationalNode) super.get(s), I);
     }
     
-    public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
+    public void addCost(Transaction s, ComputationalNode n, MobileCloudInfrastructure I) {
         this.userCost += n.computeCost(s, I);
     }
     
@@ -45,7 +46,7 @@ public class ValidationOffloadScheduling extends Scheduling{
     }
 
     //TODO: consider idle power
-	public void addEnergyConsumption(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
+	public void addEnergyConsumption(Transaction s, ComputationalNode n, MobileCloudInfrastructure i) {
 		if(i.getMobileDevices().containsKey(n.getId()))
 		{
 			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i);

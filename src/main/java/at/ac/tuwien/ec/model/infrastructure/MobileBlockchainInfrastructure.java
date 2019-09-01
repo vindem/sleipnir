@@ -19,5 +19,11 @@ public class MobileBlockchainInfrastructure extends MobileCloudInfrastructure {
 	public void setTransPool(TransactionPool transPool) {
 		this.transPool = transPool;
 	}
-
+	
+	public TransactionPool getTransactionPool()
+	{
+		return this.transPool;
+	}
+	
+	
 }

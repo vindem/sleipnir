@@ -79,19 +79,17 @@ public class UCC2019Main {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+		ArrayList<Tuple2<TransactionPool,MobileBlockchainInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 
-		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure>> input = jscontext.parallelize(test);
-
-		BufferedWriter writer = null;
+		JavaRDD<Tuple2<TransactionPool, MobileBlockchainInfrastructure>> input = jscontext.parallelize(test);
 		
 		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
-				PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>, 
+				PairFlatMapFunction<Tuple2<TransactionPool,MobileBlockchainInfrastructure>, 
 				ValidationOffloadScheduling, Tuple4<Integer,Double, Double,Double>>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Iterator<Tuple2<ValidationOffloadScheduling, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure> inputValues)
+			public Iterator<Tuple2<ValidationOffloadScheduling, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<TransactionPool, MobileBlockchainInfrastructure> inputValues)
 					throws Exception {
 				ArrayList<Tuple2<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>>> output = 
 						new ArrayList<Tuple2<ValidationOffloadScheduling,Tuple4<Integer,Double, Double,Double>>>();
@@ -118,7 +116,7 @@ public class UCC2019Main {
 			}
 		});
 
-		//System.out.println(results.first());
+		System.out.println(results.first());
 
 		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double, Double>> aggregation = 
 				results.reduceByKey(
@@ -147,7 +145,7 @@ public class UCC2019Main {
 						}
 						);
 
-		//System.out.println(aggregation.first());
+		System.out.println(aggregation.first());
 
 		JavaPairRDD<ValidationOffloadScheduling,Tuple4<Integer,Double, Double, Double>> histogram = 
 				aggregation.mapToPair(
@@ -179,7 +177,7 @@ public class UCC2019Main {
 
 						);
 
-		Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+		Tuple2<ValidationOffloadScheduling, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.first();
 
 
 		System.out.println(mostFrequent._2());
@@ -189,10 +187,10 @@ public class UCC2019Main {
 		jscontext.close();
 	}
 
-	private static ArrayList<Tuple2<ArrayList<DataEntry>, MobileBlockchainInfrastructure>> generateSamples(int iterations) {
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>> samples = new ArrayList<Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>>();
-		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
-		ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
+	private static ArrayList<Tuple2<TransactionPool, MobileBlockchainInfrastructure>> generateSamples(int iterations) {
+		ArrayList<Tuple2<TransactionPool,MobileBlockchainInfrastructure>> samples = new ArrayList<Tuple2<TransactionPool,MobileBlockchainInfrastructure>>();
+		TransactionPool pool = new TransactionPool();
+		pool.generateTransactions();
 		for(int i = 0; i < iterations; i++)
 		{
 			//ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
@@ -204,7 +202,7 @@ public class UCC2019Main {
 			RandomEdgePlanner.setupEdgeNodes(inf);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure>(globalWorkload,inf);
+			Tuple2<TransactionPool,MobileBlockchainInfrastructure> singleSample = new Tuple2<TransactionPool,MobileBlockchainInfrastructure>(pool,inf);
 			samples.add(singleSample);
 		}
 		return samples;

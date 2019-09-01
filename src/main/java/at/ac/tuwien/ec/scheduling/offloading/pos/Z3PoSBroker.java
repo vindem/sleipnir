@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.ojalgo.random.LogNormal;
+
 import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
@@ -17,6 +19,7 @@ import com.microsoft.z3.RealExpr;
 import com.microsoft.z3.Solver;
 import com.microsoft.z3.Status;
 
+import at.ac.tuwien.ec.blockchain.Transaction;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.MobileBlockchainInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
@@ -27,6 +30,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.utils.blockchain.TransactionPool;
 import scala.Tuple2;
 
 public class Z3PoSBroker extends PoSOffloadingAlgorithm {
@@ -43,155 +47,328 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 		setInfrastructure(I);
 	}
 
-	public Z3PoSBroker(Tuple2<ArrayList<DataEntry>,MobileBlockchainInfrastructure> t) {
+	public Z3PoSBroker(Tuple2<TransactionPool,MobileBlockchainInfrastructure> t) {
 		super();
 		loadLibrary();
 		//setMobileApplication(t._1());
+		t._2().setTransPool(t._1());
 		setInfrastructure(t._2());
+		
 	}
 
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		ArrayList<ValidationOffloadScheduling> scheduling = new ArrayList<ValidationOffloadScheduling>();
-		for(MobileDevice vehicle : this.currentInfrastructure.getMobileDevices().values())
-		{
-			ArrayList<MobileSoftwareComponent> candidateBlock = createCandidateBlock(vehicle);
-			ArrayList<ComputationalNode> candidateNodes = selectCandidateNodes(vehicle);
-
-			final int blockSize = candidateBlock.size();
-			final int nodeNum = candidateNodes.size();
-			final double[] goals = calculateGoals(vehicle);
-
-			ValidationOffloadScheduling currScheduling= Z3Solver(candidateBlock, candidateNodes, nodeNum, nodeNum, goals);
-
-			scheduling.add(currScheduling);
-		}
+			
+		((MobileBlockchainInfrastructure)this.currentInfrastructure).getTransactionPool().generateTransactions();
+		ValidationOffloadScheduling currScheduling= Z3Solver(((MobileBlockchainInfrastructure)this.currentInfrastructure)
+				.getTransactionPool().getTransactionCount(),
+				this.currentInfrastructure.getAllNodes().size());
+		scheduling.add(currScheduling);
 		return scheduling;
 	}
 
-	private ValidationOffloadScheduling Z3Solver(ArrayList<MobileSoftwareComponent> candidateBlock, ArrayList<ComputationalNode> candidateNodes,int blockSize, int nodeNum, double[] goals)
+	private ValidationOffloadScheduling Z3Solver(int transactionsNum, int nodeNum)
 	{
 		ValidationOffloadScheduling currScheduling = new ValidationOffloadScheduling();
-
-		Map<String, String> config = new HashMap<String, String>();
-		config.put("model", "true");
-		Context ctx = new Context(config);
-		Solver solver = ctx.mkSolver();
-
-		IntExpr[][] assVar = new IntExpr[blockSize][nodeNum];
-
-		for(int i = 0; i < blockSize; i++)
-			for(int j = 0; j < nodeNum; j++)
-				assVar[i][j] = ctx.mkIntConst("x"+i+""+j);
-
-		BoolExpr[] assignment = new BoolExpr[blockSize];
-
-		for(int i = 0; i < blockSize; i++)
+		
+		class ObjEntry
 		{
-			BoolExpr domain = ctx.mkBool(true);
-			ArithExpr sum = ctx.mkInt(0);
-			for(int j = 0; j < nodeNum; j++) 
-			{
-				domain = ctx.mkAnd(domain,
-						ctx.mkOr(
-								ctx.mkEq(assVar[i][j].simplify(),ctx.mkInt(0)),
-								ctx.mkEq(assVar[i][j].simplify(),ctx.mkInt(1))
-								)
-						);
-				sum = ctx.mkAdd(sum,assVar[i][j]);
-			}
-			assignment[i] = ctx.mkAnd(domain,ctx.mkEq(sum, ctx.mkInt(1)));
+			public int blockSize;
+			public ArrayList<ComputationalNode> candidateNodes;
+			public double goals[] = new double[3];
 		}
-
-		RealExpr[][] runtimes = new RealExpr[blockSize][nodeNum];
-		RealExpr[][] costMatrix = new RealExpr[blockSize][nodeNum];
-		RealExpr[][] energyMatrix = new RealExpr[blockSize][nodeNum];
-
-		//System.out.println("RUNTIME");
-		for(int i = 0; i < blockSize; i++)
+		
+		HashMap<Integer,ObjEntry> objectivesPerVehicle = new HashMap<Integer,ObjEntry>();
+		
+		int[] candidateBlockSizes = new int[this.currentInfrastructure.getMobileDevices().size()];
+		
+		
+		
+		//determining base parameters per vehicle
+		int v = 0;
+		int numberOfVehicles = this.currentInfrastructure.getMobileDevices().values().size();
+		for(MobileDevice vehicle : this.currentInfrastructure.getMobileDevices().values())
 		{
-			for(int j = 0; j < nodeNum; j++)
-			{
-				MobileSoftwareComponent curr = candidateBlock.get(i);
+			ObjEntry vehicleEntry = new ObjEntry();
+			int blockSize = calculateBlockSize(vehicle);
+			ArrayList<ComputationalNode> candidateNodes = selectCandidateNodes(vehicle);
+			double goals[] = calculateGoals(vehicle);
+			
+			vehicleEntry.blockSize = blockSize;
+			vehicleEntry.candidateNodes = candidateNodes;
+			vehicleEntry.goals = goals;
+			
+			
+			objectivesPerVehicle.put(v, vehicleEntry);
+			v++;
+			
+		}	
+			Map<String, String> config = new HashMap<String, String>();
+			config.put("model", "true");
+			Context ctx = new Context(config);
+			Solver solver = ctx.mkSolver();
 
-				runtimes[i][j] = ctx.mkReal(""+curr.getRuntimeOnNode(this.currentVehicle, candidateNodes.get(j), this.currentInfrastructure));
-				costMatrix[i][j] = ctx.mkReal(""+candidateNodes.get(j).computeCost(curr, this.currentInfrastructure));
-				energyMatrix[i][j] = ctx.mkReal(""+computeEnergyFor(this.currentVehicle,candidateNodes.get(j),this.currentInfrastructure));
-			}
-			//System.out.println("");
-		}
+			int numberOfTransactions = ((MobileBlockchainInfrastructure)this.currentInfrastructure).getTransPool()
+            .getTransactionCount();
+			
+			IntExpr[][] assVar = new IntExpr[numberOfTransactions][numberOfVehicles];
+			IntExpr[][] offVar = new IntExpr[numberOfVehicles][nodeNum];
 
-		ArithExpr[] runtimeForTask = new ArithExpr[blockSize];
-		BoolExpr[] rtConstraints = new BoolExpr[blockSize];
-		ArithExpr[] costForTask = new ArithExpr[blockSize];
-		BoolExpr[] costConstraints = new BoolExpr[blockSize];
-		ArithExpr[] energyForTask = new ArithExpr[blockSize];
-		BoolExpr[] energyConstraints = new BoolExpr[blockSize];
-		for(int i = 0; i < blockSize; i++)
-		{
-			ArithExpr rt = ctx.mkMul(runtimes[i][0],assVar[i][0]);
-			runtimeForTask[i] = ctx.mkAdd(rt);
-			ArithExpr cost = ctx.mkMul(costMatrix[i][0],assVar[i][0]);
-			costForTask[i] = ctx.mkAdd(cost);
-			ArithExpr energy = ctx.mkMul(energyMatrix[i][0],assVar[i][0]);
-			energyForTask[i] = ctx.mkAdd(energy);
-			for(int j = 1; j < nodeNum; j++)
-			{
-				rt = ctx.mkMul(runtimes[i][j],assVar[i][j]);
-				runtimeForTask[i] = ctx.mkAdd(runtimeForTask[i],rt);
-				cost = ctx.mkMul(costMatrix[i][j],assVar[i][j]);
-				costForTask[i] = ctx.mkAdd(runtimeForTask[i],cost);
-				energy = ctx.mkMul(energyMatrix[i][j],assVar[i][j]);
-				energyForTask[i] = ctx.mkAdd(energyForTask[i],energy);
-			}
-
-			rtConstraints[i] = ctx.mkLe(runtimeForTask[i], ctx.mkReal(""+goals[0]));
-			costConstraints[i] = ctx.mkLe(costForTask[i], ctx.mkReal(""+goals[1]));
-			energyConstraints[i] = ctx.mkLe(energyForTask[i], ctx.mkReal(""+goals[2]));
-			//System.out.println(rtConstraints[i]);
-
-		}
-
-		BoolExpr taskConstraints[] = new BoolExpr[blockSize];
-		for(int i = 0; i < blockSize; i++)
-			taskConstraints[i] = ctx.mkAnd(rtConstraints[i],costConstraints[i],energyConstraints[i]);
-
-		solver.add(assignment);
-		solver.add(taskConstraints);
-
-		Status status = solver.check();
-
-
-		Model model = null;
-		if(status == Status.SATISFIABLE)
-		{
-			model = solver.getModel();
-			//System.out.println("Satisfiable!");
-			for(int i = 0; i < blockSize; i++)
+			for(int i = 0; i < numberOfTransactions; i++)
+				for(int j = 0; j < numberOfVehicles; j++)
+					assVar[i][j] = ctx.mkIntConst("x"+i+""+j);
+			
+			for(int i = 0; i < numberOfVehicles; i++)
 				for(int j = 0; j < nodeNum; j++)
+					offVar[i][j] = ctx.mkIntConst("o"+i+""+j);
+
+			BoolExpr[] assignment = new BoolExpr[numberOfTransactions];
+
+			for(int i = 0; i < numberOfTransactions; i++)
+			{
+				BoolExpr domain = ctx.mkBool(true);
+				ArithExpr sum = ctx.mkInt(0);
+				for(int j = 0; j < nodeNum; j++) 
 				{
-					if(model.getConstInterp(assVar[i][j]).equals(ctx.mkInt(1))) 
-					{
-						currScheduling.put(candidateBlock.get(i), candidateNodes.get(j));
-						currScheduling.addRuntime(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
-						currScheduling.addCost(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
-						currScheduling.addEnergyConsumption(candidateBlock.get(i), candidateNodes.get(j), this.currentInfrastructure);
-					}
+					domain = ctx.mkAnd(domain,
+							ctx.mkOr(
+									ctx.mkEq(assVar[i][j].simplify(),ctx.mkInt(0)),
+									ctx.mkEq(assVar[i][j].simplify(),ctx.mkInt(1))
+									)
+							);
+					sum = ctx.mkAdd(sum,assVar[i][j]);
 				}
-			return currScheduling;
-		}
+				//each value is 0,1, each task is assigned at most at 1 node
+				assignment[i] = ctx.mkAnd(domain,ctx.mkLe(sum, ctx.mkInt(1)));
+			}
+			
+			BoolExpr[] offload = new BoolExpr[numberOfVehicles];
+			IntExpr[] offInd = new IntExpr[numberOfVehicles];
+			
+			for(int i = 0; i < numberOfVehicles; i++)
+			{
+				BoolExpr domain = ctx.mkBool(true);
+				ArithExpr sum = ctx.mkInt(0);
+				for(int j = 0; j < nodeNum; j++) 
+				{
+					domain = ctx.mkAnd(domain,
+							ctx.mkOr(
+									ctx.mkEq(offVar[i][j].simplify(),ctx.mkInt(0)),
+									ctx.mkEq(offVar[i][j].simplify(),ctx.mkInt(1))
+									)
+							);
+					sum = ctx.mkAdd(sum,offVar[i][j]);
+				}
+				//each value is 0,1, each task is assigned at most at 1 node
+				offInd[i] = (IntExpr) sum.simplify();
+				offload[i] = ctx.mkAnd(domain,ctx.mkLe(sum, ctx.mkInt(1)));
+			}
+			
+			//each vehicle does not get more transactions than its candidate block size
+			BoolExpr[] boundTrans = new BoolExpr[nodeNum];
+			
+			for(int j = 0; j < nodeNum; j++)
+			{
+				ArithExpr sum = ctx.mkInt(0);
+				for(int i = 0; i < transactionsNum; i++)
+					sum = ctx.mkAdd(sum,assVar[i][j]);
+				boundTrans[j] = ctx.mkLe(sum, ctx.mkInt(objectivesPerVehicle.get(j).blockSize));
+					
+			}
+			RealExpr[][] runtimes = new RealExpr[numberOfTransactions][numberOfVehicles];
+			RealExpr[][] costMatrix = new RealExpr[numberOfTransactions][numberOfVehicles];
+			RealExpr[][] energyMatrix = new RealExpr[numberOfTransactions][numberOfVehicles];
+			
+			RealExpr[][] runtimesOffload = new RealExpr[numberOfVehicles][nodeNum];
+			RealExpr[][] costMatrixOffload = new RealExpr[numberOfVehicles][nodeNum];
+			RealExpr[][] energyMatrixOffload = new RealExpr[numberOfVehicles][nodeNum];
+			
+			
+
+			ArrayList<Transaction> transactionPool = ((MobileBlockchainInfrastructure)this.currentInfrastructure).getTransPool().getTransactions();
+			
+			//System.out.println("RUNTIME");
+			int i = 0;
+			for(Transaction curr : transactionPool)
+			{
+				for(int j = 0; j < numberOfVehicles; j++)
+				{
+					LogNormal lnDistr = new LogNormal(0.1,0.3);
+					curr.setMillionsOfInstruction(lnDistr.doubleValue());
+					curr.setQuantileOfMI(lnDistr.getQuantile(0.95));
+					runtimes[i][j] = ctx.mkReal(""+computeQRuntime(curr,j));
+					costMatrix[i][j] = ctx.mkReal(""+computeQCost(curr,j));
+					energyMatrix[i][j] = ctx.mkReal(""+computeQEnergy(curr,j));
+				}
+				i++;
+				//System.out.println("");
+			}
+			
+			for(i = 0; i < numberOfVehicles; i++) 
+			{
+				for(int j = 0; j < nodeNum; j++) 
+				{
+					ArithExpr rtTransSum = ctx.mkReal(""+0.0);
+					ArithExpr costTransSum = ctx.mkReal(""+0.0);
+					ArithExpr energyTransSum = ctx.mkReal(""+0.0);
+					for(int k = 0; k < numberOfTransactions; k++) 
+					{
+						rtTransSum = ctx.mkAdd(rtTransSum,ctx.mkMul(assVar[k][i],
+								ctx.mkReal(""+computeQRuntimeOffload(i,j,transactionPool.get(k)))));
+						costTransSum = ctx.mkAdd(costTransSum,ctx.mkMul(assVar[k][i],
+								ctx.mkReal(""+computeQCostOffload(i,j,transactionPool.get(k)))));
+						energyTransSum = ctx.mkAdd(energyTransSum,ctx.mkMul(assVar[k][i],
+								ctx.mkReal(""+computeQEnergyOffload(i,j,transactionPool.get(k)))));
+					}
+					runtimesOffload[i][j] = (RealExpr) rtTransSum.simplify();
+					costMatrixOffload[i][j] = (RealExpr) costTransSum.simplify();
+					energyMatrixOffload[i][j] = (RealExpr) energyTransSum.simplify();
+				}
+				
+			}
+			
+			RealExpr[] runtimeBlockOffload,costBlockOffload,energyBlockOffload;
+			
+			runtimeBlockOffload = new RealExpr[numberOfVehicles];
+			costBlockOffload = new RealExpr[numberOfVehicles];
+			energyBlockOffload = new RealExpr[numberOfVehicles];
+			
+			for(i = 0; i < numberOfVehicles; i++) 
+				for(int j = 0; j < nodeNum; j++) 
+				{
+					runtimeBlockOffload[i] = ctx.mkReal("0.0");
+					costBlockOffload[i] = ctx.mkReal("0.0");
+					energyBlockOffload[i] = ctx.mkReal("0.0");
+					if(offVar[i][j].simplify().equals(ctx.mkInt(1)))
+					{
+						runtimeBlockOffload[i] = runtimesOffload[i][j];
+						costBlockOffload[i] = costMatrixOffload[i][j];
+						energyBlockOffload[i] = energyMatrixOffload[i][j];
+						break;
+					}
+					
+				}
+				
+			
+
+			ArithExpr[] runtimeForVehicle = new ArithExpr[numberOfVehicles];
+			BoolExpr[] rtConstraints = new BoolExpr[numberOfVehicles];
+			ArithExpr[] costForVehicle = new ArithExpr[numberOfVehicles];
+			BoolExpr[] costConstraints = new BoolExpr[numberOfVehicles];
+			ArithExpr[] energyForVehicle = new ArithExpr[numberOfVehicles];
+			BoolExpr[] energyConstraints = new BoolExpr[numberOfVehicles];
+			
+			for(int j = 0; j < numberOfVehicles; j++)
+			{
+				ArithExpr rt = ctx.mkMul(runtimes[0][j],assVar[0][j]);
+				runtimeForVehicle[j] = ctx.mkAdd(rt);
+				ArithExpr cost = ctx.mkMul(costMatrix[0][j],assVar[0][j]);
+				costForVehicle[j] = ctx.mkAdd(cost);
+				ArithExpr energy = ctx.mkMul(energyMatrix[0][j],assVar[0][j]);
+				energyForVehicle[j] = ctx.mkAdd(energy);
+				for(i = 1; i < numberOfTransactions; i++)
+				{
+					rt = ctx.mkMul(runtimes[i][j],assVar[i][j]);
+					runtimeForVehicle[j] = ctx.mkAdd(runtimeForVehicle[j],rt);
+					cost = ctx.mkMul(costMatrix[i][j],assVar[i][j]);
+					costForVehicle[j] = ctx.mkAdd(runtimeForVehicle[j],cost);
+					energy = ctx.mkMul(energyMatrix[i][j],assVar[i][j]);
+					energyForVehicle[j] = ctx.mkAdd(energyForVehicle[j],energy);
+				}
+				
+				double[] goals = objectivesPerVehicle.get(j).goals;
+
+				rtConstraints[j] = ctx.mkLe(
+						ctx.mkAdd(
+								ctx.mkMul(ctx.mkSub(ctx.mkInt(1),offInd[j]),runtimeForVehicle[j]),
+								ctx.mkMul(offInd[j],runtimeBlockOffload[j])
+								),
+						ctx.mkReal(""+goals[0]));
+				costConstraints[j] = ctx.mkLe(
+						ctx.mkAdd(
+								ctx.mkMul(ctx.mkSub(ctx.mkInt(1),offInd[j]),costForVehicle[j]),
+								ctx.mkMul(offInd[j],costBlockOffload[j])
+								),
+						ctx.mkReal(""+goals[0]));
+				energyConstraints[j] = ctx.mkLe(
+						ctx.mkAdd(
+								ctx.mkMul(ctx.mkSub(ctx.mkInt(1),offInd[j]),energyForVehicle[j]),
+								ctx.mkMul(offInd[j],energyBlockOffload[j])
+								),
+						ctx.mkReal(""+goals[0]));
+				//System.out.println(rtConstraints[i]);
+
+			}
+
+			BoolExpr vehicleConstraints[] = new BoolExpr[nodeNum];
+			for(i = 0; i < nodeNum; i++)
+				vehicleConstraints[i] = ctx.mkAnd(rtConstraints[i],costConstraints[i],energyConstraints[i]);
+
+			solver.add(assignment);
+			solver.add(vehicleConstraints);
+
+			Status status = solver.check();
+
+			ArrayList<ComputationalNode> compNodes = this.currentInfrastructure.getAllNodes();
+			
+			Model model = null;
+			if(status == Status.SATISFIABLE)
+			{
+				model = solver.getModel();
+				//System.out.println("Satisfiable!");
+				for(i = 0; i < transactionsNum; i++)
+					for(int j = 0; j < nodeNum; j++)
+					{
+						if(model.getConstInterp(assVar[i][j]).equals(ctx.mkInt(1))) 
+						{
+							transactionPool.get(i).setOffloadTarget(this.currentInfrastructure.getAllNodes().get(j));
+							currScheduling.put(transactionPool.get(i), compNodes.get(j));
+							currScheduling.addRuntime(transactionPool.get(i),compNodes.get(j), this.currentInfrastructure);
+							//currScheduling.addCost(transactionPool.get(i), transactionPool.get(i).getOffloadTarget(), this.currentInfrastructure);
+							//currScheduling.addEnergyConsumption(transactionPool.get(i), transactionPool.get(i).getOffloadTarget(), this.currentInfrastructure);
+						}
+					}
+				
+			}
+		
 		return null;
+	}
+
+	private String computeQEnergyOffload(int i, int j, Transaction transaction) {
+		// TODO Auto-generated method stub
+		return "0.0";
+	}
+
+	private String computeQCostOffload(int i, int j, Transaction transaction) {
+		// TODO Auto-generated method stub
+		return "0.0";
+	}
+
+	private String computeQRuntimeOffload(int i, int j, Transaction transaction) {
+		// TODO Auto-generated method stub
+		return "0.0";
+	}
+
+	private String computeQEnergy(Transaction curr, int j) {
+		// TODO Auto-generated method stub
+		return "0.0";
+	}
+
+	private String computeQCost(Transaction curr, int j) {
+		// TODO Auto-generated method stub
+		return "0.0";
+	}
+
+	private String computeQRuntime(Transaction curr, int j) {
+		// TODO Auto-generated method stub
+		return "0.0";
 	}
 
 	private double[] calculateGoals(MobileDevice currentVehicle) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private double computeEnergyFor(MobileDevice currentVehicle, ComputationalNode computationalNode,
-			MobileCloudInfrastructure currentInfrastructure) {
-		// TODO Auto-generated method stub
-		return 0;
+		double[] goals= {100.0, 200.0, 300.0};
+		return goals;
 	}
 
 	private ArrayList<ComputationalNode> selectCandidateNodes(MobileDevice vehicle) {
@@ -205,9 +382,9 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 		return candidateNodes;
 	}
 
-	private ArrayList<MobileSoftwareComponent> createCandidateBlock(MobileDevice vehicle) {
+	private int calculateBlockSize(MobileDevice vehicle) {
 		// TODO Auto-generated method stub
-		return null;
+		return 3;
 	}
 
 	private void loadLibrary()
