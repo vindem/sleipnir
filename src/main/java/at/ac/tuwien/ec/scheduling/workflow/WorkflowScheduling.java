@@ -71,11 +71,11 @@ public class WorkflowScheduling extends Scheduling {
     }
     
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
-        this.userCost += n.computeCost(s, I);
+        this.userCost += n.computeCost(s, null, I);
     }
     
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	this.userCost -= n.computeCost(s, I);
+    	this.userCost -= n.computeCost(s, null, I);
     }
 
 	public double getRunTime() {

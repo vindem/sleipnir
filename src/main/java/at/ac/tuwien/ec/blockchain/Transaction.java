@@ -1,6 +1,7 @@
 package at.ac.tuwien.ec.blockchain;
 
 import at.ac.tuwien.ec.model.Hardware;
+import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
@@ -31,6 +32,14 @@ public class Transaction extends MobileSoftwareComponent {
 	public void setQuantileOfMI(double quantileOfMI)
 	{
 		this.quantileOfMI = quantileOfMI;
+	}
+	
+	public double getQuantileRuntimeOnNode(ComputationalNode n, ComputationalNode m, MobileCloudInfrastructure i) {
+		return ((n==null || m == null)? 0 : i.getTransmissionTime((MobileSoftwareComponent)this, n, m)*1.0) 
+				+ (quantileOfMI/m.getMipsPerCore());
+		//return ((n==null)? 0 : (m.getLatency()/1000.0) + (this.getOutData()/(m.getBandwidth()*125000.0))
+			//+ (millionsOfInstruction/m.getMipsPerCore()));
+				
 	}
 	
 	/**

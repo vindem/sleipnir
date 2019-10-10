@@ -8,6 +8,6 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public interface PricingModel extends Serializable{
 	
-	public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i);
+	public double computeCost(SoftwareComponent sc, ComputationalNode src, ComputationalNode trg, MobileCloudInfrastructure i);
 	
 }

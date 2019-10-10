@@ -27,6 +27,22 @@ public class MobileDevice extends ComputationalNode {
 	private double averageLatency = 0.0;
 	private double maxLatency = 0.0;
 	private SumoTraceMobility mobilityTrace;
+	double numberOfTransactions = 0;
+	private double globalRuntime = 0.0, quantileRuntime = 0.0;
+	private double quantileCost;
+	private double quantileEnergyBudget;
+	
+	public MobileDevice(String id, HardwareCapabilities capabilities)
+	{
+		super(id, capabilities);
+		numberOfTransactions = 0;
+		cost = 0;
+		globalRuntime = 0;
+		energyBudget = SimulationSetup.mobileEnergyBudget;
+		quantileRuntime = 0.0;
+		quantileCost = 0.0;
+		quantileEnergyBudget = 0.0;
+	}
 	
 	public double getAverageLatency() {
 		return averageLatency / (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
@@ -103,5 +119,58 @@ public class MobileDevice extends ComputationalNode {
 		this.mobilityTrace = mobilityTrace;
 	}
 	
+	public void addTransaction()
+	{
+		numberOfTransactions++;
+	}
+	
+	public void addRuntime(double rt)
+	{
+		this.globalRuntime += rt;
+	}
+	
+	public void addCost(double cost)
+	{
+		this.cost += cost;
+	}
+	
+	public void removeEnergyBudget(double energy)
+	{
+		this.energyBudget -= energy;
+	}
+	
+	public void addQuantileRuntime(double rt)
+	{
+		this.quantileRuntime += rt;
+	}
+	
+	public void addQuantileCost(double cost)
+	{
+		this.quantileCost += cost;
+	}
+	
+	public void removeQuantileEnergyBudget(double energy)
+	{
+		this.energyBudget -= energy;
+	}
+	
+	public double getAverageRuntime()
+	{
+		return this.globalRuntime / numberOfTransactions;
+	}
+	
+	public double getAverageQuantileRuntime() 
+	{
+		return this.quantileRuntime / numberOfTransactions;
+	}
+
+	public double getNumberOfTransactions() {
+		return numberOfTransactions;
+	}
+
+	public void removeFromQuantileBudget(double energy) {
+		this.quantileEnergyBudget -= energy;
+		
+	}
 	
 }

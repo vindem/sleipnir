@@ -55,10 +55,10 @@ public class MINCostResearch extends HeuristicResearch {
 					continue;
 				else
 				{
-					if(cn.computeCost(msc, currentInfrastructure) < currCost)
+					if(cn.computeCost(msc, null, currentInfrastructure) < currCost)
 					{
 						target = cn;
-						currCost = cn.computeCost(msc, currentInfrastructure);
+						currCost = cn.computeCost(msc, null, currentInfrastructure);
 					}
 				}
 			}

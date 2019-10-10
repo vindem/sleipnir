@@ -21,7 +21,7 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 
 	private class DefaultPriceModel implements PricingModel,Serializable
 	{
-		public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
+		public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
 			return 0.0;
 		}
 	}
@@ -54,9 +54,9 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 		this.cpuEnergyModel = cpuEnergyModel;
 	}
 		
-	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
+	public double computeCost(SoftwareComponent sc, MobileDevice src, MobileCloudInfrastructure i)
 	{
-		return priceModel.computeCost(sc, this, i);
+		return priceModel.computeCost(sc, src, this, i);
 	}
 	
 	public boolean deploy(SoftwareComponent sc)

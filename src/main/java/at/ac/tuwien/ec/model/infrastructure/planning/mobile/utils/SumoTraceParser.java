@@ -28,6 +28,7 @@ public class SumoTraceParser {
 			doc.getDocumentElement().normalize();
 
 			NodeList nList = doc.getElementsByTagName("timestep");
+			
 			for(int i = 0; i < nList.getLength(); i++)
 			{
 				Node timeStep = nList.item(i);

@@ -6,7 +6,7 @@ import java.util.Random;
 import at.ac.tuwien.ec.blockchain.Transaction;
 import at.ac.tuwien.ec.model.Hardware;
 
-public class TransactionPool implements Serializable{
+public class TransactionPool implements Serializable, Cloneable{
 	
 	/**
 	 * 
@@ -22,6 +22,7 @@ public class TransactionPool implements Serializable{
 		rand = new Random();
 		transactionCount = 0;
 		transactionPool = new ArrayList<Transaction>();
+		generateTransactions();
 	}
 	
 	public int getTransactionCount()
@@ -31,14 +32,14 @@ public class TransactionPool implements Serializable{
 	
 	public synchronized void generateTransactions()
 	{
-		int newT = rand.nextInt(transNumPerRound);
+		int newT = 10;
 		for(int i = transactionCount; i < transactionCount + newT; i++)
 			transactionPool.add(new Transaction("trans_"+i,
-					new Hardware(1, 0, 0),
-					0.0,
+					new Hardware(2, 0, 0),
+					1.0,
 					"all",
-					0,
-					0));
+					1e6,
+					1e6));
 		transactionCount += newT;
 		
 			
@@ -54,6 +55,15 @@ public class TransactionPool implements Serializable{
 	public ArrayList<Transaction> getTransactions() {
 		// TODO Auto-generated method stub
 		return transactionPool;
+	}
+	
+	public TransactionPool clone()
+	{
+		TransactionPool cloned = new TransactionPool();
+		cloned.transactionPool = (ArrayList<Transaction>) transactionPool.clone();
+		cloned.transactionCount = transactionCount;
+		return cloned;
+		
 	}
 
 }

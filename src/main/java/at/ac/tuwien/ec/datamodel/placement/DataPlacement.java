@@ -65,8 +65,8 @@ public class DataPlacement extends Scheduling {
 		this.averageLatency = averageLatency;
 	}
 
-	public void addCost(DataEntry de, ComputationalNode cn) {
-		cost += cn.computeCost(de, currentInfrastructure);
+	public void addCost(DataEntry de, ComputationalNode cn, MobileDevice device) {
+		cost += cn.computeCost(de, device, currentInfrastructure);
 	}
 	
 	public void addVMCost(double lifeTime, String uid){

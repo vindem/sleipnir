@@ -105,12 +105,12 @@ public class HEFTMinCostScheduler extends WorkflowScheduler {
 			else {
 				
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(cn.computeCost(currTask, currentInfrastructure) < minCost &&
+					if(cn.computeCost(currTask, null, currentInfrastructure) < minCost &&
 							isValid(scheduling,currTask,cn))
 					{
 						tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
 						target = cn;
-						minCost = cn.computeCost(currTask, currentInfrastructure);
+						minCost = cn.computeCost(currTask, null, currentInfrastructure);
 					}
 				currentRuntime = tMin;
 			}

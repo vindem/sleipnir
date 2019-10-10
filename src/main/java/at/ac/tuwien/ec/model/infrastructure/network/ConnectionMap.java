@@ -59,6 +59,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	
 	public double getTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{
+		if(u == null)
+			throw new IllegalArgumentException("First argument null");
+		if(v == null)
+			throw new IllegalArgumentException("Second argument null");
 		if(u.equals(v))
 			return 0;
 		if(!vertexSet().contains(u))
@@ -163,8 +167,15 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		
 		c1 = u.getCoords();
 		c2 = v.getCoords();
-		return 	(Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x))
-								- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2;
+		
+		int u_i = (int) ((2*c1.getLatitude() - size_x)/size_x);
+		int u_j = (int) ((2*c1.getLongitude() - size_y)/size_y);
+		int v_i = (int) ((2*c2.getLatitude() - size_x)/size_x);
+		int v_j = (int) ((2*c2.getLongitude() - size_x)/size_x);
+		//double dist1 = (Math.abs(Math.round(c1.getLatitude()/size_x)-Math.round(c2.getLatitude()/size_x))
+			//					- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2;
+		double dist2 = Math.abs(u_i - v_i) + Math.max(0,(Math.abs(u_i-v_i)- Math.abs(u_j-v_j) )/2);
+		return dist2;
 	}
 	
 	private static final long serialVersionUID = 1L;

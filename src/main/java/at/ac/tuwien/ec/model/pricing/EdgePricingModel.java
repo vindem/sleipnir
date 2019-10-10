@@ -12,22 +12,22 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class EdgePricingModel implements PricingModel,Serializable{
 
-	private PricingModel cloudPricing = new CloudVMPricingModel();
+	private PricingModel cloudPricing = new CloudFixedPricingModel();
 	
-	public double computeCost(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
+	public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
-		return cloudPricing.computeCost(sc, cn, i) + computeEdgePenalty(sc,cn,i);
+		return cloudPricing.computeCost(sc, cn0, cn, i) + computeEdgePenalty(sc,cn0, cn,i);
 	}
 
-	private double computeEdgePenalty(SoftwareComponent sc, ComputationalNode cn, MobileCloudInfrastructure i) {
-		double instCloudCost = cloudPricing.computeCost(sc, cn, i);
+	private double computeEdgePenalty(SoftwareComponent sc, ComputationalNode src, ComputationalNode trg, MobileCloudInfrastructure i) {
+		double instCloudCost = cloudPricing.computeCost(sc,src, trg, i);
     	double minCloudTime = 10e6;
     	double minEdgeTime = 10e6;
     	double minEdgeLatency = 10e6;
     	double minCloudLatency = 10e6;
     	
 
-    	for(NetworkConnection l : i.getOutgoingLinksFrom(cn))
+    	for(NetworkConnection l : i.getOutgoingLinksFrom(src))
     	{
     		ComputationalNode n = (ComputationalNode) l.getTarget();
     		if(i.getCloudNodes().containsValue(n) && l.getLatency() < minCloudLatency)
@@ -37,13 +37,13 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	}
     	
     	for(CloudDataCenter c : i.getCloudNodes().values()){
-    		double tmp = sc.getRuntimeOnNode(c, cn, i);
+    		double tmp = sc.getRuntimeOnNode(src, c, i);
     		if(tmp < minCloudTime)
     			minCloudTime = tmp;
     	}
     	
     	for(EdgeNode f : i.getEdgeNodes().values()){
-    		double tmp = sc.getRuntimeOnNode(f, cn, i);
+    		double tmp = sc.getRuntimeOnNode(src, f, i);
     		if(tmp < minEdgeTime)
     			minEdgeTime = tmp;
     	}

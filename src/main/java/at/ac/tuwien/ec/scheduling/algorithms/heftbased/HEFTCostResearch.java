@@ -96,9 +96,9 @@ public class HEFTCostResearch extends OffloadScheduler {
 				{				
 					for(ComputationalNode cn : currentInfrastructure.getAllNodes())
 					{
-						if(cn.computeCost(currTask, currentInfrastructure) < minCost)
+						if(cn.computeCost(currTask, null, currentInfrastructure) < minCost)
 						{
-							minCost = cn.computeCost(currTask, currentInfrastructure);
+							minCost = cn.computeCost(currTask, null, currentInfrastructure);
 							target = cn;
 						}
 					}

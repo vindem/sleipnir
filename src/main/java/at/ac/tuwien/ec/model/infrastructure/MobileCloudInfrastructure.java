@@ -224,4 +224,9 @@ public class MobileCloudInfrastructure implements Serializable{
 			System.err.println("cn.getId()");
 		return connectionMap.incomingEdgesOf(cn);
 	}
+	
+	public double getDistanceBetweenNodes(NetworkedNode n1, NetworkedNode n2)
+	{
+		return connectionMap.computeDistance(n1, n2);
+	}
 }

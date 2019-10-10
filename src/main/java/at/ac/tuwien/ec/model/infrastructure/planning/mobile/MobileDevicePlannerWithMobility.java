@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.infrastructure.MobileBlockchainInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
@@ -33,9 +34,9 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
 	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
 	
-	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
+	public static void setupMobileDevices(MobileDataDistributionInfrastructure inf, int number)
 	{
-		File inputSumoFile = new File("traces/hernals.coords");
+		File inputSumoFile = new File(SimulationSetup.mobilityTraceFile);
 		System.out.println("Mobility traces parsing started...");
 		ArrayList<String> devIds = new ArrayList<String>();
 		for(int i = 0; i < SimulationSetup.mobileNum; i++)
@@ -51,15 +52,18 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 		for(int i = 0; i < number; i++)
 		{
 			
-			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
+			MobileDevice device = new MobileDevice("vehicle_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			SumoTraceMobility mobilityTrace = null;
 			mobilityTrace = SumoTraceParser.getTrace(""+((double)i));
 			device.setMobilityTrace(mobilityTrace);
-			inf.addMobileDevice(device);
 			device.setCoords(mobilityTrace.getCoordinatesForTimestep(0.0));
+			inf.addMobileDevice(device);
+			
 			//depending on setup of traffic
+			for(int j = 0; j < SimulationSetup.topics.length; j++)
+				inf.subscribeDeviceToTopic(device, SimulationSetup.topics[j]);
 			
 			
 		}

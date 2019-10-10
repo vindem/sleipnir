@@ -42,7 +42,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.utils.blockchain.TransactionPool;
 import scala.Tuple2;
 
-public class Z3PoSBroker extends PoSOffloadingAlgorithm {
+public class PoSNearestNodeBroker extends PoSOffloadingAlgorithm {
 
 	/**
 	 * 
@@ -51,13 +51,13 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 	private TransactionPool currentTransactionPool;
 	
 
-	public Z3PoSBroker(ArrayList<DataEntry> a, MobileBlockchainInfrastructure I) {
+	public PoSNearestNodeBroker(ArrayList<DataEntry> a, MobileBlockchainInfrastructure I) {
 		super();
 		//setMobileApplication(A);
 		setInfrastructure(I);
 	}
 
-	public Z3PoSBroker(Tuple2<TransactionPool,MobileBlockchainInfrastructure> t) {
+	public PoSNearestNodeBroker(Tuple2<TransactionPool,MobileBlockchainInfrastructure> t) {
 		super();
 		//loadLibrary();
 		//setMobileApplication(t._1());
@@ -73,7 +73,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 		
 		long start = System.currentTimeMillis();
 		
-		ValidationOffloadScheduling currScheduling= Z3Solver();
+		ValidationOffloadScheduling currScheduling= NearestNode();
 		long end = System.currentTimeMillis();
 		double time = end - start;
 		if(currScheduling != null)
@@ -84,7 +84,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 		return scheduling;
 	}
 
-	private ValidationOffloadScheduling Z3Solver()
+	private ValidationOffloadScheduling NearestNode()
 	{
 		ValidationOffloadScheduling currScheduling = new ValidationOffloadScheduling();
 		Context ctx;
@@ -179,7 +179,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 				ArithExpr sumT = ctx.mkAdd(ctx.mkInt(0));
 				for(int k = 0; k < numberOfTransactions; k++)
 					sumT = ctx.mkAdd(sumT,assVar[k][i]);
-				for(int j = 0; j < currCandidateNodes.size(); j++)
+				for(int j = 0; j < currCandidateNodes.size(); j++) 
 				{
 					int k = currCandidateNodes.get(j);
 					domain = ctx.mkAnd(domain,
@@ -192,7 +192,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 				}
 				//each value is 0,1, each task is assigned at most at 1 node
 				offInd[i] = (IntExpr) sum.simplify();
-				offload[i] = ctx.mkAnd(domain,ctx.mkLe(sum, ctx.mkInt(1)),ctx.mkGt(sumT, ctx.mkInt(0)));//,ctx.mkEq(offInd[i], sum));
+				offload[i] = ctx.mkAnd(domain,ctx.mkLe(sum, ctx.mkInt(1)),ctx.mkGt(sumT, ctx.mkInt(0)));
 			}
 			
 			//each vehicle does not get more transactions than its candidate block size
@@ -216,7 +216,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 			
 			ArrayList<Transaction> transactionPool = currentTransactionPool.getTransactions();
 			
-			final double prob = 0.5;
+			final double prob = 0.95;
 						
 			//System.out.println("RUNTIME");
 			for(int i = 0; i < transactionPool.size(); i++)
@@ -367,13 +367,10 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 					energy = ctx.mkMul(energyMatrix[i][j],assVar[i][j]);
 					energyForVehicle[j] = ctx.mkAdd(energyForVehicle[j],energy);
 				}
-				runtimeForVehicle[j] = (ArithExpr) runtimeForVehicle[j];
-				costForVehicle[j] = (ArithExpr) costForVehicle[j];
-				energyForVehicle[j] = (ArithExpr) energyForVehicle[j];
+				runtimeForVehicle[j] = (ArithExpr) runtimeForVehicle[j].simplify();
+				costForVehicle[j] = (ArithExpr) costForVehicle[j].simplify();
+				energyForVehicle[j] = (ArithExpr) energyForVehicle[j].simplify();
 			}
-			
-			
-				
 			
 			for(int j = 0; j < numberOfVehicles; j++)
 			{	
@@ -427,6 +424,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 			Status status = solver.check();
 			System.out.println("Solver ended!");
 			
+			
 			Model model = null;
 			if(status == Status.SATISFIABLE)
 			{
@@ -437,8 +435,8 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 					for(int j = 0; j < numberOfVehicles; j++)
 					{
 						Transaction curr = transactionPool.get(i);
-						if(model.getConstInterp(assVar[i][j]).equals(ctx.mkInt(1))) 
-						{
+						//if(model.getConstInterp(assVar[i][j]).equals(ctx.mkInt(1))) 
+						//{
 								boolean offloaded = false;
 								ArrayList<Integer> currCandidateNodes = objectivesPerVehicle.get(j).candidateNodes;
 								for(int k = 0; k < currCandidateNodes.size(); k++)
@@ -450,10 +448,10 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 										
 										curr.setMillionsOfInstruction(computeRealRuntime(curr, compNodes.get(w)));
 										curr.setQuantileOfMI(computeQuantile(compNodes.get(w),prob));
-										currScheduling.put(curr, compNodes.get(w));
+										currScheduling.put(transactionPool.get(i), compNodes.get(w));
 										currScheduling.addRuntime(curr,this.currentInfrastructure.getMobileDevices().get("vehicle_"+j) ,compNodes.get(w),this.currentInfrastructure);
 										currScheduling.addCost(curr,this.currentInfrastructure.getMobileDevices().get("vehicle_"+j), compNodes.get(w), this.currentInfrastructure);
-										//currScheduling.addQuantileCost(curr,this.currentInfrastructure.getMobileDevices().get("vehicle_"+j), compNodes.get(w), this.currentInfrastructure);
+										currScheduling.addQuantileCost(curr,this.currentInfrastructure.getMobileDevices().get("vehicle_"+j), compNodes.get(w), this.currentInfrastructure);
 										currScheduling.addEnergyConsumption(curr, this.currentInfrastructure.getMobileDevices().get("vehicle_"+j),compNodes.get(w),this.currentInfrastructure);
 										//currScheduling.addQuantileEnergyConsumption(curr, this.currentInfrastructure.getMobileDevices().get("vehicle_"+j),compNodes.get(k),this.currentInfrastructure);
 										offloaded = true;
@@ -469,7 +467,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 								currScheduling.addEnergyConsumption(curr, this.currentInfrastructure.getMobileDevices().get("vehicle_"+j), this.currentInfrastructure.getMobileDevices().get("vehicle_"+j), currentInfrastructure);
 								//currScheduling.addQuantileEnergyConsumption(curr, this.currentInfrastructure.getMobileDevices().get("vehicle_"+j),this.currentInfrastructure.getMobileDevices().get("vehicle_"+j),this.currentInfrastructure);
 							}
-						}
+						//}
 
 					}
 				ctx.close();
@@ -488,7 +486,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 						avgQtRt += dev.getAverageQuantileRuntime();
 						avgCost += dev.getCost();
 						avgQCost += dev.getCost();
-						avgProfit += dev.getNumberOfTransactions() * 1.0;
+						avgProfit += dev.getNumberOfTransactions() * 0.1;
 						avgEnergy += dev.getEnergyBudget();
 						nDevices++;
 					}
@@ -618,19 +616,23 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 	
 	private double[] calculateGoals(MobileDevice currentVehicle) {
 		// TODO Auto-generated method stub
-		//double[] goals = {60.0, 19.0*0.1, Double.MAX_VALUE};
+		//double[] goals = {60.0, 16*0.1, Double.MAX_VALUE};
 		double[] goals = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
 		return goals;
 	}
 
 	private ArrayList<Integer> selectCandidateNodes(MobileDevice vehicle, ArrayList<ComputationalNode> compNodes) {
 		ArrayList<Integer> candidateNodes = new ArrayList<Integer>();
-		int threshold = 24;
+		double minDist = Double.MAX_VALUE, temp;
 
-		for(int i = 0; i < compNodes.size() && candidateNodes.size() < threshold; i++) 
-			//if(this.currentInfrastructure.getDistanceBetweenNodes(vehicle, compNodes.get(i))<= 2.0)
-		//for(int i = 0; i < compNodes.size(); i++)		
-			candidateNodes.add(i);
+		for(int i = 0; i < compNodes.size() ; i++)
+		{
+			temp = this.currentInfrastructure.getDistanceBetweenNodes(vehicle, compNodes.get(i));
+			if(temp < minDist) {
+				candidateNodes.add(i);
+				minDist = temp;
+			}
+		}
 		//System.out.println(candidateNodes.size());
 		return candidateNodes;
 	}
@@ -639,7 +641,7 @@ public class Z3PoSBroker extends PoSOffloadingAlgorithm {
 		// TODO Auto-generated method stub
 		//Transaction curr = new Transaction("dummy", new Hardware(1,0.0,0.0),0.0, "all", 0.0,0);
 		//return (int) vehicle.getCapabilities().getMaxCores();
-		return 16;
+		return 6;
 	}
 
 	public static void loadLibrary()

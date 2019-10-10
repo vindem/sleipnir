@@ -43,7 +43,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 		//if(cn.isMobile())
 		//	return Double.MAX_VALUE;
 		double currRuntime = s.getRuntimeOnNode(cn, currentInfrastructure);
-		double currCost = cn.computeCost(s, currentInfrastructure);
+		double currCost = cn.computeCost(s, null, currentInfrastructure);
 		double currBattery = ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - 
 				((currentInfrastructure.getMobileDevices().containsValue(cn))? 
 						cn.getCPUEnergyModel().computeCPUEnergy(s, cn, currentInfrastructure) :
@@ -122,7 +122,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 					if(isValid(scheduling,currTask,cn))
 					{
 						double tmpRuntime = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
-						double tmpCost = cn.computeCost(currTask, currentInfrastructure);
+						double tmpCost = cn.computeCost(currTask, null, currentInfrastructure);
 						double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
 								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, cn, currentInfrastructure);
 					
@@ -137,7 +137,8 @@ public class HeftEchoResearch extends OffloadScheduler {
 				if(isValid(scheduling,currTask, (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 				{
 					double tmpRuntime = maxP + currTask.getRuntimeOnNode((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
-					double tmpCost = ((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())).computeCost(currTask, currentInfrastructure);
+					double tmpCost = ((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))
+							.computeCost(currTask, null, currentInfrastructure);
 					double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
 							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
 				

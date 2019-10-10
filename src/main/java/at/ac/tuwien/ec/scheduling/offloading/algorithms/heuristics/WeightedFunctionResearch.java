@@ -44,7 +44,7 @@ public class WeightedFunctionResearch extends HeuristicResearch {
 		//if(cn.isMobile())
 		//	return Double.MAX_VALUE;
 		double currRuntime = s.getRuntimeOnNode(cn, currentInfrastructure);
-		double currCost = cn.computeCost(s, currentInfrastructure);
+		double currCost = cn.computeCost(s, null, currentInfrastructure);
 		double currBattery = currentInfrastructure.getMobileDevices().get(s.getUserId()).getEnergyBudget() - 
 				(currentInfrastructure.getMobileDevices().containsValue(cn)? cn.getCPUEnergyModel().computeCPUEnergy(s, cn, currentInfrastructure) 
 				: currentInfrastructure.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, cn, currentInfrastructure));
@@ -92,7 +92,7 @@ public class WeightedFunctionResearch extends HeuristicResearch {
 				else
 				{
 					double tmpRuntime = msc.getRuntimeOnNode(cn, currentInfrastructure);
-					double tmpCost = cn.computeCost(msc, currentInfrastructure);
+					double tmpCost = cn.computeCost(msc, null, currentInfrastructure);
 					double tmpBattery = currentInfrastructure.getMobileDevices().get(msc.getUserId()).getEnergyBudget() - 
 							((currentInfrastructure.getMobileDevices().containsValue(cn))? cn.getCPUEnergyModel().computeCPUEnergy(msc, cn, currentInfrastructure) 
 									: currentInfrastructure.getMobileDevices().get(msc.getUserId()).getNetEnergyModel().computeNETEnergy(msc, cn, currentInfrastructure));

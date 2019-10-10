@@ -4,6 +4,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
 import java.io.Serializable;
 
+import at.ac.tuwien.ec.blockchain.Transaction;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -21,6 +22,14 @@ public class Mobile3GNETEnergyModel implements NETEnergyModel,Serializable {
 	 * @see at.ac.tuwien.ec.infrastructuremodel.energy.NETEnergyModel#computeNETEnergy(di.unipi.socc.fogtorchpi.application.SoftwareComponent, di.unipi.socc.fogtorchpi.infrastructure.ComputationalNode, di.unipi.socc.fogtorchpi.infrastructure.Infrastructure)
 	 */
 	public double computeNETEnergy(SoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
+		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
+		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
+		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 
+	}
+
+
+	@Override
+	public double computeQuantileNETEnergy(Transaction s, ComputationalNode n, MobileCloudInfrastructure i) {
 		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
 		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
 		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 

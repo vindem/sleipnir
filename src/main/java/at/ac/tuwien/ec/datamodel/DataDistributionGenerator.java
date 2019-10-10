@@ -112,7 +112,7 @@ public class DataDistributionGenerator implements Serializable{
 							"iot"+(i%SimulationSetup.iotDevicesNum),
 							inD,
 							outD,
-							"iot"+(i%SimulationSetup.iotDevicesNum))
+							SimulationSetup.topics[i % SimulationSetup.topics.length])
 					);
 		}
 	}

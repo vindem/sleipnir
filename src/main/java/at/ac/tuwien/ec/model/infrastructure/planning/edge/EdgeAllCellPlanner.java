@@ -26,7 +26,7 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 				if(i % 2 == 0 && j%2 == 0 || i%2==1 && j%2==1)
 				{
 
-					AvailabilityModel model = new ConstantAvailabilityModel(availability[k]);
+					//AvailabilityModel model = new ConstantAvailabilityModel(availability[k]);
 					k++;
 					double x = i*size_x + size_x/2.0;
 					double y = j*size_y + size_y/2.0;
@@ -34,7 +34,7 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 					edge.setCoords(edgeNodeCoordinates);
 					edge.setCPUEnergyModel(defaultCPUEnergyModel);
-					edge.setAvailabilityModel(model);
+					//edge.setAvailabilityModel(model);
 					inf.addEdgeNode(edge);
 				}
 			}
