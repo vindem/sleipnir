@@ -10,7 +10,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
@@ -71,8 +71,8 @@ public class DataPlacement extends Scheduling {
 	
 	public void addVMCost(double lifeTime, String uid){
 		double tmpCost = 0.0;
-		ArrayList<VMInstance> vmList = currentInfrastructure.getVMAssignment(uid);
-		for(VMInstance vm : vmList)
+		ArrayList<ContainerInstance> vmList = currentInfrastructure.getVMAssignment(uid);
+		for(ContainerInstance vm : vmList)
 			tmpCost += vm.getPricePerSecond(); 
 		MobileDevice dev = (MobileDevice) currentInfrastructure.getNodeById(uid);
 		dev.setCost(tmpCost);

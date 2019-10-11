@@ -1,17 +1,17 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.algorithms.placement;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import scala.Tuple2;
 
@@ -48,7 +48,7 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 		{
 			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
-			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
+			ArrayList<ContainerInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
 			double timeStep = 0.0;
 			int j = 0;
 			for(DataEntry de : dataEntriesForDev)
@@ -66,9 +66,9 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
-					if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware())) {
+					if(cn.getCapabilities().supports(de.getContainerInstance().getCapabilities().getHardware())) {
 
-						double tmp = norm(de.getVMInstance(),cn);
+						double tmp = norm(de.getContainerInstance(),cn);
 						if(Double.compare(tmp,minNorm) < 0)
 						{
 							minNorm = tmp;
@@ -82,7 +82,7 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 					break;
 				}
 				else 
-					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
+					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getContainerInstance());
 				j++;
 				if(j%10 == 0) 
 				{
@@ -91,7 +91,7 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 				}
 			}
 			double vmCost = 0.0;
-			for(VMInstance vm : instancesPerUser)
+			for(ContainerInstance vm : instancesPerUser)
 				vmCost += vm.getPricePerSecond(); 
 			dev.setCost(vmCost);
 		}
@@ -116,7 +116,7 @@ public class L2NormPlacement extends DataPlacementAlgorithm {
 		return dataPlacements;
 	}
 
-	private double norm(VMInstance vmInstance, ComputationalNode cn) {
+	private double norm(ContainerInstance vmInstance, ComputationalNode cn) {
 		return Math.pow((vmInstance.getCapabilities().getAvailableCores()
 				- cn.getCapabilities().getAvailableCores()),2.0);
 	}

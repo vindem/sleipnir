@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner;
+package at.ac.tuwien.ec.datamodel.algorithms.selection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,11 +9,11 @@ import java.util.HashMap;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
 public interface VMPlanner {
 	
-	class VMCPUComparator implements Comparator<VMInstance>, Serializable
+	class VMCPUComparator implements Comparator<ContainerInstance>, Serializable
 	{
 
 		/**
@@ -22,25 +22,25 @@ public interface VMPlanner {
 		private static final long serialVersionUID = -3058420470358519683L;
 
 		@Override
-		public int compare(VMInstance o1, VMInstance o2) {
+		public int compare(ContainerInstance o1, ContainerInstance o2) {
 			return (int) Double.compare(o1.getCapabilities().getMipsPerCore()*o1.getCapabilities().getAvailableCores()
 					,o2.getCapabilities().getMipsPerCore()*o2.getCapabilities().getAvailableCores());
 		}
 		
 	}
 	
-	abstract ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev, MobileDataDistributionInfrastructure inf);
+	abstract ArrayList<ContainerInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev, MobileDataDistributionInfrastructure inf);
 	
 	
-	default VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
+	default ContainerInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
 		System.out.println("VMP");
-		VMInstance targetVM = null;
-		ArrayList<VMInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
+		ContainerInstance targetVM = null;
+		ArrayList<ContainerInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
 		if(instancesForUid != null) 
 		{
 			Collections.sort(instancesForUid, new VMCPUComparator());
 
-			for(VMInstance vm : instancesForUid)
+			for(ContainerInstance vm : instancesForUid)
 				if(vm.getCapabilities().supports(d.getHardwareRequirements()))
 				{
 					targetVM = vm;
@@ -50,12 +50,12 @@ public interface VMPlanner {
 		return targetVM;
 	}
 
-	default VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
+	default ContainerInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
-		HashMap<String,VMInstance> repo = currentInfrastructure.getVMRepository();
+		HashMap<String,ContainerInstance> repo = currentInfrastructure.getVMRepository();
 		double minCost = Double.MAX_VALUE;
-		VMInstance targetVM = null;
-		for(VMInstance vm : repo.values()) 
+		ContainerInstance targetVM = null;
+		for(ContainerInstance vm : repo.values()) 
 		{
 			double tmp = (d.getMillionsOfInstruction() / vm.getMipsPerCore()) * vm.getPricePerSecond();
 			if(tmp < minCost) 
@@ -64,7 +64,7 @@ public interface VMPlanner {
 				targetVM = vm;
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (VMInstance) targetVM.clone());
+		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 

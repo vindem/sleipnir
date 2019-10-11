@@ -2,12 +2,12 @@ package at.ac.tuwien.ec.model.infrastructure.computationalnodes;
 
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 
-public class VMInstance extends ComputationalNode implements Cloneable{
+public class ContainerInstance extends ComputationalNode implements Cloneable{
 
 	private Double pricePerSecond;
 	private boolean deployed;
 	
-	public VMInstance(String id, HardwareCapabilities capabilities, Double price) {
+	public ContainerInstance(String id, HardwareCapabilities capabilities, Double price) {
 		super(id, capabilities);
 		this.pricePerSecond = price;
 		deployed = false;
@@ -32,9 +32,9 @@ public class VMInstance extends ComputationalNode implements Cloneable{
 		this.pricePerSecond = pricePerSecond;
 	}
 
-	public VMInstance clone() 
+	public ContainerInstance clone() 
 	{
-		return new VMInstance(id, capabilities, pricePerSecond);
+		return new ContainerInstance(id, capabilities, pricePerSecond);
 		
 	}
 	

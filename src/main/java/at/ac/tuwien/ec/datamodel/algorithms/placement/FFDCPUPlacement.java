@@ -1,30 +1,30 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.algorithms.placement;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import scala.Tuple2;
 
-public class FFDPRODPlacement extends DataPlacementAlgorithm {
+public class FFDCPUPlacement extends DataPlacementAlgorithm {
 
-	public FFDPRODPlacement(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public FFDCPUPlacement(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
 		super(planner);
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;		
 	}
 	
-	public FFDPRODPlacement(VMPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public FFDCPUPlacement(VMPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
 		super(planner);
 		setInfrastructure(arg._2);
@@ -41,8 +41,8 @@ public class FFDPRODPlacement extends DataPlacementAlgorithm {
 
 		@Override
 		public int compare(ComputationalNode o1, ComputationalNode o2) {
-			return Double.compare(o2.getMipsPerCore() * o2.getCapabilities().getAvailableCores() * o2.getCapabilities().getMaxRam() * o2.getCapabilities().getMaxStorage(),
-					o1.getMipsPerCore() * o1.getCapabilities().getAvailableCores() * o1.getCapabilities().getMaxRam() * o1.getCapabilities().getMaxStorage());
+			return Double.compare(o2.getMipsPerCore() * o2.getCapabilities().getAvailableCores(),
+					o1.getMipsPerCore() * o1.getCapabilities().getAvailableCores());
 		}
 		
 	}
@@ -58,7 +58,7 @@ public class FFDPRODPlacement extends DataPlacementAlgorithm {
 		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
 		{
 			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
-			ArrayList<VMInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
+			ArrayList<ContainerInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
 			double timeStep = 0.0;
 			int j = 0;
 			for(DataEntry de : dataEntriesForDev)
@@ -75,9 +75,11 @@ public class FFDPRODPlacement extends DataPlacementAlgorithm {
 					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
 							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
 						continue;
-					if(cn.getCapabilities().supports(de.getVMInstance().getCapabilities().getHardware()))
+					if(cn.getCapabilities().supports(de.getContainerInstance().getCapabilities().getHardware()))
+					{
 						target = cn;
-					
+						break;
+					}
 
 				}
 				if(target == null)
@@ -86,7 +88,7 @@ public class FFDPRODPlacement extends DataPlacementAlgorithm {
 					break;
 				}
 				else 
-					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getVMInstance());
+					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getContainerInstance());
 				j++;
 				if(j%10 == 0) 
 				{
@@ -95,7 +97,7 @@ public class FFDPRODPlacement extends DataPlacementAlgorithm {
 				}
 			}
 			double vmCost = 0.0;
-			for(VMInstance vm : instancesPerUser)
+			for(ContainerInstance vm : instancesPerUser)
 				vmCost += vm.getPricePerSecond(); 
 			dev.setCost(vmCost);
 		}

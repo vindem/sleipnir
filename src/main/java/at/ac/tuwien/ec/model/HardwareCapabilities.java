@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.model;
 
 import java.io.Serializable;
 
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 
@@ -66,7 +66,7 @@ public class HardwareCapabilities implements Serializable{
 		
 	}
 	
-	public boolean deploy(VMInstance vm){
+	public boolean deploy(ContainerInstance vm){
 		if(!supports(new Hardware(vm.getCapabilities().maxCores, vm.getCapabilities().maxRam, vm.getCapabilities().maxStorage)))
 			return false;
 		//capabilities.cores -= vm.getCapabilities().maxCores;
@@ -76,7 +76,7 @@ public class HardwareCapabilities implements Serializable{
 		
 	}
 	
-	public void undeploy(VMInstance vm) {
+	public void undeploy(ContainerInstance vm) {
 		capabilities.cores += vm.getCapabilities().maxCores;
 		capabilities.ram += vm.getCapabilities().maxRam;
 		capabilities.storage += vm.getCapabilities().maxStorage;

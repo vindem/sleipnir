@@ -87,11 +87,11 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 		this.latency = latency;
 	}
 
-	public void undeploy(VMInstance vmInstance) {
+	public void undeploy(ContainerInstance vmInstance) {
 		capabilities.undeploy(vmInstance);		
 	}
 
-	public void deployVM(VMInstance vm) {
+	public void deployVM(ContainerInstance vm) {
 		capabilities.deploy(vm);
 	}
 	

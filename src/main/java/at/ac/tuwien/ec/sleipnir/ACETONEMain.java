@@ -41,7 +41,7 @@ import scala.Tuple2;
 import scala.Tuple4;
 
 
-public class SC2019Main {
+public class ACETONEMain {
 	
 	public static void main(String[] arg)
 	{

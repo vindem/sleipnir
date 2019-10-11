@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner;
+package at.ac.tuwien.ec.datamodel.algorithms.selection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.FirstFitCPUIncreasing.MIPSRequirementComparator;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner.VMCPUComparator;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUIncreasing.MIPSRequirementComparator;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner.VMCPUComparator;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
 public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 
@@ -25,11 +25,11 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 		
 	}
 	
-	class VMCPUDecreasingComparator implements Comparator<VMInstance>
+	class VMCPUDecreasingComparator implements Comparator<ContainerInstance>
 	{
 
 		@Override
-		public int compare(VMInstance o1, VMInstance o2) {
+		public int compare(ContainerInstance o1, ContainerInstance o2) {
 			return (int) Double.compare(o2.getCapabilities().getMipsPerCore()*o2.getCapabilities().getAvailableCores()
 					,o1.getCapabilities().getMipsPerCore()*o1.getCapabilities().getAvailableCores());
 		}
@@ -37,14 +37,14 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 	}
 	
 	@Override
-	public ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
+	public ArrayList<ContainerInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
 			MobileDataDistributionInfrastructure inf) {
-		ArrayList<VMInstance> vmPlan = new ArrayList<VMInstance>();
+		ArrayList<ContainerInstance> vmPlan = new ArrayList<ContainerInstance>();
 		Collections.sort(dList,new MIPSRequirementDecreasingComparator());
 		//System.out.println("FFD");
 		for(DataEntry d : dList)
 		{
-			VMInstance vm = findExistingVMInstance(d,mDev,inf);
+			ContainerInstance vm = findExistingVMInstance(d,mDev,inf);
 			if(vm == null)
 			{
 				vm = instantiateNewVM(d, mDev, inf);
@@ -56,14 +56,14 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 		return vmPlan;
 	}
 	
-	public VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
-		VMInstance targetVM = null;
-		ArrayList<VMInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
+	public ContainerInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
+		ContainerInstance targetVM = null;
+		ArrayList<ContainerInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
 		if(instancesForUid != null) 
 		{
 			Collections.sort(instancesForUid, new VMCPUDecreasingComparator());
 
-			for(VMInstance vm : instancesForUid)
+			for(ContainerInstance vm : instancesForUid)
 				if(vm.getCapabilities().supports(d.getHardwareRequirements()))
 				{
 					targetVM = vm;
@@ -73,13 +73,13 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 		return targetVM;
 	}
 
-	public VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
+	public ContainerInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
-		HashMap<String,VMInstance> repo = currentInfrastructure.getVMRepository();
-		ArrayList<VMInstance> repoInst = new ArrayList<VMInstance>(repo.values());
+		HashMap<String,ContainerInstance> repo = currentInfrastructure.getVMRepository();
+		ArrayList<ContainerInstance> repoInst = new ArrayList<ContainerInstance>(repo.values());
 		Collections.sort(repoInst, new VMCPUDecreasingComparator());
-		VMInstance targetVM = null;
-		for(VMInstance vm : repoInst) 
+		ContainerInstance targetVM = null;
+		for(ContainerInstance vm : repoInst) 
 		{
 			if(vm.isCompatible(d)) 
 			{
@@ -87,7 +87,7 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 				break;
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (VMInstance) targetVM.clone());
+		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 

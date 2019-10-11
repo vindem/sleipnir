@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner;
+package at.ac.tuwien.ec.datamodel.algorithms.selection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
 public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 
@@ -29,13 +29,13 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 	}
 	
 	@Override
-	public ArrayList<VMInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
+	public ArrayList<ContainerInstance> performVMAllocation(ArrayList<DataEntry> dList, MobileDevice mDev,
 			MobileDataDistributionInfrastructure inf) {
-		ArrayList<VMInstance> vmPlan = new ArrayList<VMInstance>();
+		ArrayList<ContainerInstance> vmPlan = new ArrayList<ContainerInstance>();
 		Collections.sort(dList,new DataSizeDecreasingComparator());
 		for(DataEntry d : dList)
 		{
-			VMInstance vm = findExistingVMInstance(d,mDev,inf);
+			ContainerInstance vm = findExistingVMInstance(d,mDev,inf);
 			if(vm == null)
 			{
 				vm = instantiateNewVM(d, mDev, inf);
@@ -46,14 +46,14 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 		return vmPlan;
 	}
 	
-	public VMInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
-		VMInstance targetVM = null;
-		ArrayList<VMInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
+	public ContainerInstance findExistingVMInstance(DataEntry d, MobileDevice mDev, MobileDataDistributionInfrastructure inf) {
+		ContainerInstance targetVM = null;
+		ArrayList<ContainerInstance> instancesForUid = inf.getVMAssignment(mDev.getId());
 		if(instancesForUid != null) 
 		{
 			Collections.sort(instancesForUid, new VMCPUComparator());
 
-			for(VMInstance vm : instancesForUid)
+			for(ContainerInstance vm : instancesForUid)
 				if(vm.getCapabilities().supports(d.getHardwareRequirements()))
 				{
 					targetVM = vm;
@@ -63,12 +63,12 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 		return targetVM;
 	}
 	
-	public VMInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
+	public ContainerInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
-		HashMap<String,VMInstance> repo = currentInfrastructure.getVMRepository();
+		HashMap<String,ContainerInstance> repo = currentInfrastructure.getVMRepository();
 		double minCost = Double.MAX_VALUE;
-		VMInstance targetVM = null;
-		for(VMInstance vm : repo.values()) 
+		ContainerInstance targetVM = null;
+		for(ContainerInstance vm : repo.values()) 
 		{
 			double tmp = vm.getPricePerSecond();
 			if(tmp < minCost && vm.getCapabilities().supports(d.getHardwareRequirements())) 
@@ -77,7 +77,7 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 				targetVM = vm.clone();
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (VMInstance) targetVM.clone());
+		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 

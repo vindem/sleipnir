@@ -1,17 +1,17 @@
-package at.ac.tuwien.ec.datamodel.placement.algorithms;
+package at.ac.tuwien.ec.datamodel.algorithms.placement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
-import at.ac.tuwien.ec.datamodel.placement.algorithms.vmplanner.VMPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.VMInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 
@@ -45,10 +45,10 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 		//dp.remove(de);
 		//dp.removeEntryLatency(de, id, cn, dev, (MobileDataDistributionInfrastructure) currentInfrastructure);
 		ComputationalNode n = (ComputationalNode) dp.get(de);
-		n.undeploy(de.getVMInstance());
+		n.undeploy(de.getContainerInstance());
 	}
 	
-	protected synchronized void deployVM(DataPlacement dp, DataEntry de, int entriesNum, IoTDevice id, ComputationalNode cn, MobileDevice dev, VMInstance vm)
+	protected synchronized void deployVM(DataPlacement dp, DataEntry de, int entriesNum, IoTDevice id, ComputationalNode cn, MobileDevice dev, ContainerInstance vm)
 	{
 		if(dp != null)
 		{
