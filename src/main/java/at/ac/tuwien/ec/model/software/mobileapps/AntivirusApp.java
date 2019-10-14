@@ -6,6 +6,11 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class AntivirusApp extends MobileApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7200390062022627285L;
+
 	public AntivirusApp()
 	{
 		super();
