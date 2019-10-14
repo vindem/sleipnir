@@ -23,19 +23,26 @@ public class DataDistributionGenerator implements Serializable{
 	{
 		generatedData = new ArrayList<DataEntry>();
 		this.entryNum = entryNum;
-		if(SimulationSetup.workloadType.startsWith("CPU"))
+		if(SimulationSetup.workloadType.equals("POLLUTION"))
 		{
-			miDistr = new ExponentialDistribution(2e3); //cpu-bound
-			inData = new ExponentialDistribution(1e3); //cpu-bound
-			outData = new ExponentialDistribution(1e3); //cpu-bound
-			coreD = new ExponentialDistribution(4); //cpu-bound
+			miDistr = new ExponentialDistribution(250); //cpu-bound
+			inData = new ExponentialDistribution(32); //cpu-bound
+			outData = new ExponentialDistribution(32); //cpu-bound
+			coreD = new ExponentialDistribution(1); //cpu-bound
 		}
-		else 
+		else if(SimulationSetup.workloadType.equals("TRAFFIC"))
 		{
-			miDistr = new ExponentialDistribution(2e2); //data-bound
-			inData = new ExponentialDistribution(1e3); //data-bound
-			outData = new ExponentialDistribution(1e3); //data-bound
-			coreD = new ExponentialDistribution(2); //data-bound
+			miDistr = new ExponentialDistribution(4000); //data-bound
+			inData = new ExponentialDistribution(64800); //data-bound
+			outData = new ExponentialDistribution(65200); //data-bound
+			coreD = new ExponentialDistribution(4); //data-bound
+		}
+		else
+		{
+			miDistr = new ExponentialDistribution(1000); //data-bound
+			inData = new ExponentialDistribution(64800); //data-bound
+			outData = new ExponentialDistribution(65200); //data-bound
+			coreD = new ExponentialDistribution(4); //data-bound
 		}
 	}
 	
