@@ -5,6 +5,10 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
 public class FaaSWorkflow extends MobileApplication {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2027245770763135387L;
 	private MobileSoftwareComponent source, target;
 	private String dataTopic;
 	
