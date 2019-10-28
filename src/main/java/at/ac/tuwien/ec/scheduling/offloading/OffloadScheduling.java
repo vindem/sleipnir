@@ -99,7 +99,7 @@ public class OffloadScheduling extends Scheduling{
     }
     
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
-        this.userCost += n.computeCost(s, null, I);
+        this.userCost += n.computeCost(s, (MobileDevice) I.getNodeById("mobile_0"), I);
     }
     
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){

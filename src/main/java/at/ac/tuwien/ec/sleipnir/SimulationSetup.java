@@ -33,7 +33,7 @@ public class SimulationSetup {
 	public static double edgeMipsPerCore = 80000.0;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 24;
+	public static int mobileNum = 1;
 	public static double mobileEnergyBudget = 10000;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
@@ -53,7 +53,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudStorage),
 			SimulationSetup.cloudMipsPerCore);
 	public static double antivirusFileSize;
-	public static double task_multiplier = 1;
+	public static double task_multiplier = 0.01;
 	public static int lambdaLatency = 0;
 	public static int chessMovesNum = 1;
 	public static double chess_mi = 10e3;
@@ -86,4 +86,7 @@ public class SimulationSetup {
 	public static double y_max = 3224;
 	public static double x_max = 3119;
 	public static String mobilityTraceFile = "traces/hernals.coords";
+	
+	public static String mobileApplication = "NAVI";
+	
 }

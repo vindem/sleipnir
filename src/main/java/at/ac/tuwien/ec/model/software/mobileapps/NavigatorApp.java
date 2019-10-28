@@ -1,5 +1,9 @@
 package at.ac.tuwien.ec.model.software.mobileapps;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
+
+//import org.apache.commons.math3.distribution.ExponentialDistribution;
+
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -13,16 +17,16 @@ public class NavigatorApp extends MobileApplication {
 
 	public double data_variance = 1e+3;
 	
-	double config_panel_mips = 1.0e3;
-    double gps_mips = 1.0e3;
-    double control_mips = 15e3;
-    double maps_mips = 15.0e3;
-    double path_calc_mips = 20.0e3;
-    double traffic_mips = 15.0e3;
-    double voice_synth_mips = 15e3;
-    double gui_mips = 5e3;
-    double speed_mips = 5e3;
-	
+	private double config_panel_mips = 1000;
+    private double gps_mips = 1.0e3;
+    private double control_mips = 15e3;
+    private double maps_mips = 15.0e3;
+    private double path_calc_mips = 20.0e3;
+    private double traffic_mips = 15.0e3;
+    private double voice_synth_mips = 15e3;
+    private double gui_mips = 5e3;
+    private double speed_mips = 5e3;
+    	
 	public NavigatorApp(){
 		super();
 	}
@@ -50,11 +54,12 @@ public class NavigatorApp extends MobileApplication {
 	@Override
 	public void setupTasks() {
 		double data_size = SimulationSetup.navigatorMapSize;
+		ExponentialDistribution confDistr = new ExponentialDistribution(1000);
 		addComponent("CONF_PANEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 0.1, 1)
 				,this.getUserId()
-				//,2.0 + ExponentialDistributionGenerator.getNext(config_panel_mips)*1e-1
-        		,2.0e3*SimulationSetup.task_multiplier
+				,2.0 + confDistr.sample()*1e-1
+        		//,2.0e3*SimulationSetup.task_multiplier
 				,5e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,false

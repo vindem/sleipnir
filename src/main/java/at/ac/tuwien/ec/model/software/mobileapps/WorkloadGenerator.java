@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.model.software.mobileapps;
 
 import org.apache.commons.lang.math.RandomUtils;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class WorkloadGenerator {
 
@@ -14,7 +15,7 @@ public class WorkloadGenerator {
 			
 		for(int i = 0; i < appExecutions; i++)
 		{
-			sApp = drawApp();
+			sApp = SimulationSetup.mobileApplication;
 			switch(sApp){
 			case "NAVI":
 				mwl.joinSequentially(new NavigatorApp(i,mobileId));

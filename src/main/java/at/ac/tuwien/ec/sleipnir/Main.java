@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -39,6 +41,8 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.MinMinResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTEnergyScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -48,6 +52,9 @@ public class Main {
 	
 	public static void main(String[] arg)
 	{
+		Logger.getLogger("org").setLevel(Level.OFF);
+		Logger.getLogger("akka").setLevel(Level.OFF);
+		
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -66,9 +73,11 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						HEFTResearch search = new HEFTResearch(inputValues);
+						//HEFTResearch search = new HEFTResearch(inputValues);
+						//PEFTOffloadScheduler search = new PEFTOffloadScheduler(inputValues);
 						//RandomScheduler search = new RandomScheduler(inputValues);
-						ArrayList<OffloadScheduling> offloads = search.findScheduling();
+						PEFTEnergyScheduler search = new PEFTEnergyScheduler(inputValues); 
+						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) search.findScheduling();
 						if(offloads != null)
 							for(OffloadScheduling os : offloads) 
 							{
@@ -167,8 +176,8 @@ public class Main {
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			//DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			//DefaultNetworkPlanner.setupNetworkConnections(inf);
+			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
+			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}

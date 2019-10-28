@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.workflow.algorithms;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
@@ -18,7 +18,7 @@ import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
 import scala.Tuple2;
 
-public class PEFTWorkflowScheduler extends WorkflowScheduler {
+public class PEFTEnergyScheduler extends OffloadScheduler {
 
 	/**
 	 * 
@@ -26,7 +26,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 	private static final long serialVersionUID = 1153273992020302324L;
 	double[][] OCT;
 	
-	public PEFTWorkflowScheduler(MobileApplication A, MobileCloudInfrastructure I)
+	public PEFTEnergyScheduler(MobileApplication A, MobileCloudInfrastructure I)
 	{
 		super();
 		setMobileApplication(A);
@@ -37,7 +37,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 		setRank(A,I);
 	}
 	
-	public PEFTWorkflowScheduler(Tuple2<MobileApplication,MobileCloudInfrastructure> t)
+	public PEFTEnergyScheduler(Tuple2<MobileApplication,MobileCloudInfrastructure> t)
 	{
 		super();
 		setMobileApplication(t._1());
@@ -58,20 +58,20 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 	public ArrayList<? extends Scheduling> findScheduling() {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
-	
+
 		PriorityQueue<MobileSoftwareComponent> tasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
-		
-		
-		
-		ArrayList<WorkflowScheduling> deployments = new ArrayList<WorkflowScheduling>();
+
+
+
+		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
 
 		DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> schedulingGraph 
-			= (DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink>) currentApp.getTaskDependencies().clone();
+		= (DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink>) currentApp.getTaskDependencies().clone();
 		tasks.addAll(readyTasks(schedulingGraph));
 
 		double currentRuntime = 0.0;
 		MobileSoftwareComponent currTask;
-		WorkflowScheduling scheduling = new WorkflowScheduling();
+		OffloadScheduling scheduling = new OffloadScheduling();
 		ComputationalNode pred = (ComputationalNode) currentInfrastructure.getNodeById("entry0"),target = null;
 		while((currTask = tasks.poll())!=null)
 		{
@@ -85,31 +85,52 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 				}
 				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);				
 			}
-			double OeftMin = Double.MAX_VALUE, tMin = Double.MAX_VALUE;
-			
-			
+			double minEnergy = Double.MAX_VALUE, tMin = Double.MAX_VALUE;
+
+
 			double maxP = 0.0;
 			for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
 				if(cmp.getRunTime()>maxP) 
 				{
 					maxP = cmp.getRunTime();
 					//pred = scheduling.get(cmp);
-			
+				}					
+			if(!currTask.isOffloadable())
+			{
+				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+				{
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+					scheduledNodes.add(currTask);
+				}
+				else
+				{
+					if(scheduledNodes.isEmpty())
+						target = null;
+				}
+			}
+			else {
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(maxP + currTask.getRuntimeOnNode(pred, cn,currentInfrastructure) +
-							OCT[currentApp.getTaskIndex(currTask)][currentInfrastructure.getAllNodes().indexOf(cn)] < OeftMin &&
+					if( currentInfrastructure.getNodeById(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, 
+							cn,
+							currentInfrastructure) < minEnergy &&
 							isValid(scheduling,currTask,cn))
 					{
-						tMin = maxP + currTask.getRuntimeOnNode(pred, cn, currentInfrastructure);
-						OeftMin =  tMin +
-								OCT[currentApp.getTaskIndex(currTask)][currentInfrastructure.getAllNodes().indexOf(cn)] ;
+						minEnergy = currentInfrastructure.getNodeById(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, 
+								cn,
+								currentInfrastructure);
 						target = cn;
 					}
+				if( ((ComputationalNode)currentInfrastructure.getNodeById(currTask.getUserId())).
+						getCPUEnergyModel().computeCPUEnergy(currTask,
+								(ComputationalNode)currentInfrastructure.getNodeById(currTask.getUserId()),
+								currentInfrastructure)
+						< minEnergy	&& isValid(scheduling,currTask,
+								(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 				currentRuntime = tMin;
 			}
 			if(target != null)
 			{
-				currTask.setRunTime(currentRuntime);
 				deploy(scheduling,currTask,target);
 				scheduledNodes.add(currTask);
 				if(schedulingGraph.containsVertex(currTask))
@@ -120,6 +141,11 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 					schedulingGraph.removeVertex(currTask);
 				}
 				tasks.addAll(readyTasks(schedulingGraph));
+			}
+			else
+			{
+				if(scheduledNodes.isEmpty())
+					target = null;
 			}
 
 		}
@@ -134,7 +160,7 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 		{
 			for(ComputationalNode node : I.getAllNodes())
 				sum += OCT[A.getTaskIndex(msc)][I.getAllNodes().indexOf(node)];
-			msc.setRank(sum/I.getAllNodes().size());
+			msc.setRank(sum/(I.getAllNodes().size()+1));
 		}
 	}
 	
@@ -158,11 +184,15 @@ public class PEFTWorkflowScheduler extends WorkflowScheduler {
 		double avgComm = 0.0;
 		for(ComponentLink neigh : currentApp.getOutgoingEdgesFrom(ti)) 
 		{
-			for(ComputationalNode cn0 : currentInfrastructure.getAllNodes())
-				for(ComputationalNode cn1 : currentInfrastructure.getAllNodes())
+			for(ComputationalNode cn0 : currentInfrastructure.getMobileDevices().values())
+				for(ComputationalNode cn1 : currentInfrastructure.getEdgeNodes().values())
 					avgComm += currentInfrastructure.getTransmissionTime(neigh.getTarget(),cn0, cn1);
 			
-			avgComm = avgComm / currentInfrastructure.getAllNodes().size();
+			for(ComputationalNode cn0 : currentInfrastructure.getMobileDevices().values())
+				for(ComputationalNode cn1 : currentInfrastructure.getCloudNodes().values())
+					avgComm += currentInfrastructure.getTransmissionTime(neigh.getTarget(),cn0, cn1);
+			
+			avgComm = avgComm / (currentInfrastructure.getCloudNodes().size() + currentInfrastructure.getEdgeNodes().size() + 1);
 		}
 		
 		for(MobileSoftwareComponent tj : currentApp.getNeighbors(ti)) 
