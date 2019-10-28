@@ -246,6 +246,7 @@ public class SC2019Main {
 			RandomEdgePlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
+			//MobileDevicePlannerWithMobility.setupMobileDevices(inf,20);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);

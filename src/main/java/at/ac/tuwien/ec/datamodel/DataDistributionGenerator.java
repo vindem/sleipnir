@@ -7,6 +7,7 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.datamodel.DataEntry;
 
 public class DataDistributionGenerator implements Serializable{
 
@@ -29,7 +30,7 @@ public class DataDistributionGenerator implements Serializable{
 			inData = new ExponentialDistribution(32); //cpu-bound
 			outData = new ExponentialDistribution(32); //cpu-bound
 			coreD = new ExponentialDistribution(1); //cpu-bound
-		}
+		}		
 		else if(SimulationSetup.workloadType.equals("TRAFFIC"))
 		{
 			miDistr = new ExponentialDistribution(4000); //data-bound
@@ -58,12 +59,7 @@ public class DataDistributionGenerator implements Serializable{
 		int coreNum = 1;
 		for(int i = 0; i < entryNum; i++) 
 		{
-			do
-				if(SimulationSetup.workloadType.startsWith("DATA"))
-					coreNum = (int) ((int) 1 + coreD.sample()); // data-bound
-				else
-					coreNum = (int) ((int) 4 + coreD.sample()); //cpu-bound
-			while(coreNum > 16 || coreNum < 1);
+			/*
 			if(SimulationSetup.workloadType.equals("CPU0"))
 			{
 				mi = 5e3 + miDistr.sample(); // cpu-bound
@@ -111,7 +107,10 @@ public class DataDistributionGenerator implements Serializable{
 				mi = 1e3 + miDistr.sample(); // data-bound
 				inD = 1e7 + inData.sample(); //data-bound
 				outD = 1e7 + outData.sample(); //data-bound
-			}
+			}*/
+			mi = miDistr.sample(); // data-bound
+			inD = inData.sample(); //data-bound
+			outD = outData.sample(); //data-bound
 			generatedData.add(
 					new DataEntry("entry"+i,
 							new Hardware(coreNum, 1, inD + outD),
