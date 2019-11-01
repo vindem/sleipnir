@@ -38,12 +38,14 @@ import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.MinMinResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTEnergyScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
 import scala.Tuple2;
 import scala.Tuple4;
 import scala.Tuple5;
@@ -74,9 +76,11 @@ public class Main {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
 						//HEFTResearch search = new HEFTResearch(inputValues);
+						//HEFTBattery search = new HEFTBattery(inputValues);
 						//PEFTOffloadScheduler search = new PEFTOffloadScheduler(inputValues);
 						//RandomScheduler search = new RandomScheduler(inputValues);
-						PEFTEnergyScheduler search = new PEFTEnergyScheduler(inputValues); 
+						//PEFTEnergyScheduler search = new PEFTEnergyScheduler(inputValues); 
+						BruteForceRuntimeOffloader search = new BruteForceRuntimeOffloader(inputValues);
 						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) search.findScheduling();
 						if(offloads != null)
 							for(OffloadScheduling os : offloads) 

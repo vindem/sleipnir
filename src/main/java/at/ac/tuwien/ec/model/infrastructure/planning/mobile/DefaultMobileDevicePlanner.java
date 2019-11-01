@@ -31,8 +31,8 @@ public class DefaultMobileDevicePlanner {
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
-			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt(SimulationSetup.MAP_M),
-												RandomUtils.nextInt(SimulationSetup.MAP_N*2));
+			Coordinates randomCoordinates = new Coordinates(SimulationSetup.MAP_M / 2,
+												SimulationSetup.MAP_N);
 			device.setCoords(randomCoordinates);
 			inf.addMobileDevice(device);
 			//depending on setup of traffic

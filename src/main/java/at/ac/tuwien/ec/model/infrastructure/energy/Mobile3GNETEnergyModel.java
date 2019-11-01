@@ -13,8 +13,8 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public class Mobile3GNETEnergyModel implements NETEnergyModel,Serializable {
 
-	private final double alpha = 0.00025;
-	private final double C = 0.0035;
+	private final double alpha = 0.025e-3;
+	private final double C = 3.5e-3;
 	
 	
 	/* We assume that inData and outData are in bytes

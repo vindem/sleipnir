@@ -17,8 +17,8 @@ public class NavigatorApp extends MobileApplication {
 
 	public double data_variance = 1e+3;
 	
-	private double config_panel_mips = 1000;
-    private double gps_mips = 1.0e3;
+	private double config_panel_mips = 1e3;
+    private double gps_mips = 1e3;
     private double control_mips = 15e3;
     private double maps_mips = 15.0e3;
     private double path_calc_mips = 20.0e3;
@@ -54,12 +54,12 @@ public class NavigatorApp extends MobileApplication {
 	@Override
 	public void setupTasks() {
 		double data_size = SimulationSetup.navigatorMapSize;
-		ExponentialDistribution confDistr = new ExponentialDistribution(1000);
+		ExponentialDistribution mapsDistr = new ExponentialDistribution(data_size);
 		addComponent("CONF_PANEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 0.1, 1)
 				,this.getUserId()
-				,2.0 + confDistr.sample()*1e-1
-        		//,2.0e3*SimulationSetup.task_multiplier
+				//,2.0 + confDistr.sample()*1e-1
+        		,2.0e3*SimulationSetup.task_multiplier
 				,5e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
         		,false
@@ -87,7 +87,7 @@ public class NavigatorApp extends MobileApplication {
         		//,10.0 + ExponentialDistributionGenerator.getNext(maps_mips)*1e-1
         		,10.0e3*SimulationSetup.task_multiplier
         		,5e3*SimulationSetup.task_multiplier
-        		,data_size*SimulationSetup.task_multiplier
+        		,mapsDistr.sample()*SimulationSetup.task_multiplier
         		);
         addComponent("PATH_CALC"+"_"+getWorkloadId()+","+getUserId(),
         		new Hardware(1, 2, 10)
@@ -102,7 +102,7 @@ public class NavigatorApp extends MobileApplication {
         		,this.getUserId()
         		//,10.0 + ExponentialDistributionGenerator.getNext(traffic_mips)*1e-1
         		,10.0e3*SimulationSetup.task_multiplier
-        		,data_size*SimulationSetup.task_multiplier
+        		,mapsDistr.sample()*SimulationSetup.task_multiplier
         		,20e3*SimulationSetup.task_multiplier
         		);
         addComponent("VOICE_SYNTH"+"_"+getWorkloadId()+","+getUserId(),

@@ -34,7 +34,7 @@ public class SimulationSetup {
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum = 1;
-	public static double mobileEnergyBudget = 10000;
+	public static double mobileEnergyBudget = 26640.0;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
 	public static HardwareCapabilities defaultIoTDeviceHardwareCapabilities = 
@@ -53,7 +53,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudStorage),
 			SimulationSetup.cloudMipsPerCore);
 	public static double antivirusFileSize;
-	public static double task_multiplier = 0.01;
+	public static double task_multiplier = 0.1;
 	public static int lambdaLatency = 0;
 	public static int chessMovesNum = 1;
 	public static double chess_mi = 10e3;
@@ -63,13 +63,13 @@ public class SimulationSetup {
 	public static String[] algorithms;
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 5;
+	public static int iterations = 1;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
 	public static double EchoBeta;
 	public static double Eta = 1.0;
-	public static int appNumber = 25;
+	public static int appNumber = 2;
 	
 	public static String[] topics = {"temperature", "moisture", "wind"};
 	public static int iotDevicesNum = 36;

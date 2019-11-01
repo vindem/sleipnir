@@ -10,8 +10,8 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 public class MobileWiFiNETEnergyModel implements NETEnergyModel,Serializable {
 
-	private final double alpha = 0.00007;
-	private final double C = 0.0059;
+	private final double alpha = 0.007e-3;
+	private final double C = 5.9e-3;
 	
 	/* We assume that inData and outData are in bytes
 	 * (non-Javadoc)

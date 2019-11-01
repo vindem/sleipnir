@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.datamodel.placement;
 
 import java.util.HashMap;
 
-import at.ac.tuwien.ec.scheduling.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 
 public class DataPlacementHistogram extends HashMap<DataPlacement, DataPlacementStatistics>{
 

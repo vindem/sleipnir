@@ -110,21 +110,23 @@ public class PEFTEnergyScheduler extends OffloadScheduler {
 			}
 			else {
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if( currentInfrastructure.getNodeById(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, 
+				{
+					double offloadEnergy = currentInfrastructure.getNodeById(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, 
 							cn,
-							currentInfrastructure) < minEnergy &&
+							currentInfrastructure) * currentInfrastructure.getTransmissionTime(currTask, currentInfrastructure.getNodeById(currTask.getUserId()), cn);
+					if(  offloadEnergy < minEnergy &&
 							isValid(scheduling,currTask,cn))
 					{
-						minEnergy = currentInfrastructure.getNodeById(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, 
-								cn,
-								currentInfrastructure);
+						minEnergy = offloadEnergy;
 						target = cn;
 					}
-				if( ((ComputationalNode)currentInfrastructure.getNodeById(currTask.getUserId())).
+				}
+				double mobileEnergy = ((ComputationalNode)currentInfrastructure.getNodeById(currTask.getUserId())).
 						getCPUEnergyModel().computeCPUEnergy(currTask,
 								(ComputationalNode)currentInfrastructure.getNodeById(currTask.getUserId()),
-								currentInfrastructure)
-						< minEnergy	&& isValid(scheduling,currTask,
+								currentInfrastructure) * currTask.getLocalRuntimeOnNode((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure);
+						
+				if(  mobileEnergy < minEnergy	&& isValid(scheduling,currTask,
 								(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
 					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
 				currentRuntime = tMin;

@@ -99,7 +99,7 @@ public class OffloadScheduling extends Scheduling{
     }
     
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
-        this.userCost += n.computeCost(s, (MobileDevice) I.getNodeById("mobile_0"), I);
+        this.userCost += n.computeCost(s, (MobileDevice) I.getNodeById(s.getUserId()), I);
     }
     
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
@@ -110,13 +110,14 @@ public class OffloadScheduling extends Scheduling{
 	public void addEnergyConsumption(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		if(i.getMobileDevices().containsKey(n.getId()))
 		{
-			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
+			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i) * s.getLocalRuntimeOnNode(n, i);
 			((MobileDevice)i.getNodeById(s.getUserId())).removeFromBudget(energy);
 			this.batteryLifetime -= energy;
 		}
 		else
 		{
-			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i);
+			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i) 
+					* i.getTransmissionTime(s, i.getNodeById(s.getUserId()), n);
 			i.getMobileDevices().get(s.getUserId()).removeFromBudget(offloadEnergy);
 			this.infEnergyConsumption += n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime -= offloadEnergy;
