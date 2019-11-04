@@ -32,7 +32,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 
 	public abstract ArrayList<? extends Scheduling> findScheduling();
 
-	private boolean isOffloadPossibleOn(MobileSoftwareComponent s, ComputationalNode n){
+	protected boolean isOffloadPossibleOn(MobileSoftwareComponent s, ComputationalNode n){
 		if(s.getUserId().equals(n.getId()))
 			return true;
 		NetworkConnection link = currentInfrastructure.getLink(s.getUserId(),n.getId());
@@ -41,7 +41,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 		return false;
 	}
 
-	private boolean checkLinks(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
+	protected boolean checkLinks(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		for (SoftwareComponent c : deployment.keySet()) {
 			if(!c.getUserId().equals(s.getUserId()))
 				continue;

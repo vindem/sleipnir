@@ -173,6 +173,10 @@ public abstract class MobileApplication implements Serializable, Cloneable{
 		return taskDependencies.containsEdge(c,s);
 	}
 
+	public boolean hasDependency(SoftwareComponent c, SoftwareComponent s) {
+		return taskDependencies.containsEdge((MobileSoftwareComponent)c, (MobileSoftwareComponent) s);
+	}
+	
 	public ComponentLink getDependency(MobileSoftwareComponent c, MobileSoftwareComponent s) {
 		return taskDependencies.getEdge(c, s);
 	}
@@ -238,6 +242,11 @@ public abstract class MobileApplication implements Serializable, Cloneable{
 	public String toString()
 	{
 		return "mobileapp";
+	}
+	
+	public MobileApplication clone() throws CloneNotSupportedException
+	{
+		return (MobileApplication) super.clone();
 	}
 	
 	public DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> getTaskDependencies() {

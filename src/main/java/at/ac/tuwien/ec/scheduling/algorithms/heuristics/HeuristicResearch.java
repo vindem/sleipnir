@@ -6,8 +6,9 @@ import java.util.PriorityQueue;
 
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.OffloadScheduler;
+
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 
 

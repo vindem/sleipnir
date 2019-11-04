@@ -88,5 +88,10 @@ public class SimulationSetup {
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
 	public static String mobileApplication = "NAVI";
+	public static String edgePlanningAlgorithm;
+	public static String electricityTraceFile;
+	public static String outfile = "SLEIPNIR-OUTFILE";
+	public static int edgeNodes;
+	public static boolean cloudOnly;
 	
 }

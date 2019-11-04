@@ -1,7 +1,13 @@
 package at.ac.tuwien.ec.sleipnir;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -37,6 +43,8 @@ import at.ac.tuwien.ec.model.software.mobileapps.FacerecognizerApp;
 import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTCostResearch;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
@@ -54,16 +62,74 @@ public class Main {
 	
 	public static void main(String[] arg)
 	{
+		processArgs(arg);
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
+		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+		Date date = new Date();		
 		
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(SimulationSetup.iterations);
+		PrintWriter[] writers = new PrintWriter[SimulationSetup.algorithms.length];
+		int writerIndex = 0;
 		
-		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(test);
+		for(String algoName : SimulationSetup.algorithms)
+		{
+			String filename = SimulationSetup.outfile
+					+ algoName +"/"
+					+ dateFormat.format(date)
+					+ "-" + SimulationSetup.MAP_M
+					+ "X"
+					+ SimulationSetup.MAP_N
+					+ "-edge-planning="
+					+ SimulationSetup.edgePlanningAlgorithm
+					+ "-" + SimulationSetup.mobileApplication
+					+ "-lambdaLatency=" + SimulationSetup.lambdaLatency
+					+ "-CLOUD=" + SimulationSetup.cloudNum
+					+ "-EDGE=" + SimulationSetup.edgeNodes
+					+ "-" + selectAppArguments(SimulationSetup.mobileApplication)
+					+ "-" + algoName
+							+ ((algoName.equals("weighted"))? 
+									"-alpha="+SimulationSetup.EchoAlpha
+									+"-beta="+SimulationSetup.EchoBeta
+									+"-gamma="+SimulationSetup.EchoGamma
+									: "") 
+							+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
+								"-eta-" + SimulationSetup.Eta)
+							+ ".data";
+			
+			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
+					jscontext, inputSamples, algoName);
+			
+			try {
+				writers[writerIndex] = new PrintWriter(filename,"UTF-8");
+				writers[writerIndex].println(MontecarloStatisticsPrinter.getHeader());
+				writers[writerIndex].println("Algorithm: " + algoName);
+				runSparkSimulation(jscontext, inputSamples, algoName);
+				writers[writerIndex].println(histogram.first());
+				writerIndex++;
+			} 
+			catch (FileNotFoundException | UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println(histogram.first());
+		}
+		for(PrintWriter writer : writers)
+		{
+			writer.close();
+			writer.flush();
+		}		
+		jscontext.close();
+	}
+
+	private static JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> runSparkSimulation(
+			JavaSparkContext jscontext, ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples, String algoritmName) {
+		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(inputSamples);
 		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> results = input.flatMapToPair(new 
 				PairFlatMapFunction<Tuple2<MobileApplication,MobileCloudInfrastructure>, 
@@ -75,13 +141,31 @@ public class Main {
 							throws Exception {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
-						//HEFTResearch search = new HEFTResearch(inputValues);
-						//HEFTBattery search = new HEFTBattery(inputValues);
-						//PEFTOffloadScheduler search = new PEFTOffloadScheduler(inputValues);
-						//RandomScheduler search = new RandomScheduler(inputValues);
-						//PEFTEnergyScheduler search = new PEFTEnergyScheduler(inputValues); 
-						BruteForceRuntimeOffloader search = new BruteForceRuntimeOffloader(inputValues);
-						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) search.findScheduling();
+						OffloadScheduler singleSearch;
+						switch(algoritmName){
+						case "weighted":
+							singleSearch = new HeftEchoResearch(inputValues);
+							break;
+						case "heft":
+							singleSearch = new HEFTResearch(inputValues);
+							break;
+						case "hbatt":
+							singleSearch = new HEFTBattery(inputValues);
+							break;
+						case "hcost":
+							singleSearch = new HEFTCostResearch(inputValues);
+							break;
+						//case "nsgaIII":
+							//singleSearch = new NSGAIIIResearch(currentApp,I);
+							//break;
+						//case "moplan":
+							//singleSearch = new MOEdgePlanning(currentApp, I);
+							//break;
+						default:
+							singleSearch =  new HEFTResearch(inputValues);
+						}
+						
+						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) singleSearch.findScheduling();
 						if(offloads != null)
 							for(OffloadScheduling os : offloads) 
 							{
@@ -161,10 +245,7 @@ public class Main {
 						}
 
 						);
-		
-		System.out.println(histogram.first());
-		
-		jscontext.close();
+		return histogram;
 	}
 
 	private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(int iterations) {
@@ -189,6 +270,174 @@ public class Main {
 	}
 
 		//Creates samples for each spark worker
+	private static String selectAppArguments(String targetApp) {
+		String tmp = "";
+		switch(targetApp){
+		case "NAVI": 
+			tmp+="maps_size="+SimulationSetup.navigatorMapSize;
+			break;
+		case "ANTIVIRUS":
+			tmp+="file_size="+SimulationSetup.antivirusFileSize;
+			break;
+		case "FACEREC":
+			tmp+="image_size="+SimulationSetup.facerecImageSize;
+			break;
+		case "CHESS":
+			tmp+="chess_mi="+SimulationSetup.chess_mi;
+			break;
+		case "FACEBOOK":
+			tmp+="image_size="+SimulationSetup.facebookImageSize;
+			break;
+		}
+		return tmp;
+	}
+
+
+	private static void processArgs(String[] args) {
+		for(String s : args)
+		{
+			if(s.startsWith("-mapM="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.MAP_M = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-mapN="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.MAP_N = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-edgePlanning="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.edgePlanningAlgorithm = tmp[1];
+				continue;
+			}
+			if(s.startsWith("-mobile="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.mobileNum = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-traceIn="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.electricityTraceFile = tmp[1];
+				continue;
+			}
+			if(s.startsWith("-outfile="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.outfile = tmp[1];
+				continue;
+			}
+			if(s.startsWith("-iter="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.iterations = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-battery="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.batteryCapacity = Double.parseDouble(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-cloud="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.cloudNum = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-edge="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.edgeNodes = Integer.parseInt(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-wl-runs=")){
+				String[] tmp = s.split("=");
+				String[] input = tmp[1].split(",");
+				int[] wlRuns = new int[input.length];
+				for(int i = 0; i < input.length; i++)
+					wlRuns[i] = Integer.parseInt(input[i]);
+				//SimulationSetup.appNumber = wlRuns;
+				continue;
+			}
+			if(s.equals("-batch"))
+			{
+				SimulationSetup.batch = true;
+				continue;
+			}
+			if(s.startsWith("-map-size="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
+				continue;
+			}
+			if(s.startsWith("-file-size="))
+			{
+				String[] tmp = s.split("=");
+				// 1/input, to be used for lambda of exponential distribution
+				SimulationSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
+				continue;
+			}
+			if(s.startsWith("-image-size="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
+				continue;
+			}
+			if(s.startsWith("-latency="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
+				continue;
+			}
+			if(s.startsWith("-chess-mi="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.chess_mi = (1.0/Double.parseDouble(tmp[1]));
+				continue;
+			}
+			if(s.startsWith("-alpha="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.EchoAlpha = Double.parseDouble(tmp[1]);
+			}
+			if(s.startsWith("-beta="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.EchoBeta = Double.parseDouble(tmp[1]);
+			}
+			if(s.startsWith("-gamma="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.EchoGamma = Double.parseDouble(tmp[1]);
+			}
+			if(s.startsWith("-eta="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.Eta = Double.parseDouble(tmp[1]);
+				continue;
+			}
+			if(s.startsWith("-app="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.mobileApplication = tmp[1];
+				continue;
+			}
+			if(s.startsWith("-algo="))
+			{
+				String[] tmp = s.split("=");
+				SimulationSetup.algorithms = tmp[1].split(",");
+				continue;
+			}
+			if(s.equals("-cloudonly"))
+				SimulationSetup.cloudOnly = true;
+		}
+	}
 	
 
 }

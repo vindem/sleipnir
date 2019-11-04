@@ -24,11 +24,12 @@ import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
+import scala.Tuple2;
 /**
  *
  * @author Vincenzo
  */
-public class MobileCloudInfrastructure implements Serializable{
+public class MobileCloudInfrastructure implements Serializable, Cloneable{
     
 	protected HashMap<String, MobileDevice> mobileDevices;
 	protected HashMap<String, EdgeNode> edgeNodes;
@@ -177,6 +178,15 @@ public class MobileCloudInfrastructure implements Serializable{
 	public void addPrices(Coordinates coordinates, ElectricityPriceTrace trace) {
 		priceMap.put(coordinates, trace);
 	}
+	
+	public NetworkConnection getLink(Tuple2<String,String> linkIds) {
+		NetworkedNode src,trg;
+		src = getNodeById(linkIds._1());
+		trg = getNodeById(linkIds._2());
+		if(src == null || trg == null)
+			return null;
+		return getLink(src, trg);
+	}
 
 	public NetworkConnection getLink(String srcId, String trgId) {
 		NetworkedNode src,trg;
@@ -228,5 +238,10 @@ public class MobileCloudInfrastructure implements Serializable{
 	public double getDistanceBetweenNodes(NetworkedNode n1, NetworkedNode n2)
 	{
 		return connectionMap.computeDistance(n1, n2);
+	}
+	
+	public MobileCloudInfrastructure clone() throws CloneNotSupportedException
+	{
+		return (MobileCloudInfrastructure) super.clone();
 	}
 }
