@@ -26,7 +26,6 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	double minEdgeLatency = 10e6;
     	double minCloudLatency = 10e6;
     	
-
     	for(NetworkConnection l : i.getOutgoingLinksFrom(src))
     	{
     		ComputationalNode n = (ComputationalNode) l.getTarget();

@@ -130,7 +130,7 @@
                 	<addClasspath>true</addClasspath>
                 	<classpathPrefix>libs/</classpathPrefix>
                 	<mainClass>
-                    	at.ac.tuwien.ec.sleipnir.SC2019Main
+                    	at.ac.tuwien.ec.sleipnir.Main
                 	</mainClass>
             	</manifest>
         		</archive>

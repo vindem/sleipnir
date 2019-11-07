@@ -1,12 +1,16 @@
 package at.ac.tuwien.ec.sleipnir;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +30,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.jgrapht.Graph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
+import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
@@ -65,6 +70,24 @@ public class Main {
 		processArgs(arg);
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
+		
+		class FrequencyComparator implements Serializable,
+			Comparator<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>>
+		{
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2034500309733677393L;
+
+			public int compare(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double,Double, Double>> o1,
+					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double,Double, Double>> o2) {
+				// TODO Auto-generated method stub
+				return o1._2()._1() - o2._2()._1();
+			}
+			
+		}
+		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 		Date date = new Date();		
 		
@@ -100,24 +123,34 @@ public class Main {
 							+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
 								"-eta-" + SimulationSetup.Eta)
 							+ ".data";
+			File outFile = new File(filename);
 			
 			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
 					jscontext, inputSamples, algoName);
-			
-			try {
-				writers[writerIndex] = new PrintWriter(filename,"UTF-8");
-				writers[writerIndex].println(MontecarloStatisticsPrinter.getHeader());
-				writers[writerIndex].println("Algorithm: " + algoName);
-				runSparkSimulation(jscontext, inputSamples, algoName);
-				writers[writerIndex].println(histogram.first());
-				writerIndex++;
-			} 
-			catch (FileNotFoundException | UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(!outFile.exists())
+			{
+				outFile.getParentFile().mkdirs();
+				try {
+					outFile.createNewFile();
+					writers[writerIndex] = new PrintWriter(outFile,"UTF-8");
+					writers[writerIndex].println(MontecarloStatisticsPrinter.getHeader());
+					writers[writerIndex].println("Algorithm: " + algoName);
+					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+					writers[writerIndex].println(mostFrequent._1().toString() + "\t" + mostFrequent._2()._1() + "\t" + mostFrequent._2()._2() 
+						+ "\t" + mostFrequent._2()._3() + "\t" + mostFrequent._2()._4() + "\t" + mostFrequent._2()._5() );
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
-			System.out.println(histogram.first());
+			//histogram.saveAsTextFile(filename+"_001");
+			//writers[writerIndex].println("a");
+			//System.out.println(histogram.first());
+			//histogram.saveAsTextFile("filedimerda");
+			writerIndex++;
+			
+			//System.out.println(histogram.first()._1());
 		}
 		for(PrintWriter writer : writers)
 		{
@@ -155,6 +188,9 @@ public class Main {
 						case "hcost":
 							singleSearch = new HEFTCostResearch(inputValues);
 							break;
+						case "bforce-rt":
+							singleSearch = new BruteForceRuntimeOffloader(inputValues);
+							break;
 						//case "nsgaIII":
 							//singleSearch = new NSGAIIIResearch(currentApp,I);
 							//break;
@@ -176,14 +212,14 @@ public class Main {
 														os.getRunTime(),
 														os.getUserCost(),
 														os.getBatteryLifetime(),
-														os.getProviderCost()
+														os.getExecutionTime()
 														)));
 							}
 						return output.iterator();
 					}
 		});
 		
-		System.out.println(results.first());
+		//System.out.println(results.first());
 		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> aggregation = 
 				results.reduceByKey(
@@ -235,7 +271,7 @@ public class Main {
 										val._2()/val._1(),
 										val._3()/val._1(),
 										val._4()/val._1(),
-										val._5()/val._1()
+										(val._5()/SimulationSetup.iterations)/1e6
 										);
 
 								return new Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>(arg0._1,tNew);
@@ -362,7 +398,7 @@ public class Main {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				//SimulationSetup.appNumber = wlRuns;
+				SimulationSetup.appNumber = wlRuns[0];
 				continue;
 			}
 			if(s.equals("-batch"))

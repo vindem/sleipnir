@@ -46,6 +46,7 @@ public class HEFTResearch extends OffloadScheduler {
 	
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
+		double start = System.nanoTime();
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
 		//ArrayList<MobileSoftwareComponent> tasks = new ArrayList<MobileSoftwareComponent>();
@@ -117,6 +118,8 @@ public class HEFTResearch extends OffloadScheduler {
 			}
 								
 		}
+		double end = System.nanoTime();
+		scheduling.setExecutionTime(end-start);
 		deployments.add(scheduling);
 		return deployments;
 	}

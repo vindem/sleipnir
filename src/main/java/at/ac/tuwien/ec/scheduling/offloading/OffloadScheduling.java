@@ -25,6 +25,7 @@ import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
+
 /**
  *
  * @author stefano
@@ -36,6 +37,7 @@ public class OffloadScheduling extends Scheduling{
 	private static final long serialVersionUID = 5978753101322855324L;
 	private double runTime, userCost, providerCost, batteryLifetime, infEnergyConsumption;
 	private int hashCode = Integer.MIN_VALUE;
+	private double executionTime;
     
     public OffloadScheduling(){
         super();
@@ -44,6 +46,7 @@ public class OffloadScheduling extends Scheduling{
         userCost = 0.0;
         providerCost = 0.0;
         infEnergyConsumption = 0.0;
+        executionTime = 0.0;
     }
 
    public OffloadScheduling(OffloadScheduling deployment) {
@@ -90,8 +93,7 @@ public class OffloadScheduling extends Scheduling{
     public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	double tmp = s.getRuntimeOnNode(n, I);
     	s.setRunTime(tmp);
-    	if(this.runTime < tmp)
-    		this.runTime = tmp;
+    	this.runTime += tmp;
     }
     
     public void removeRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
@@ -103,7 +105,7 @@ public class OffloadScheduling extends Scheduling{
     }
     
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	this.userCost -= n.computeCost(s, null, I);
+    	this.userCost -= n.computeCost(s, I.getMobileDevices().get(s.getUserId()), I);
     }
 
     //TODO: consider idle power
@@ -218,6 +220,16 @@ public class OffloadScheduling extends Scheduling{
 
 	public void setInfEnergyConsumption(double infEnergyConsumption) {
 		this.infEnergyConsumption = infEnergyConsumption;
+	}
+
+	public void setExecutionTime(double time)
+	{
+		this.executionTime = time;
+	}
+	
+	public Double getExecutionTime() {
+		// TODO Auto-generated method stub
+		return this.executionTime;
 	}
 	
 }

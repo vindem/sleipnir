@@ -1,6 +1,7 @@
 package at.ac.tuwien.ec.scheduling.offloading.bruteforce;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -23,12 +24,14 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 	 */
 	private static final long serialVersionUID = 8141744080579698176L;
 	ArrayList<OffloadScheduling> schedulings;
+	private HashMap<MobileSoftwareComponent,Boolean> visitedList;
 
 	public BruteForceRuntimeOffloader(MobileApplication app, MobileCloudInfrastructure I)
 	{
 		super();
 		setMobileApplication(app);
 		setInfrastructure(I);
+		visitedList = new HashMap<MobileSoftwareComponent,Boolean>();
 	}
 	
 	public BruteForceRuntimeOffloader(Tuple2<MobileApplication,MobileCloudInfrastructure> t)
@@ -36,10 +39,12 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		super();
 		setMobileApplication(t._1());
 		setInfrastructure(t._2());
+		visitedList = new HashMap<MobileSoftwareComponent,Boolean>();
 	}
 	
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
+		double start = System.nanoTime();
 		ArrayList<MobileSoftwareComponent> taskList = new ArrayList<MobileSoftwareComponent>();
 		DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> deps = this.getMobileApplication().getTaskDependencies();
 		schedulings = new ArrayList<OffloadScheduling>();
@@ -51,7 +56,7 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		OffloadScheduling current = new OffloadScheduling();
 		
 		Tree<ComputationalNode> combinations = new Tree<ComputationalNode>();
-		Node<ComputationalNode> root = new Node<ComputationalNode>(null);
+		Node<ComputationalNode> root = new Node<ComputationalNode>(currentInfrastructure.getMobileDevices().get(taskList.get(0).getUserId()));
 		combinations.setRootElement(root);
 		
 		Node<ComputationalNode> currNode = combinations.getRootElement();
@@ -68,12 +73,16 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 				minRt = os.getRunTime();
 				target = os;
 			}
+		double end = System.nanoTime();
+		target.setExecutionTime(end - start);
 		toRet.add(target);
 		return toRet;
 	}
 
 	private void combUtil(OffloadScheduling sch, Node<ComputationalNode> root, ArrayList<MobileSoftwareComponent> taskList, int currIndex, int size)
 	{
+		if(root == null)
+			return;
 		if(currIndex == size) 
 		{
 			deploy(sch,taskList.get(currIndex-1),root.getData());
@@ -82,21 +91,26 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		}
 		
 		OffloadScheduling current = (OffloadScheduling) sch.clone();
+		
 		MobileSoftwareComponent msc = taskList.get(currIndex);
-		//System.out.println(currIndex);
+		
 		Node<ComputationalNode> mobileNode = new Node<ComputationalNode>((ComputationalNode) currentInfrastructure.getNodeById(msc.getUserId()));
 		
-		//System.out.println(currIndex);
-		root.addChild(mobileNode);
-		if(msc.isOffloadable())
-			for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-				root.addChild(new Node<ComputationalNode>(cn));
+		
+		if(!visitedList.containsKey(msc))
+		{
+			root.addChild(mobileNode);
+			if(msc.isOffloadable())
+				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+					root.addChild(new Node<ComputationalNode>(cn));
+			visitedList.put(msc, true);
+		}
 		if(root.getData()!=null)
 			deploy(current,msc,root.getData());
 		combUtil(current, root.getChildren(), taskList, currIndex + 1, taskList.size());
-		if(root.getRightSibling()!=null)
-		combUtil(current,root.getRightSibling(), taskList, currIndex + 1, taskList.size());
 		
+		if(root.getRightSibling()!=null)
+			combUtil(current,root.getRightSibling(), taskList, currIndex + 1, taskList.size());
 	}
 
 	

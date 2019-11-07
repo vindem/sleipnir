@@ -60,7 +60,7 @@ public class SimulationSetup {
 	public static double facebookImageSize = 20e3;
 	public static double facerecImageSize = 10e3;
 	public static double navigatorMapSize = 25e6;
-	public static String[] algorithms;
+	public static String[] algorithms = {"bforce-rt"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 1;
@@ -87,10 +87,10 @@ public class SimulationSetup {
 	public static double x_max = 3119;
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
-	public static String mobileApplication = "NAVI";
+	public static String mobileApplication = "FACEBOOK";
 	public static String edgePlanningAlgorithm;
 	public static String electricityTraceFile;
-	public static String outfile = "SLEIPNIR-OUTFILE";
+	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
 	

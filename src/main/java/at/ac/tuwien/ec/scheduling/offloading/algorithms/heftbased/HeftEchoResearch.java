@@ -21,6 +21,10 @@ import scala.Tuple2;
 
 public class HeftEchoResearch extends OffloadScheduler {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1418005931931897471L;
 	private static final double gamma = SimulationSetup.EchoGamma;
 	private static final double alpha = SimulationSetup.EchoAlpha;
 	private static final double beta = SimulationSetup.EchoBeta;
@@ -43,7 +47,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 		//if(cn.isMobile())
 		//	return Double.MAX_VALUE;
 		double currRuntime = s.getRuntimeOnNode(cn, currentInfrastructure);
-		double currCost = cn.computeCost(s, null, currentInfrastructure);
+		double currCost = cn.computeCost(s, currentInfrastructure.getMobileDevices().get(s.getUserId()), currentInfrastructure);
 		double currBattery = ((MobileDevice)currentInfrastructure.getNodeById(s.getUserId())).getEnergyBudget() - 
 				((currentInfrastructure.getMobileDevices().containsValue(cn))? 
 						cn.getCPUEnergyModel().computeCPUEnergy(s, cn, currentInfrastructure) :
@@ -122,7 +126,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 					if(isValid(scheduling,currTask,cn))
 					{
 						double tmpRuntime = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
-						double tmpCost = cn.computeCost(currTask, null, currentInfrastructure);
+						double tmpCost = cn.computeCost(currTask, currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
 						double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
 								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, cn, currentInfrastructure);
 					

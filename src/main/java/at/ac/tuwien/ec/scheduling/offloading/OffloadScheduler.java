@@ -23,8 +23,7 @@ import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 
 public abstract class OffloadScheduler extends SimIteration implements Serializable{
 	
-	
-	
+		
 	public OffloadScheduler()
 	{
 
@@ -80,15 +79,12 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 
 	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		deployment.put(s, n);
-		if(!s.getId().equals("root"))
-		{
-			deployment.addCost(s,n, currentInfrastructure);
-			deployment.addEnergyConsumption(s, n, currentInfrastructure);
-			deployment.addProviderCost(s,n,currentInfrastructure);
-			deployment.addRuntime(s, n, currentInfrastructure);
+		deployment.addCost(s,n, currentInfrastructure);
+		deployment.addEnergyConsumption(s, n, currentInfrastructure);
+		deployment.addProviderCost(s,n,currentInfrastructure);
+		deployment.addRuntime(s, n, currentInfrastructure);
 			//System.out.println(deployment + " " + deployment.size());
-			n.deploy(s);
-		}
+		n.deploy(s);
 	}
 
 	protected void undeploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {

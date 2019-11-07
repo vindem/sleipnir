@@ -1,5 +1,7 @@
 package at.ac.tuwien.ec.model.software.mobileapps;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
+
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -29,6 +31,7 @@ public class AntivirusApp extends MobileApplication {
 	public void setupTasks() {
 		
 		double file_size = SimulationSetup.antivirusFileSize;
+		ExponentialDistribution fileDistr = new ExponentialDistribution(file_size);
 		addComponent("ANTIVIRUS_UI"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1, 1, 1)
 				,getUserId()
@@ -49,7 +52,7 @@ public class AntivirusApp extends MobileApplication {
 				,getUserId()
 				//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+2.0)
 				,2.0e3*SimulationSetup.task_multiplier
-				,file_size*SimulationSetup.task_multiplier
+				,fileDistr.sample()*SimulationSetup.task_multiplier
 				,5e+3*SimulationSetup.task_multiplier
 				);
 		addComponent("COMPARE"+"_"+getWorkloadId()+","+getUserId()
@@ -57,7 +60,7 @@ public class AntivirusApp extends MobileApplication {
 				,getUserId()
 				//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+2.0)
 				,2.0e3*SimulationSetup.task_multiplier
-				,file_size + 1e3*SimulationSetup.task_multiplier
+				,fileDistr.sample()*SimulationSetup.task_multiplier
 				,5e+3*SimulationSetup.task_multiplier
 				);
 		addComponent("ANTIVIRUS_OUTPUT"+"_"+getWorkloadId()+","+getUserId()

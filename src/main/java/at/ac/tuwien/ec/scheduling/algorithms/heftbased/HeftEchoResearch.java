@@ -122,7 +122,7 @@ public class HeftEchoResearch extends OffloadScheduler {
 					if(isValid(scheduling,currTask,cn))
 					{
 						double tmpRuntime = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
-						double tmpCost = cn.computeCost(currTask, null, currentInfrastructure);
+						double tmpCost = cn.computeCost(currTask, currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
 						double tmpBattery = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() -
 								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getNetEnergyModel().computeNETEnergy(currTask, cn, currentInfrastructure);
 					

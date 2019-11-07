@@ -94,8 +94,8 @@ public class NavigatorApp extends MobileApplication {
         		,this.getUserId()
         		//,15.0 + ExponentialDistributionGenerator.getNext(path_calc_mips)*1e-1
         		,15.0e3*SimulationSetup.task_multiplier
-        		,data_size*SimulationSetup.task_multiplier
-        		,data_size*SimulationSetup.task_multiplier
+        		,mapsDistr.sample()*SimulationSetup.task_multiplier
+        		,mapsDistr.sample()*SimulationSetup.task_multiplier
         		);
         addComponent("TRAFFIC"+"_"+getWorkloadId()+","+getUserId(),
         		new Hardware(1, 1, 1)

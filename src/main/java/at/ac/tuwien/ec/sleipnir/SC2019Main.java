@@ -205,7 +205,7 @@ public class SC2019Main {
 
 							);
 			
-			Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
 			try {
 				 writer.append("\n");
 				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");

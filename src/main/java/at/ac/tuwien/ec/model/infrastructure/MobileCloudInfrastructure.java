@@ -225,7 +225,11 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 
 	public Set<NetworkConnection> getOutgoingLinksFrom(NetworkedNode networkedNode) {
 		// TODO Auto-generated method stub
-		return connectionMap.outgoingEdgesOf(networkedNode);
+		if(connectionMap.containsVertex(networkedNode))
+			return connectionMap.outgoingEdgesOf(networkedNode);
+		else
+			System.out.println(networkedNode.getId());
+		return null;
 	}
 
 	public Set<NetworkConnection> getIncomingLinksTo(ComputationalNode cn) {
