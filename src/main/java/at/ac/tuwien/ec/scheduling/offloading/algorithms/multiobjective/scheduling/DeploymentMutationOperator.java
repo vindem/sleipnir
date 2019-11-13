@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduli
 
 import java.util.Random;
 
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.uma.jmetal.operator.MutationOperator;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
@@ -24,14 +25,15 @@ public class DeploymentMutationOperator implements MutationOperator<DeploymentSo
 	@Override
 	public DeploymentSolution execute(DeploymentSolution arg0) {
 		OffloadScheduling d = arg0.getDeployment();
+		UniformIntegerDistribution uDistr = new UniformIntegerDistribution(0,d.size()-1);
 		MobileSoftwareComponent n1,n2;
 		int idx1,idx2;
 		boolean ex = false;
 		if (mutationRandomGenerator.sample() < mutationProbability) {
 			do
 			{
-				idx1 = SimulationSetup.rand.nextInt(d.size());
-				while((idx2 = SimulationSetup.rand.nextInt(d.size())) == idx1) 
+				idx1 = uDistr.sample();
+				while((idx2 = uDistr.sample()) == idx1) 
 					;
 
 				n1 = (MobileSoftwareComponent) d.keySet().toArray()[idx1];

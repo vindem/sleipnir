@@ -18,8 +18,6 @@ public class SimulationSetup {
 	}
 	
 	
-	
-	public static RandomUtils rand = new RandomUtils();
 	public static int MAP_M = 6;
 	public static int MAP_N = 6;
 	public static int cloudMaxHops = 10;
@@ -52,7 +50,7 @@ public class SimulationSetup {
 			SimulationSetup.cloudRam,
 			SimulationSetup.cloudStorage),
 			SimulationSetup.cloudMipsPerCore);
-	public static double antivirusFileSize;
+	public static double antivirusFileSize = 1000;
 	public static double task_multiplier = 0.1;
 	public static int lambdaLatency = 0;
 	public static int chessMovesNum = 1;
@@ -60,7 +58,7 @@ public class SimulationSetup {
 	public static double facebookImageSize = 20e3;
 	public static double facerecImageSize = 10e3;
 	public static double navigatorMapSize = 25e6;
-	public static String[] algorithms = {"bforce-rt"};
+	public static String[] algorithms = {"nsgaIII"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 1;

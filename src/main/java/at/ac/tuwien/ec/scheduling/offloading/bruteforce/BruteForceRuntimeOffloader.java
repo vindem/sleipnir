@@ -74,8 +74,16 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 				target = os;
 			}
 		double end = System.nanoTime();
-		target.setExecutionTime(end - start);
-		toRet.add(target);
+		if(target != null)
+		{
+			target.setExecutionTime(end - start);
+			toRet.add(target);
+		}
+		else
+		{
+			current.setExecutionTime(end - start);
+			toRet.add(current);
+		}
 		return toRet;
 	}
 

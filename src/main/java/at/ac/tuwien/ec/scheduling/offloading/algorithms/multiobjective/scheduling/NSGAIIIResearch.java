@@ -33,6 +33,7 @@ import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import scala.Tuple2;
 
 public class NSGAIIIResearch extends OffloadScheduler{
 
@@ -57,10 +58,23 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
 				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
 	}
+	
+	public NSGAIIIResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+		super();
+		this.problem = new DeploymentProblem(t._2(), t._1());
+		this.crossoverProbability = 0.9;
+		this.mutationProbability = 1.0 / problem.getNumberOfVariables() ;
+		crossover = new DeploymentCrossoverOperator(crossoverProbability);
+		mutation = new DeploymentMutationOperator(mutationProbability);
+		selection = new BinaryTournamentSelection<DeploymentSolution>(new RankingComparator<DeploymentSolution>());
+		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
+				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
+	}
 
 	
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
+		double start = System.nanoTime();
 		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
 		List<DeploymentSolution> population = new ArrayList<DeploymentSolution>();
 		try{
@@ -79,25 +93,23 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm)
 					.execute() ;
 			//algorithm.run();
+			double end = System.nanoTime();
 			population = algorithm.getResult() ;
 			if(population!=null){
 				Collections.sort(population, new RankingAndCrowdingDistanceComparator<>());
 				int j = 0;
 				for(int i = 0; i < population.size() ; i++)
 				{
-					if(!deployments.contains(population.get(i).getDeployment())
-							&& problem.numberOfViolatedConstraints.getAttribute(population.get(i)) == 0
-							&& (population.get(i).getDeployment().size() == problem.getMobileApplication().getComponentNum()))
-					{
-						deployments.add(population.get(i).getDeployment());
-						j++;
-					}
+					OffloadScheduling tmp = population.get(i).getDeployment();
+					tmp.setExecutionTime(end-start);
+					deployments.add(tmp);
 				}
 			}
 		}
 		catch(Throwable T){
 			System.err.println("Selection Error");
 			population = algorithm.getResult() ;
+			
 			for(int i = 0; i < population.size(); i++)
 			{
 				if(!deployments.contains(population.get(i).getDeployment())
@@ -106,6 +118,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			}
 			return deployments;
 		}
+		
 		return deployments;
 	}
 

@@ -58,6 +58,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.MinMinResearc
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTEnergyScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -191,9 +192,9 @@ public class Main {
 						case "bforce-rt":
 							singleSearch = new BruteForceRuntimeOffloader(inputValues);
 							break;
-						//case "nsgaIII":
-							//singleSearch = new NSGAIIIResearch(currentApp,I);
-							//break;
+						case "nsgaIII":
+							singleSearch = new NSGAIIIResearch(inputValues);
+							break;
 						//case "moplan":
 							//singleSearch = new MOEdgePlanning(currentApp, I);
 							//break;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
@@ -11,9 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
@@ -58,56 +62,31 @@ public class RandomScheduler extends OffloadScheduler {
 
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
-		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
-		= new PriorityQueue(new RuntimeComparator());
-		HashMap<ComputationalNode,MobileSoftwareComponent> partialDeploy 
-		= new HashMap<ComputationalNode,MobileSoftwareComponent>();
+		ArrayList<MobileSoftwareComponent> taskList = new ArrayList<MobileSoftwareComponent>();
+		DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> deps = this.getMobileApplication().getTaskDependencies();
+		ArrayList<OffloadScheduling> schedulings = new ArrayList<OffloadScheduling>();
 		OffloadScheduling scheduling = new OffloadScheduling();
-		ArrayList<OffloadScheduling> schedules = new ArrayList<OffloadScheduling>();
+		Iterator<MobileSoftwareComponent> it = deps.iterator();
+		while(it.hasNext())
+			taskList.add(it.next());
 		
-		
-		double currentRuntime = 0;
-		int totalTaskNum = currentApp.getComponentNum();
-		boolean progress = true;
-		while(scheduling.size() < totalTaskNum && true){
-			
-			if(!scheduledNodes.isEmpty())
-			{
-				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
-				currentRuntime = firstTaskToTerminate.getRunTime();
-				currentApp.removeEdgesFrom(firstTaskToTerminate);
-				currentApp.removeTask(firstTaskToTerminate);
-				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);;
-				scheduledNodes.remove(firstTaskToTerminate);
-			}
-			
-			/* scheduledNodes is empty and deployment is not complete
-			  implies deployment not possible*/ 
-			 ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
-			if(readyTasks.isEmpty())
-				if(scheduledNodes.isEmpty())
-				{
-					progress = false;
-					scheduling = null;
-				}
+		for(MobileSoftwareComponent msc : taskList)
+		{
+			if(!msc.isOffloadable())
+				deploy(scheduling,msc,currentInfrastructure.getMobileDevices().get(msc.getUserId()));
 			else
-				continue;
-			
-			for(int i = 0; i < readyTasks.size(); i++) 
 			{
-				MobileSoftwareComponent toSchedule = readyTasks.get(i);
-				ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
-				if(bestTarget == null)
-					continue;
-				deploy(scheduling,toSchedule,bestTarget);
-				partialDeploy.put(bestTarget,toSchedule);
-				scheduledNodes.add(toSchedule);
-				readyTasks.remove(toSchedule);
+				ArrayList<ComputationalNode> possibleTargets = currentInfrastructure.getAllNodes();
+				possibleTargets.add(currentInfrastructure.getMobileDevices().get(msc.getUserId()));
+				UniformIntegerDistribution uid = new UniformIntegerDistribution(0,possibleTargets.size()-1);
+				ComputationalNode target = (ComputationalNode) possibleTargets.toArray()[uid.sample()];
+				deploy(scheduling,msc,target);
 			}
-
 		}
-		schedules.add(scheduling);
-		return schedules;
+			
+		
+		schedulings.add(scheduling);
+		return schedulings;
 	}
 
 }
