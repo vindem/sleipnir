@@ -7,13 +7,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeVMPlanner.DataSizeDecreasingComparator;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner.VMCPUComparator;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeContainerPlanner.DataSizeDecreasingComparator;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner.VMCPUComparator;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
-public class FirstFitCPUIncreasing implements VMPlanner, Serializable{
+public class FirstFitCPUIncreasing implements ContainerPlanner, Serializable{
 
 	/**
 	 * 
@@ -85,7 +85,7 @@ public class FirstFitCPUIncreasing implements VMPlanner, Serializable{
 				break;
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
+		currentInfrastructure.instantiateContainerForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 	

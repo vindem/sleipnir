@@ -26,8 +26,8 @@ import at.ac.tuwien.ec.datamodel.algorithms.placement.SteinerTreeHeuristic;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.BestFitCPU;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUDecreasing;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUIncreasing;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeVMPlanner;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeContainerPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -37,6 +37,11 @@ import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.MobileDevicePlannerWithMobility;
+import at.ac.tuwien.ec.workflow.faas.FaaSTestWorkflow;
+import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
+import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.FaaSDistancePlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
 import scala.Tuple2;
 import scala.Tuple4;
 
@@ -48,7 +53,7 @@ public class ACETONEMain {
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
 		
-		class FrequencyComparator implements Comparator<Tuple2<DataPlacement, Tuple4<Integer,Double,Double,Double>>>, Serializable
+		class FrequencyComparator implements Comparator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer,Double,Double,Double>>>, Serializable
 		{
 
 			/**
@@ -57,8 +62,8 @@ public class ACETONEMain {
 			private static final long serialVersionUID = -2034500309733677393L;
 
 			@Override
-			public int compare(Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o1,
-					Tuple2<DataPlacement, Tuple4<Integer, Double, Double,Double>> o2) {
+			public int compare(Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double,Double>> o1,
+					Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double,Double>> o2) {
 				// TODO Auto-generated method stub
 				return o1._2()._1() - o2._2()._1();
 			}
@@ -71,15 +76,15 @@ public class ACETONEMain {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
-		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
+		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
-		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
+		ArrayList<ContainerPlanner> planners = new ArrayList<ContainerPlanner>();
 		planners.add(new FirstFitCPUIncreasing());
 		planners.add(new FirstFitCPUDecreasing());
 		planners.add(new BestFitCPU());
-		planners.add(new FirstFitDecreasingSizeVMPlanner());
+		planners.add(new FirstFitDecreasingSizeContainerPlanner());
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
@@ -93,46 +98,35 @@ public class ACETONEMain {
 			e1.printStackTrace();
 		}			
 		for(int i = 0; i < planners.size(); i++) {
-			VMPlanner currentPlanner = planners.get(i);
+			ContainerPlanner currentPlanner = planners.get(i);
 			System.out.println(currentPlanner.getClass().getSimpleName());
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
-					PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 
-					DataPlacement, Tuple4<Integer,Double, Double,Double>>() {
+			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
+					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
+					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double,Double>>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public Iterator<Tuple2<DataPlacement, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure> inputValues)
+				public Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer,Double, Double,Double>>> call(Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure> inputValues)
 						throws Exception {
-					ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
-							new ArrayList<Tuple2<DataPlacement,Tuple4<Integer,Double, Double,Double>>>();
+					ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
+							new ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>>();
 					//HEFTResearch search = new HEFTResearch(inputValues);
-					DataPlacementAlgorithm search;
+					FaaSPlacementAlgorithm search;
 					switch(SimulationSetup.placementAlgorithm)
 					{
-					case "FFDCPU":
-						search = new FFDCPUPlacement(currentPlanner, inputValues);
-						break;
-					case "STH":
-						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-						break;
-					case "FFDPROD":
-						search = new FFDPRODPlacement(currentPlanner, inputValues);
-						break;
-					case "L2NORM":
-						search = new L2NormPlacement(currentPlanner, inputValues);
-						break;
+					
 					default:
-						search = new SteinerTreeHeuristic(currentPlanner, inputValues);
+						search = new FaaSDistancePlacement(currentPlanner, inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-					ArrayList<DataPlacement> offloads = (ArrayList<DataPlacement>) search.findScheduling();
+					ArrayList<FaaSWorkflowPlacement> offloads = (ArrayList<FaaSWorkflowPlacement>) search.findScheduling();
 					if(offloads != null)
-						for(DataPlacement dp : offloads) 
+						for(FaaSWorkflowPlacement dp : offloads) 
 						{
 							if(dp!=null)
 								output.add(
-										new Tuple2<DataPlacement,Tuple4<Integer,Double, Double, Double>>(dp,
+										new Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>>(dp,
 												new Tuple4<Integer,Double, Double,Double>(
 														1,
 														dp.getAverageLatency(),
@@ -146,7 +140,7 @@ public class ACETONEMain {
 
 			//System.out.println(results.first());
 
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
+			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
 					results.reduceByKey(
 							new Function2<Tuple4<Integer,Double, Double,Double>,
 							Tuple4<Integer,Double,Double,Double>,
@@ -175,17 +169,17 @@ public class ACETONEMain {
 
 			//System.out.println(aggregation.first());
 
-			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
+			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
 					aggregation.mapToPair(
-							new PairFunction<Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>,
-							DataPlacement,Tuple4<Integer, Double, Double, Double>>()
+							new PairFunction<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer, Double, Double, Double>>,
+							FaaSWorkflowPlacement,Tuple4<Integer, Double, Double, Double>>()
 							{
 
 								private static final long serialVersionUID = 1L;
 
 								@Override
-								public Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> call(
-										Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> arg0)
+								public Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> call(
+										Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> arg0)
 												throws Exception {
 									Tuple4<Integer, Double, Double, Double> val = arg0._2();
 									Tuple4<Integer, Double, Double, Double> tNew 
@@ -197,7 +191,7 @@ public class ACETONEMain {
 											val._4()/val._1()
 											);
 
-									return new Tuple2<DataPlacement,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
+									return new Tuple2<FaaSWorkflowPlacement,Tuple4<Integer, Double, Double, Double>>(arg0._1,tNew);
 								}
 
 
@@ -205,7 +199,7 @@ public class ACETONEMain {
 
 							);
 			
-			Tuple2<DataPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
 			try {
 				 writer.append("\n");
 				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");
@@ -231,10 +225,12 @@ public class ACETONEMain {
 		jscontext.close();
 	}
 
-	private static ArrayList<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
-		ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>>();
+	private static ArrayList<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
+		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>>();
 		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
-		ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
+		String[] workflowSub = {"moisture"};
+		String[] workflowPub = {"moisture"};
+		FaaSWorkflow faasWorkflow = new FaaSTestWorkflow(workflowPub, workflowSub);
 		for(int i = 0; i < iterations; i++)
 		{
 			//ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
@@ -247,7 +243,8 @@ public class ACETONEMain {
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> singleSample = new Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>(globalWorkload,inf);
+			Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> singleSample = 
+					new Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>(faasWorkflow,inf);
 			samples.add(singleSample);
 		}
 		return samples;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -22,10 +22,10 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 	 */
 	private static final long serialVersionUID = 4568099240968031102L;
 	protected ArrayList<DataEntry> dataEntries;
-	protected VMPlanner vmPlanner;
+	protected ContainerPlanner vmPlanner;
 	
 	
-	public DataPlacementAlgorithm(VMPlanner vmPlanner) 
+	public DataPlacementAlgorithm(ContainerPlanner vmPlanner) 
 	{
 		super();
 		this.vmPlanner = vmPlanner;

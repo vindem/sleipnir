@@ -26,8 +26,8 @@ import at.ac.tuwien.ec.datamodel.algorithms.placement.SteinerTreeHeuristic;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.BestFitCPU;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUDecreasing;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUIncreasing;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeVMPlanner;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeContainerPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
@@ -75,11 +75,11 @@ public class SC2019Main {
 		
 		JavaRDD<Tuple2<ArrayList<DataEntry>, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
-		ArrayList<VMPlanner> planners = new ArrayList<VMPlanner>();
+		ArrayList<ContainerPlanner> planners = new ArrayList<ContainerPlanner>();
 		planners.add(new FirstFitCPUIncreasing());
 		planners.add(new FirstFitCPUDecreasing());
 		planners.add(new BestFitCPU());
-		planners.add(new FirstFitDecreasingSizeVMPlanner());
+		planners.add(new FirstFitDecreasingSizeContainerPlanner());
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
@@ -93,7 +93,7 @@ public class SC2019Main {
 			e1.printStackTrace();
 		}			
 		for(int i = 0; i < planners.size(); i++) {
-			VMPlanner currentPlanner = planners.get(i);
+			ContainerPlanner currentPlanner = planners.get(i);
 			System.out.println(currentPlanner.getClass().getSimpleName());
 			JavaPairRDD<DataPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure>, 

@@ -11,7 +11,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
-public interface VMPlanner {
+public interface ContainerPlanner {
 	
 	class VMCPUComparator implements Comparator<ContainerInstance>, Serializable
 	{
@@ -50,7 +50,7 @@ public interface VMPlanner {
 		return targetVM;
 	}
 
-	default ContainerInstance instantiateNewVM(DataEntry d, MobileDevice mDev,
+	default ContainerInstance instantiateNewContainer(DataEntry d, MobileDevice mDev,
 			MobileDataDistributionInfrastructure currentInfrastructure) {
 		HashMap<String,ContainerInstance> repo = currentInfrastructure.getVMRepository();
 		double minCost = Double.MAX_VALUE;
@@ -64,7 +64,7 @@ public interface VMPlanner {
 				targetVM = vm;
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
+		currentInfrastructure.instantiateContainerForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 

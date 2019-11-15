@@ -9,8 +9,8 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeVMPlanner;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeContainerPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
@@ -36,14 +36,14 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	private MobileDataDistributionInfrastructure mddi;
 		
 
-	public SteinerTreeHeuristic(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public SteinerTreeHeuristic(ContainerPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
 		super(planner);
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;		
 	}
 	
-	public SteinerTreeHeuristic(VMPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public SteinerTreeHeuristic(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
 		super(planner);
 		setInfrastructure(arg._2);

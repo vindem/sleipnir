@@ -13,7 +13,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
-public class BestFitCPU implements VMPlanner, Serializable{
+public class BestFitCPU implements ContainerPlanner, Serializable{
 
 	/**
 	 * 
@@ -80,7 +80,7 @@ public class BestFitCPU implements VMPlanner, Serializable{
 				minCPU = vm.getCapabilities().getAvailableCores() * vm.getCapabilities().getMipsPerCore();
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
+		currentInfrastructure.instantiateContainerForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 	

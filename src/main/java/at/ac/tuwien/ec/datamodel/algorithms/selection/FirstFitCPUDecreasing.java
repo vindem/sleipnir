@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUIncreasing.MIPSRequirementComparator;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner.VMCPUComparator;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner.VMCPUComparator;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
-public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
+public class FirstFitCPUDecreasing implements ContainerPlanner, Serializable{
 
 	class MIPSRequirementDecreasingComparator implements Comparator<DataEntry>, Serializable
 	{
@@ -87,7 +87,7 @@ public class FirstFitCPUDecreasing implements VMPlanner, Serializable{
 				break;
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
+		currentInfrastructure.instantiateContainerForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 

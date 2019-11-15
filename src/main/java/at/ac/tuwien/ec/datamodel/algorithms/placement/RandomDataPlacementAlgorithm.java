@@ -7,7 +7,7 @@ import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
@@ -26,14 +26,14 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 	 */
 	private static final long serialVersionUID = -6767647040932539252L;
 
-	public RandomDataPlacementAlgorithm(VMPlanner planner, ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public RandomDataPlacementAlgorithm(ContainerPlanner planner, ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
 		super(planner);
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;
 	}
 	
-	public RandomDataPlacementAlgorithm(VMPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public RandomDataPlacementAlgorithm(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
 		super(planner);
 		setInfrastructure(arg._2);

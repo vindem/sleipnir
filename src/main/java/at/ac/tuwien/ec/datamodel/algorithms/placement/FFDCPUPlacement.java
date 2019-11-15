@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.VMPlanner;
+import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -17,14 +17,14 @@ import scala.Tuple2;
 
 public class FFDCPUPlacement extends DataPlacementAlgorithm {
 
-	public FFDCPUPlacement(VMPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public FFDCPUPlacement(ContainerPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
 		super(planner);
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;		
 	}
 	
-	public FFDCPUPlacement(VMPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public FFDCPUPlacement(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
 		super(planner);
 		setInfrastructure(arg._2);

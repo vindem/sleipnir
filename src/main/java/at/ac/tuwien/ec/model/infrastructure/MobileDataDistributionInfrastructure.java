@@ -106,7 +106,7 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 			vmRepository.put(id, vm);
 	}
 	
-	public void instantiateVMForUser(String uid, ContainerInstance vm)
+	public void instantiateContainerForUser(String uid, ContainerInstance vm)
 	{
 		if(!vmAssignment.containsKey(uid))
 			vmAssignment.put(uid, new ArrayList<ContainerInstance>());

@@ -11,7 +11,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 
-public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
+public class FirstFitDecreasingSizeContainerPlanner implements ContainerPlanner,Serializable {
 
 	/**
 	 * 
@@ -77,7 +77,7 @@ public class FirstFitDecreasingSizeVMPlanner implements VMPlanner,Serializable {
 				targetVM = vm.clone();
 			}
 		}
-		currentInfrastructure.instantiateVMForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
+		currentInfrastructure.instantiateContainerForUser(mDev.getId(), (ContainerInstance) targetVM.clone());
 		return targetVM;
 	} 
 
