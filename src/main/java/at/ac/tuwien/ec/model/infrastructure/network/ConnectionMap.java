@@ -19,7 +19,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	
 	final int maxHops = FGCSSetup.cloudMaxHops;
 	//int cloudHops = SimulationSetup.cloudMaxHops;
-	NormalDistribution nDistr = new NormalDistribution(3.0, 0.5);
+	NormalDistribution nDistr = new NormalDistribution(SimulationSetup.MAP_M, 0.5);
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
 	//final double BYTES_PER_MEGABIT = 1e6;
@@ -160,7 +160,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
-			return nDistr.sample();
+			return 10.0;
 		//mapping coordinates to cells
 		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
 		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);

@@ -22,6 +22,7 @@ public class DefaultIoTPlanner {
 			Coordinates randomCoordinates = new Coordinates(RandomUtils.nextInt((int)SimulationSetup.x_max),
 												RandomUtils.nextInt((int)SimulationSetup.y_max));
 			device.setCoords(randomCoordinates);
+			device.setTopics(SimulationSetup.topics);
 			inf.addIoTDevice(device);			
 		}
 	}

@@ -14,6 +14,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
+import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
@@ -78,6 +79,13 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 			registry.get(topic).add(dev);
 		}
 	}
+	
+	public ArrayList<MobileDevice> getSubscribedDevices(String topic)
+	{
+		if(registry.containsKey(topic))
+			return registry.get(topic);
+		return null;
+	}
 
 	public double computeDataEntryLatency(DataEntry de, ComputationalNode target, MobileDevice mDev)
 	{
@@ -126,7 +134,7 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		connectionMap.setEdgeWeights();
 	}
 
-	public Graph<NetworkedNode, NetworkConnection> getConnectionMap() {
+	public ConnectionMap getConnectionMap() {
 		// TODO Auto-generated method stub
 		return this.connectionMap;
 	}

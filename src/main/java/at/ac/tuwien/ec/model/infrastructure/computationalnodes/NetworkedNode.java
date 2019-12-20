@@ -18,7 +18,16 @@ public abstract class NetworkedNode implements Serializable{
 	protected Coordinates coords;
 	protected HardwareCapabilities capabilities;
 	protected NETEnergyModel netEnergyModel;
+	protected double maxDistance = Double.MAX_VALUE;
 	
+	public double getMaxDistance() {
+		return maxDistance;
+	}
+
+	public void setMaxDistance(double maxDistance) {
+		this.maxDistance = maxDistance;
+	}
+
 	public NetworkedNode(String id, HardwareCapabilities capabilities)
 	{
 		this.id = id;

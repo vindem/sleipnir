@@ -181,11 +181,11 @@ public class DefaultNetworkPlanner {
 							new Tuple2<QoS,Double>(new QoS(54.0, firstHop3GBandwidth), 0.9957),
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
 
-			for(MobileDevice dev : inf.getMobileDevices().values())
-			{
-				inf.addLink(iotD,dev,qosUL);
-				inf.addLink(dev,iotD,qosUL);
-			}
+			//for(MobileDevice dev : inf.getMobileDevices().values())
+			//{
+				//inf.addLink(iotD,dev,qosUL);
+				//inf.addLink(dev,iotD,qosUL);
+			//}
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
 			 */
