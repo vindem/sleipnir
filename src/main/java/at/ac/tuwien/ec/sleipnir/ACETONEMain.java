@@ -79,12 +79,7 @@ public class ACETONEMain {
 		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
 		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
-		
-		ArrayList<ContainerPlanner> planners = new ArrayList<ContainerPlanner>();
-		planners.add(new FirstFitCPUIncreasing());
-		planners.add(new FirstFitCPUDecreasing());
-		planners.add(new BestFitCPU());
-		planners.add(new FirstFitDecreasingSizeContainerPlanner());
+				
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
@@ -97,9 +92,8 @@ public class ACETONEMain {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}			
-		for(int i = 0; i < planners.size(); i++) {
-			ContainerPlanner currentPlanner = planners.get(i);
-			System.out.println(currentPlanner.getClass().getSimpleName());
+		
+		
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
 					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double,Double>>() {
@@ -116,7 +110,7 @@ public class ACETONEMain {
 					{
 					
 					default:
-						search = new FaaSDistancePlacement(currentPlanner, inputValues);
+						search = new FaaSDistancePlacement(inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
@@ -202,7 +196,6 @@ public class ACETONEMain {
 			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
 			try {
 				 writer.append("\n");
-				 writer.append("VM SELECTION: " + currentPlanner.getClass().getSimpleName()+"\n");
 				 writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
 				 writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
 				 writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
@@ -215,7 +208,7 @@ public class ACETONEMain {
 			
 			System.out.println(mostFrequent._2());
 			System.out.println(mostFrequent._1.values().size());
-		}
+		
 		try {
 			writer.close();
 		} catch (IOException e) {

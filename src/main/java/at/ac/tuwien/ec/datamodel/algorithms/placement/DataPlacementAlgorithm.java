@@ -25,10 +25,9 @@ public abstract class DataPlacementAlgorithm extends SimIteration implements Ser
 	protected ContainerPlanner vmPlanner;
 	
 	
-	public DataPlacementAlgorithm(ContainerPlanner vmPlanner) 
+	public DataPlacementAlgorithm() 
 	{
 		super();
-		this.vmPlanner = vmPlanner;
 	}
 	
 	@Override
