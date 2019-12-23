@@ -194,18 +194,18 @@ public class ACETONEMain {
 							);
 			
 			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
-			try {
-				 writer.append("\n");
-				 writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
-				 writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
-				 writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
-						 +mostFrequent._2()._3()+"\t"+mostFrequent._2()._4() + "\t"+mostFrequent._1.values().size()+"\n");
-			} catch (IOException e) {
+			//try {
+				// writer.append("\n");
+				// writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
+				 //writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
+				 //writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
+					//	 +mostFrequent._2()._3()+"\t"+mostFrequent._2()._4() + "\t"+mostFrequent._1.values().size()+"\n");
+			//} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			//	e.printStackTrace();
+			//}
 			
-			
+			System.out.println(mostFrequent._1());
 			System.out.println(mostFrequent._2());
 			System.out.println(mostFrequent._1.values().size());
 		

@@ -83,6 +83,29 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 
 	}
 	
+	public double getDataTransmissionTime(double dataSize, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
+	{
+		if(u.equals(v))
+			return 0;
+		if(!vertexSet().contains(u))
+			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
+		if(!vertexSet().contains(v))
+			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
+		NetworkConnection link = getEdge(u,v);
+		if(link == null)
+			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
+		QoSProfile profile = getEdge(u,v).qosProfile;
+		if(profile == null)
+			return Double.MAX_VALUE;
+		
+		if(profile.getLatency()==Integer.MAX_VALUE)
+			return Double.MAX_VALUE;
+		
+		return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
+
+	}
+	
 	public double getInDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{
 		if(u.equals(v))

@@ -96,5 +96,9 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 	public String toString()
 	{
 		return this.getId();
+	}
+
+	public void addInData(double inData) {
+		this.inData += inData;		
 	}	
 }

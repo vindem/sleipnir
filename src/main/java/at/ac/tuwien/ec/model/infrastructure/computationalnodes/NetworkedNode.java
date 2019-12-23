@@ -19,6 +19,7 @@ public abstract class NetworkedNode implements Serializable{
 	protected HardwareCapabilities capabilities;
 	protected NETEnergyModel netEnergyModel;
 	protected double maxDistance = Double.MAX_VALUE;
+	private double outData = 0.0;
 	
 	public double getMaxDistance() {
 		return maxDistance;
@@ -77,6 +78,16 @@ public abstract class NetworkedNode implements Serializable{
 	public boolean isCompatible(SoftwareComponent sc)
 	{
 		return capabilities.supports(sc.getHardwareRequirements());
+	}
+	
+	public double getOutData()
+	{
+		return 0;
+	}
+	
+	public void setOutData(double oD)
+	{
+		this.outData = oD;
 	}
 
 }

@@ -24,6 +24,12 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 		public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
 			return 0.0;
 		}
+
+		@Override
+		public double computeCost(SoftwareComponent sc, ComputationalNode src, MobileCloudInfrastructure i) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
 	}
 	
 	
@@ -53,10 +59,15 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 	public void setCPUEnergyModel(CPUEnergyModel cpuEnergyModel) {
 		this.cpuEnergyModel = cpuEnergyModel;
 	}
-		
-	public double computeCost(SoftwareComponent sc, MobileDevice src, MobileCloudInfrastructure i)
+	
+	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
 	{
-		return priceModel.computeCost(sc, src, this, i);
+		return priceModel.computeCost(sc, this, i);
+	}
+		
+	public double computeCost(SoftwareComponent sc, ComputationalNode src, MobileCloudInfrastructure i)
+	{
+		return priceModel.computeCost(sc, src, i);
 	}
 	
 	public boolean deploy(SoftwareComponent sc)

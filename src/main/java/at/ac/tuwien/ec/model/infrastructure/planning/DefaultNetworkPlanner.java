@@ -144,7 +144,54 @@ public class DefaultNetworkPlanner {
 				inf.addLink(d, cn, qosCloudUL);
 				inf.addLink(cn, d, qosCloudUL);
 			}
+			
+		}
+		
+		for(EdgeNode en : inf.getEdgeNodes().values())
+		{
+			double Cloud3GBandwidth = 3.6 + exponentialGeneration(1.6);
+			double CloudWiFiHQBandwidth = 16.0 + exponentialGeneration(1.6);
+			double CloudWiFiLQBandwidth = 2.0 + exponentialGeneration(1.0);
+			double cloudLatency = normalGeneration() * SimulationSetup.MAP_M;
+			//double cloudLatency = normalGeneration();
+			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
+			QoSProfile qosCloudUL;//,qosCloudDL
+			qosCloudUL = (wifiAvailable)? new QoSProfile(asList(
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, CloudWiFiHQBandwidth), 0.9),
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , CloudWiFiLQBandwidth), 0.09),
+					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
+					)) : new QoSProfile(asList(
+							new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency, Cloud3GBandwidth), 0.9957),
+							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
 
+			for(CloudDataCenter cn : inf.getCloudNodes().values())
+			{
+				inf.addLink(en, cn, qosCloudUL);
+				inf.addLink(cn, en, qosCloudUL);
+			}
+		}
+		for(EdgeNode en0 : inf.getEdgeNodes().values())
+		{
+			double firstHop3GBandwidth = 7.2 + exponentialGeneration(1.2);
+			double firstHopWiFiHQBandwidth = 32.0 + exponentialGeneration(2.0); 
+			double firstHopWiFiLQBandwidth = 4.0 + exponentialGeneration(1.0);
+			boolean wifiAvailable = RandomUtils.nextDouble() < wifiAvailableProbability;
+			QoSProfile qosUL;//,qosDL;
+			qosUL = (wifiAvailable)? new QoSProfile(asList(
+					new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiHQBandwidth), 0.9),
+					new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiLQBandwidth), 0.09),
+					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
+					)) : new QoSProfile(asList(
+							new Tuple2<QoS,Double>(new QoS(54.0, firstHop3GBandwidth), 0.9957),
+							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
+
+			for(EdgeNode en1 : inf.getEdgeNodes().values()) 
+			{
+				if(en0.equals(en1))
+					continue;
+				inf.addLink(en0,en1,qosUL);
+				inf.addLink(en1,en0,qosUL);
+			}
 		}
 		
 		for(IoTDevice iotD: inf.getIotDevices().values())
@@ -164,10 +211,9 @@ public class DefaultNetworkPlanner {
 							new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0.0), 0.0043)));
 
 			for(EdgeNode en : inf.getEdgeNodes().values())
-			{
 				inf.addLink(iotD,en,qosUL);
-				inf.addLink(en,iotD,qosUL);
-			}
+				//inf.addLink(en,iotD,qosUL);
+			
 			firstHop3GBandwidth = 7.2 + exponentialGeneration(1.2);
 			firstHopWiFiHQBandwidth = 32.0 + exponentialGeneration(2.0); 
 			firstHopWiFiLQBandwidth = 4.0 + exponentialGeneration(1.0);

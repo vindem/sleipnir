@@ -16,11 +16,11 @@ public class EdgePricingModel implements PricingModel,Serializable{
 	
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
-		return cloudPricing.computeCost(sc, cn0, cn, i) + computeEdgePenalty(sc,cn0, cn,i);
+		return cloudPricing.computeCost(sc, cn0, i) + computeEdgePenalty(sc,cn0, i);
 	}
 
-	private double computeEdgePenalty(SoftwareComponent sc, ComputationalNode src, ComputationalNode trg, MobileCloudInfrastructure i) {
-		double instCloudCost = cloudPricing.computeCost(sc,src, trg, i);
+	private double computeEdgePenalty(SoftwareComponent sc, ComputationalNode src, MobileCloudInfrastructure i) {
+		double instCloudCost = cloudPricing.computeCost(sc,src,i);
     	double minCloudTime = 10e6;
     	double minEdgeTime = 10e6;
     	double minEdgeLatency = 10e6;
@@ -61,6 +61,12 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	
     	return penalty/1000;
     }
+
+	@Override
+	public double computeCost(SoftwareComponent sc, ComputationalNode src, MobileCloudInfrastructure i) {
+		// TODO Auto-generated method stub
+		return cloudPricing.computeCost(sc, src, i) + computeEdgePenalty(sc,src, i);
+	}
 	
 
 }
