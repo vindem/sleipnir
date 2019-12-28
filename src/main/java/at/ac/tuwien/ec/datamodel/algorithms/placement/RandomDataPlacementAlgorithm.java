@@ -26,16 +26,16 @@ public class RandomDataPlacementAlgorithm extends DataPlacementAlgorithm {
 	 */
 	private static final long serialVersionUID = -6767647040932539252L;
 
-	public RandomDataPlacementAlgorithm(ContainerPlanner planner, ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public RandomDataPlacementAlgorithm(ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
-		super(planner);
+		super();
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;
 	}
 	
-	public RandomDataPlacementAlgorithm(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public RandomDataPlacementAlgorithm(Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
-		super(planner);
+		super();
 		setInfrastructure(arg._2);
 		this.dataEntries = arg._1;
 	}

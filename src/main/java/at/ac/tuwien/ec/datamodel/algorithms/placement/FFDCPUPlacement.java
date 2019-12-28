@@ -1,8 +1,13 @@
 package at.ac.tuwien.ec.datamodel.algorithms.placement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
@@ -11,24 +16,30 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
+import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
+import at.ac.tuwien.ec.model.software.ComponentLink;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
 import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
+import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
 import scala.Tuple2;
 
-public class FFDCPUPlacement extends DataPlacementAlgorithm {
+public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 
-	public FFDCPUPlacement(ContainerPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public FFDCPUPlacement(FaaSWorkflow wf, MobileDataDistributionInfrastructure inf)
 	{
-		super(planner);
 		setInfrastructure(inf);
-		this.dataEntries = dataEntries;		
+		setCurrentWorkflow(wf);	
 	}
 	
-	public FFDCPUPlacement(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public FFDCPUPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
-		super(planner);
+		super();
 		setInfrastructure(arg._2);
-		this.dataEntries = arg._1;
+		setCurrentWorkflow(arg._1());
 	}
 
 	/**
@@ -49,79 +60,151 @@ public class FFDCPUPlacement extends DataPlacementAlgorithm {
 	
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
-		ArrayList<DataPlacement> dataPlacements = new ArrayList<DataPlacement>();
-		DataPlacement dp = new DataPlacement();
-		dp.setCurrentInfrastructure((MobileDataDistributionInfrastructure) this.currentInfrastructure);
-		MobileDataDistributionInfrastructure mddi = (MobileDataDistributionInfrastructure) this.currentInfrastructure;
-		ArrayList<ComputationalNode> sortedTargets = mddi.getAllNodes();
+		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
+		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+		
+		ArrayList<ComputationalNode> sortedTargets = getInfrastructure().getAllNodes();
 		Collections.sort(sortedTargets,new CPUComparator());
-		for(MobileDevice dev: currentInfrastructure.getMobileDevices().values())
+		
+		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
+		= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());	
+		
+		FaaSWorkflow faasW = this.getCurrentWorkflow();
+		
+		String[] sourceTopics = faasW.getPublisherTopics();
+		String[] trgTopics = faasW.getSubscribersTopic();
+		ArrayList<IoTDevice> publisherDevices = new ArrayList<IoTDevice>();
+		ArrayList<MobileDevice> subscriberDevices = new ArrayList<MobileDevice>();
+		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
+		
+		
+		for(IoTDevice iot : getInfrastructure().getIotDevices().values())
 		{
-			ArrayList<DataEntry> dataEntriesForDev = filterByDevice(dataEntries, dev);
-			ArrayList<ContainerInstance> instancesPerUser = this.vmPlanner.performVMAllocation(dataEntriesForDev, dev, (MobileDataDistributionInfrastructure) this.currentInfrastructure);
-			double timeStep = 0.0;
-			int j = 0;
-			for(DataEntry de : dataEntriesForDev)
-			{
-				ComputationalNode target = null;
-				for(ComputationalNode cn : sortedTargets)
-				{
-					IoTDevice iotD = (IoTDevice) mddi.getNodeById(de.getIotDeviceId());
-					if(mddi.getConnectionMap().getEdge(iotD,cn) == null)
-						continue;
-					if(mddi.getConnectionMap().getEdge(iotD, cn).getBandwidth() == 0 ||
-							!Double.isFinite(mddi.getConnectionMap().getEdge(iotD, cn).getLatency()))
-						continue;
-					if(mddi.getConnectionMap().getEdge(cn, dev).getBandwidth() == 0 ||
-							!Double.isFinite(mddi.getConnectionMap().getEdge(cn, dev).getLatency()))
-						continue;
-					if(cn.getCapabilities().supports(de.getContainerInstance().getCapabilities().getHardware()))
-					{
-						target = cn;
-						break;
-					}
-
-				}
-				if(target == null)
-				{
-					dp = null;
-					break;
-				}
-				else 
-					deployVM(dp, de, dataEntriesForDev.size() ,(IoTDevice) mddi.getNodeById(de.getIotDeviceId()), target, dev, de.getContainerInstance());
-				j++;
-				if(j%10 == 0) 
-				{
-					timeStep++;
-					dev.updateCoordsWithMobility(timeStep);
-				}
-			}
-			double vmCost = 0.0;
-			for(ContainerInstance vm : instancesPerUser)
-				vmCost += vm.getPricePerSecond(); 
-			dev.setCost(vmCost);
+			Set<String> iotTopics = new HashSet<String>(Arrays.asList(iot.getTopics()));
+			iotTopics.retainAll(srcTopicSet);
+			if(!iotTopics.isEmpty())
+				publisherDevices.add(iot);
+		}
+		
+		for(String t : trgTopics)
+		{
+			ArrayList<MobileDevice> subscribers = getInfrastructure().getSubscribedDevices(t);
+			if(subscribers != null)
+				subscriberDevices.addAll(subscribers);
 		}
 		
 		
-		if(dp != null)
+		while(workflowIterator.hasNext())
 		{
-			double avgLat = 0.0,avgCost=0.0,maxLat=0.0;
-			for(MobileDevice dev: currentInfrastructure.getMobileDevices().values()) 
+			MobileSoftwareComponent msc = workflowIterator.next();
+			double minAvgCost = Double.MAX_VALUE;
+			ComputationalNode trg = null;
+			for(ComputationalNode cn : sortedTargets)
 			{
-				avgLat += dev.getAverageLatency();
-				avgCost += dev.getCost();
-				maxLat += dev.getMaxLatency();
+				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
+				if(avgCost < minAvgCost)
+				{
+					minAvgCost = avgCost;
+					trg = cn;
+				}
 			}
-			
-			dp.setAverageLatency(avgLat / currentInfrastructure.getMobileDevices().size());
-			dp.setAverageMaxLatency(maxLat / currentInfrastructure.getMobileDevices().size());
-			dp.setCost(avgCost / currentInfrastructure.getMobileDevices().size());
-			dataPlacements.add(dp);
+			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 		}
-			
-			
+		schedulings.add(scheduling);		
+		return schedulings;
+		
+	}
+	
+	protected void deploy(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg, ArrayList<IoTDevice> publisherDevices, ArrayList<MobileDevice> subscriberDevices)
+	{
+		super.deploy(placement, msc, trg);
+		addAverageLatency(placement,msc,trg,publisherDevices,subscriberDevices);
+		addCost(placement,msc,trg);
+	}
+	
+	private void addCost(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg) {
+		double predTime = Double.MIN_VALUE;
+		ComputationalNode maxTrg = null;
+		for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
+		{
+			ComputationalNode prevTarget = (ComputationalNode) placement.get(pred);
+			double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
+			if(currTime > predTime) 
+			{
+				predTime = currTime;
+				maxTrg = prevTarget;
+			}
+		}
+		placement.addCost(msc, trg, getInfrastructure());
+	}
 
-		return dataPlacements;
+	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
+			ComputationalNode trg, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) {
+		if(isSource(msc))
+		{
+			double maxLatency = Double.MIN_VALUE;
+			for(IoTDevice publisher : publishers) 
+			{
+				double currTTime = computeTransmissionTime(publisher,trg);
+				if(currTTime > maxLatency)
+					maxLatency = currTTime;
+				msc.addInData(publisher.getOutData());
+			}
+			placement.addAverageLatency(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
+			msc.setRunTime(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
+			trg.setOutData(msc.getOutData());
+		}
+		else if(isSink(msc))
+		{
+			double maxLatency = Double.MIN_VALUE;
+			trg.setOutData(msc.getOutData());
+			for(MobileDevice subscriber : subscribers) 
+			{
+				double currTTime = computeTransmissionTime(trg,subscriber);
+				if(currTTime > maxLatency)
+					maxLatency = currTTime;
+			}
+			placement.addAverageLatency(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
+			msc.setRunTime(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
+			trg.setOutData(msc.getOutData());
+		}
+		else
+		{
+			double predTime = Double.MIN_VALUE;
+			NetworkedNode maxTrg = null;
+			for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
+			{
+				NetworkedNode prevTarget = placement.get(pred);
+				double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
+				if(currTime > predTime) 
+				{
+					predTime = currTime;
+					maxTrg = prevTarget;
+				}
+			}
+			placement.addAverageLatency(computeTransmissionTime(maxTrg,trg) 
+					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
+			msc.setRunTime(computeTransmissionTime(maxTrg,trg) 
+					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
+			trg.setOutData(msc.getOutData());
+			
+		}
+		
+	}
+	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
+		ConnectionMap connections = getInfrastructure().getConnectionMap();
+		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
+	}
+	
+	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
+			ArrayList<MobileDevice> subscriberDevices) {
+		double nDevs = subscriberDevices.size();
+		double cost = 0.0;
+		for(MobileDevice dev : subscriberDevices)
+			cost += cn.computeCost(msc, getInfrastructure());
+		
+		return cost / nDevs;
+		
 	}
 
 }

@@ -36,16 +36,16 @@ public class SteinerTreeHeuristic extends DataPlacementAlgorithm{
 	private MobileDataDistributionInfrastructure mddi;
 		
 
-	public SteinerTreeHeuristic(ContainerPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public SteinerTreeHeuristic(ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
-		super(planner);
+		super();
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;		
 	}
 	
-	public SteinerTreeHeuristic(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public SteinerTreeHeuristic(Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
-		super(planner);
+		super();
 		setInfrastructure(arg._2);
 		this.dataEntries = arg._1;
 		

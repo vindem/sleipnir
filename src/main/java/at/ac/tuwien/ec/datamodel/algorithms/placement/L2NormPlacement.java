@@ -17,16 +17,16 @@ import scala.Tuple2;
 
 public class L2NormPlacement extends DataPlacementAlgorithm {
 
-	public L2NormPlacement(ContainerPlanner planner,ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public L2NormPlacement(ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
 	{
-		super(planner);
+		super();
 		setInfrastructure(inf);
 		this.dataEntries = dataEntries;		
 	}
 
-	public L2NormPlacement(ContainerPlanner planner, Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public L2NormPlacement(Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
 	{
-		super(planner);
+		super();
 		setInfrastructure(arg._2);
 		this.dataEntries = arg._1;
 	}
