@@ -110,8 +110,8 @@ public class ACETONEMain {
 					{
 					
 					default:
-						search = new FFDCPUPlacement(inputValues);
-						//search = new FaaSDistancePlacement(inputValues);
+						//search = new FFDCPUPlacement(inputValues);
+						search = new FaaSDistancePlacement(inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);

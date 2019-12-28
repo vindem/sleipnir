@@ -31,39 +31,24 @@ import scala.Tuple2;
 
 public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 	
-	class MaxDistanceComparator implements Comparator<ComputationalNode>
+	private ArrayList<IoTDevice> publisherDevices;
+	private ArrayList<MobileDevice> subscriberDevices;
+	private ArrayList<ComputationalNode> candidateCenters;
+	private double updateTime;
+	
+	public FaaSDistancePlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
-
-		@Override
-		public int compare(ComputationalNode o1, ComputationalNode o2) {
-			// TODO Auto-generated method stub
-			return Double.compare(o1.getMaxDistance(), o2.getMaxDistance());
-		}
-	}
-
-	public FaaSDistancePlacement(Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure> inputValues) {
-		setCurrentWorkflow(inputValues._1());
-		setInfrastructure(inputValues._2());
-		
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1302954506550171766L;
-
-	@Override
-	public ArrayList<? extends Scheduling> findScheduling() {
-		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
-		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
-		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+		super();
+		setCurrentWorkflow(arg._1());
+		setInfrastructure(arg._2());
 		
 		FaaSWorkflow faasW = this.getCurrentWorkflow();
-		
+		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		String[] sourceTopics = faasW.getPublisherTopics();
 		String[] trgTopics = faasW.getSubscribersTopic();
-		ArrayList<IoTDevice> publisherDevices = new ArrayList<IoTDevice>();
-		ArrayList<MobileDevice> subscriberDevices = new ArrayList<MobileDevice>();
+		publisherDevices = new ArrayList<IoTDevice>();
+		subscriberDevices = new ArrayList<MobileDevice>();
+		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
 		
 		
@@ -82,11 +67,41 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 				subscriberDevices.addAll(subscribers);
 		}
 		
-		//Extract subgraph
-		ConnectionMap infrastructureMap = currInf.getConnectionMap();
+		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		ArrayList<ComputationalNode> candidateCenters = findCenters(infrastructureMap, 5);
+		candidateCenters = findCenters(infrastructureMap, 5);
+	}
+	
+	
+	class MaxDistanceComparator implements Comparator<ComputationalNode>
+	{
+
+		@Override
+		public int compare(ComputationalNode o1, ComputationalNode o2) {
+			// TODO Auto-generated method stub
+			return Double.compare(o1.getMaxDistance(), o2.getMaxDistance());
+		}
+	}
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1302954506550171766L;
+
+	@Override
+	public ArrayList<? extends Scheduling> findScheduling() {
+		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		
+		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+				
+		//Extract subgraph
+		if(updateCondition()) 
+		{
+			ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
+			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+			candidateCenters = findCenters(infrastructureMap, 5);
+		}
 		for(int i = 0; i < candidateCenters.size(); i++)
 			System.out.println(candidateCenters.get(i).getId()+" ");
 		//all of this before should be moved in the constructor
@@ -109,11 +124,16 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 				}
 			}
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
+			updateTime = scheduling.getRunTime();
 		}
 		schedulings.add(scheduling);		
 		return schedulings;
 	}
 	
+	private boolean updateCondition() {
+		return updateTime % 144.0 == 0;
+	}
+
 	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
 			ArrayList<MobileDevice> subscriberDevices) {
 		double nDevs = subscriberDevices.size();
