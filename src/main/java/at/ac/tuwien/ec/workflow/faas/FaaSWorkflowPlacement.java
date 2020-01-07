@@ -1,10 +1,14 @@
 package at.ac.tuwien.ec.workflow.faas;
 
+import java.util.ArrayList;
+
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import scala.Tuple2;
 
 public class FaaSWorkflowPlacement extends OffloadScheduling {
 
@@ -12,9 +16,41 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 	 * 
 	 */
 	private static final long serialVersionUID = 1078404020343837193L;
+	private ArrayList<MobileDevice> subscriberDevices;
 	
 	private double averageLatency=0,maxLatency=0,cost=0,energyConsumption=0;
+	protected FaaSWorkflow workflow;
 
+	public FaaSWorkflowPlacement(FaaSWorkflow faasw,MobileDataDistributionInfrastructure inf) 
+	{
+		super();
+		this.workflow = faasw;
+		subscriberDevices = new ArrayList<MobileDevice>();
+		String[] trgTopics = faasw.getSubscribersTopic();
+		for(String t : trgTopics)
+		{
+			ArrayList<MobileDevice> subscribers = inf.getSubscribedDevices(t);
+			if(subscribers != null)
+				subscriberDevices.addAll(subscribers);
+		}
+		
+	}
+	
+	public FaaSWorkflowPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg) 
+	{
+		super();
+		this.workflow = arg._1;
+		subscriberDevices = new ArrayList<MobileDevice>();
+		String[] trgTopics = arg._1.getSubscribersTopic();
+		for(String t : trgTopics)
+		{
+			ArrayList<MobileDevice> subscribers = arg._2.getSubscribedDevices(t);
+			if(subscribers != null)
+				subscriberDevices.addAll(subscribers);
+		}
+		
+	}
+	
 	public Double getAverageLatency() {
 		// TODO Auto-generated method stub
 		return averageLatency;
@@ -41,8 +77,7 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 	
 	public void addAverageLatency(MobileSoftwareComponent s, ComputationalNode v, MobileCloudInfrastructure I){
     	double tmp = s.getRuntimeOnNode(v, I);
-		
-    	s.setRunTime(tmp);
+		s.setRunTime(tmp);
     	this.averageLatency += tmp;
     }
 	
@@ -62,9 +97,19 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 		
 	}
 
-	public void addCost(MobileSoftwareComponent s, ComputationalNode v, MobileCloudInfrastructure i)
-	{
-		this.cost = v.computeCost(s,i);
+	public void addCost(MobileSoftwareComponent s, ComputationalNode u ,ComputationalNode v, MobileCloudInfrastructure i)
+	{		
+		if(workflow.getSink().equals(s))
+		{
+			double dist = 0.0;
+			for(MobileDevice dev : subscriberDevices)
+				dist += i.getDistanceBetweenNodes(dev,v);
+			this.cost += v.computeCost(s,i) * dist/subscriberDevices.size();
+		}
+		else if(u != null)
+			this.cost += v.computeCost(s,i) * (i.getDistanceBetweenNodes(u, v));
+		else
+			this.cost += v.computeCost(s, i);
 	}
 	
 	

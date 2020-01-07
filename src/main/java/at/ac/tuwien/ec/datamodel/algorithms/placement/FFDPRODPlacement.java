@@ -22,6 +22,7 @@ import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
@@ -30,18 +31,18 @@ import scala.Tuple2;
 
 public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 
-	public FFDPRODPlacement(ArrayList<DataEntry> dataEntries, MobileDataDistributionInfrastructure inf)
+	public FFDPRODPlacement(FaaSWorkflow wf, MobileDataDistributionInfrastructure inf)
 	{
 		super();
 		setInfrastructure(inf);
-		this.dataEntries = dataEntries;		
+		setCurrentWorkflow(wf);	
 	}
 	
-	public FFDPRODPlacement(Tuple2<ArrayList<DataEntry>,MobileDataDistributionInfrastructure> arg)
+	public FFDPRODPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
 		super();
 		setInfrastructure(arg._2);
-		this.dataEntries = arg._1;
+		setCurrentWorkflow(arg._1());
 	}
 
 	/**
@@ -62,10 +63,12 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 	
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
+		double startTime = System.currentTimeMillis();
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
-		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 		
-		ArrayList<ComputationalNode> sortedTargets = getInfrastructure().getAllNodes();
+		ArrayList<EdgeNode> sortedTargets = new ArrayList<EdgeNode>();
+		sortedTargets.addAll(getInfrastructure().getEdgeNodes().values());
 		Collections.sort(sortedTargets,new ProdComparator());
 		
 		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
@@ -103,15 +106,17 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 			ComputationalNode trg = null;
 			for(ComputationalNode cn : sortedTargets)
 			{
-				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-				if(avgCost < minAvgCost)
+				if(cn.isCompatible(msc))
 				{
-					minAvgCost = avgCost;
-					trg = cn;
+					trg=cn;
+					break;
 				}
 			}
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 		}
+		double endTime = System.currentTimeMillis();
+		double time = endTime - startTime;
+		scheduling.setExecutionTime(time);
 		schedulings.add(scheduling);		
 		return schedulings;
 		
@@ -137,7 +142,7 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 				maxTrg = prevTarget;
 			}
 		}
-		placement.addCost(msc, trg, getInfrastructure());
+		placement.addCost(msc, maxTrg, trg, getInfrastructure());
 	}
 
 	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,

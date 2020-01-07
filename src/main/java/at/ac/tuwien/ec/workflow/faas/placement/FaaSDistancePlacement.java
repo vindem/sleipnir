@@ -91,9 +91,10 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
+		double startTime = System.currentTimeMillis();
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		
-		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 				
 		//Extract subgraph
 		if(updateCondition()) 
@@ -102,8 +103,8 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 			candidateCenters = findCenters(infrastructureMap, 5);
 		}
-		for(int i = 0; i < candidateCenters.size(); i++)
-			System.out.println(candidateCenters.get(i).getId()+" ");
+		//for(int i = 0; i < candidateCenters.size(); i++)
+			//System.out.println(candidateCenters.get(i).getId()+" ");
 		//all of this before should be moved in the constructor
 		
 		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
@@ -117,7 +118,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 			for(ComputationalNode cn : candidateCenters)
 			{
 				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-				if(avgCost < minAvgCost)
+				if(avgCost < minAvgCost && cn.isCompatible(msc))
 				{
 					minAvgCost = avgCost;
 					trg = cn;
@@ -126,6 +127,9 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			updateTime = scheduling.getRunTime();
 		}
+		double endTime = System.currentTimeMillis();
+		double time = endTime - startTime;
+		scheduling.setExecutionTime(time);
 		schedulings.add(scheduling);		
 		return schedulings;
 	}
@@ -139,7 +143,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		double nDevs = subscriberDevices.size();
 		double cost = 0.0;
 		for(MobileDevice dev : subscriberDevices)
-			cost += cn.computeCost(msc, getInfrastructure());
+			cost += cn.computeCost(msc, getInfrastructure()) * computeTransmissionTime(dev, cn);
 		
 		return cost / nDevs;
 		
@@ -165,7 +169,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 				maxTrg = prevTarget;
 			}
 		}
-		placement.addCost(msc, trg, getInfrastructure());
+		placement.addCost(msc, maxTrg, trg, getInfrastructure());
 	}
 
 	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
@@ -224,6 +228,8 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 
 	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
 		ConnectionMap connections = getInfrastructure().getConnectionMap();
+		if(src == null || trg == null)
+			return 0;
 		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
 	}
 

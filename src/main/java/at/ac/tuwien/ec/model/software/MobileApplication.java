@@ -115,7 +115,13 @@ public abstract class MobileApplication implements Serializable, Cloneable{
 		componentList.put(cmp.getId(),cmp);
 		taskDependencies.addVertex(cmp);
 	}
-		
+	
+	public void addComponent(MobileSoftwareComponent msc)
+	{
+		componentList.put(msc.getId(), msc);
+		taskDependencies.addVertex(msc);
+	}
+	
 	public ArrayList<MobileSoftwareComponent> getPredecessors(MobileSoftwareComponent msc)
 	{
 		ArrayList<MobileSoftwareComponent> preds = new ArrayList<MobileSoftwareComponent>();

@@ -19,6 +19,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import at.ac.tuwien.ec.datamodel.DataDistributionGenerator;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.datamodel.algorithms.placement.DataPlacementAlgorithm;
+import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDCPUEdgePlacement;
 import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDCPUPlacement;
 import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.datamodel.algorithms.placement.L2NormPlacement;
@@ -40,6 +41,7 @@ import at.ac.tuwien.ec.model.infrastructure.planning.mobile.MobileDevicePlannerW
 import at.ac.tuwien.ec.workflow.faas.FaaSTestWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSDistancePlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
 import scala.Tuple2;
@@ -110,8 +112,11 @@ public class ACETONEMain {
 					{
 					
 					default:
+						//search = new FFDCPUEdgePlacement(inputValues);
 						//search = new FFDCPUPlacement(inputValues);
-						search = new FaaSDistancePlacement(inputValues);
+						//search = new FaaSDistancePlacement(inputValues);
+						//search = new FaaSCostlessPlacement(inputValues);
+						search = new FFDPRODPlacement(inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
@@ -125,7 +130,7 @@ public class ACETONEMain {
 												new Tuple4<Integer,Double, Double,Double>(
 														1,
 														dp.getAverageLatency(),
-														dp.getMaxLatency(),
+														dp.getExecutionTime(),
 														dp.getCost()
 														)));
 						}
@@ -224,7 +229,13 @@ public class ACETONEMain {
 		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
 		String[] workflowSub = {"moisture"};
 		String[] workflowPub = {"moisture"};
-		FaaSWorkflow faasWorkflow = new FaaSTestWorkflow(workflowPub, workflowSub);
+		FaaSWorkflow faasWorkflow = new FaaSTestWorkflow(0,workflowPub, workflowSub);
+		for(int i = 1; i < 10; i++)
+		{
+			FaaSWorkflow faasWorkflowNew = new FaaSTestWorkflow(i,workflowPub, workflowSub);
+			faasWorkflow.joinParallel(faasWorkflowNew);
+		}
+		
 		for(int i = 0; i < iterations; i++)
 		{
 			//ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
@@ -233,7 +244,8 @@ public class ACETONEMain {
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileDataDistributionInfrastructure inf = new MobileDataDistributionInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
-			RandomEdgePlanner.setupEdgeNodes(inf);
+			//RandomEdgePlanner.setupEdgeNodes(inf);
+			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);

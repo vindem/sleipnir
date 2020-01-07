@@ -6,8 +6,11 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 import at.ac.tuwien.ec.model.Coordinates;
+import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
+import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -54,6 +57,37 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + 
 					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) + 
 					1.0/Math.min(mips0,mips1));
+		}
+	}
+	
+	public void setCostlessWeights(MobileDataDistributionInfrastructure I)
+	{
+		double minLatency = Double.MAX_VALUE,minCost = Double.MAX_VALUE;
+		for(NetworkConnection nwConn : edgeSet())
+		{
+			if(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())
+					< minLatency)
+				minLatency = nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget());
+		}
+		
+		for(NetworkedNode node : vertexSet())
+		{
+			double tmp = computeCost(node, I);
+			if(tmp < minCost)
+				minCost = tmp;
+		}
+		
+		for(NetworkConnection nwConn : edgeSet())
+		{
+			double mips0,mips1;
+			mips0 = nwConn.getSource().getCapabilities().getMipsPerCore();
+			mips1 = nwConn.getTarget().getCapabilities().getMipsPerCore();
+			mips0 = (mips0 == 0)? Double.MAX_VALUE : mips0;
+			mips1 = (mips1 == 0)? Double.MAX_VALUE : mips1;		
+			setEdgeWeight(nwConn, 
+					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) / minLatency 
+					+ computeCost(((nwConn.getSource() instanceof ComputationalNode)? nwConn.getSource() : nwConn.getTarget()) ,I)
+							* computeDistance(nwConn.getSource(), nwConn.getTarget()));
 		}
 	}
 	
@@ -199,6 +233,17 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			//					- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2;
 		double dist2 = Math.abs(u_i - v_i) + Math.max(0,(Math.abs(u_i-v_i)- Math.abs(u_j-v_j) )/2);
 		return dist2;
+	}
+	
+	private double computeCost(NetworkedNode n, MobileDataDistributionInfrastructure I)
+	{
+		MobileSoftwareComponent msc = 
+				new MobileSoftwareComponent("test0",
+						new Hardware(1, 1, 1),
+						1, "user0", 1.0, 1.0);
+		if(n instanceof ComputationalNode)
+			return ((ComputationalNode) n).computeCost(msc, I);
+		return Double.MAX_VALUE;
 	}
 	
 	private static final long serialVersionUID = 1L;

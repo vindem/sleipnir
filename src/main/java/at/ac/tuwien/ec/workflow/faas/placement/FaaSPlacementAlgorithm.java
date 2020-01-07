@@ -36,6 +36,7 @@ public abstract class FaaSPlacementAlgorithm extends DataPlacementAlgorithm {
 
 	protected void deploy(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg)
 	{
+		trg.deploy(msc);
 		placement.put(msc,trg);
 		//placement.addAverageLatency(msc, trg, currentInfrastructure);
 		//placement.addCost(msc, trg, currentInfrastructure);

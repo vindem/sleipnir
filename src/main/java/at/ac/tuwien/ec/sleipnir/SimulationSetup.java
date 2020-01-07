@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static String[] algorithms = {"nsgaIII"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 1;
+	public static int iterations = 100;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -78,7 +78,7 @@ public class SimulationSetup {
 	public static String placementAlgorithm = "FFDCPU";
 	public static String filename = "testFile";
 	public static String traffic ="HIGH";
-	public static String area = "HERNALS";
+	public static String area = "LEOPOLDSTADT";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
 	public static double y_max = 3224;
