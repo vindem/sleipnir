@@ -13,6 +13,7 @@ import at.ac.tuwien.ec.model.pricing.EdgePricingModel;
 
 public class SimulationSetup {
 	
+	public static String timezoneData = null;
 	public static void readFromFile(String url){
 		
 	}

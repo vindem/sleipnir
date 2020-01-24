@@ -248,4 +248,14 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	{
 		return (MobileCloudInfrastructure) super.clone();
 	}
+
+	public void setupEdgeNodes(int edgeCoreNum, String timezoneData, boolean[][] edgeNodeMap) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setupEdgeNodes(int edgeCoreNum, String timezoneData, String string, boolean wifi) {
+		// TODO Auto-generated method stub
+		
+	}
 }

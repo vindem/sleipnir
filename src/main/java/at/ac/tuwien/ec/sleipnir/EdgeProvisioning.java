@@ -36,7 +36,6 @@ import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
@@ -65,7 +64,7 @@ import scala.Tuple2;
 import scala.Tuple4;
 import scala.Tuple5;
 
-public class Main {
+public class EdgeProvisioning {
 	
 	public static void main(String[] arg)
 	{
@@ -196,9 +195,9 @@ public class Main {
 						case "nsgaIII":
 							singleSearch = new NSGAIIIResearch(inputValues);
 							break;
-						case "moplan":
-							singleSearch = new MOEdgePlanning(inputValues);
-							break;
+						//case "moplan":
+							//singleSearch = new MOEdgePlanning(currentApp, I);
+							//break;
 						default:
 							singleSearch =  new HEFTResearch(inputValues);
 						}
