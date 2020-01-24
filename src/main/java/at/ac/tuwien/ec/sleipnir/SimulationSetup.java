@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static String[] algorithms = {"nsgaIII"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 100;
+	public static int iterations = 10;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -91,5 +91,6 @@ public class SimulationSetup {
 	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
+	public static int numberOfApps = 30;
 	
 }

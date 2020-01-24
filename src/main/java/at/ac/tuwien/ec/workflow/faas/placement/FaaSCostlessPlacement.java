@@ -101,7 +101,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		{
 			ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-			candidateCenters = findCenters(infrastructureMap, 5);
+			candidateCenters = findCenters(infrastructureMap, 20);
 		}
 		//for(int i = 0; i < candidateCenters.size(); i++)
 			//System.out.println(candidateCenters.get(i).getId()+" ");
@@ -118,7 +118,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 			for(ComputationalNode cn : candidateCenters)
 			{
 				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-				if(avgCost < minAvgCost)
+				if(avgCost < minAvgCost && cn.isCompatible(msc))
 				{
 					minAvgCost = avgCost;
 					trg = cn;
@@ -228,6 +228,8 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 
 	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
 		ConnectionMap connections = getInfrastructure().getConnectionMap();
+		if(src == null || trg == null)
+			return 0;
 		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
 	}
 

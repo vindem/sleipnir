@@ -69,7 +69,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		
 		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		candidateCenters = findCenters(infrastructureMap, 5);
+		candidateCenters = findCenters(infrastructureMap, 4);
 	}
 	
 	
@@ -101,7 +101,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		{
 			ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-			candidateCenters = findCenters(infrastructureMap, 5);
+			candidateCenters = findCenters(infrastructureMap, 20);
 		}
 		//for(int i = 0; i < candidateCenters.size(); i++)
 			//System.out.println(candidateCenters.get(i).getId()+" ");
@@ -124,6 +124,8 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 					trg = cn;
 				}
 			}
+			if(trg==null)
+				return schedulings;
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			updateTime = scheduling.getRunTime();
 		}

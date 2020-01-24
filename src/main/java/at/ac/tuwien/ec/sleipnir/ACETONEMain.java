@@ -73,6 +73,36 @@ public class ACETONEMain {
 		}
 				
 		processArgs(arg);
+		switch(SimulationSetup.area)
+		{
+		case "HERNALS":
+			SimulationSetup.MAP_M = 6;
+			SimulationSetup.MAP_N = 6;
+			SimulationSetup.iotDevicesNum = 36;
+			SimulationSetup.mobileNum = 24;
+			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
+			SimulationSetup.x_max = 3119;
+			SimulationSetup.y_max = 3224;
+			break;
+		case "LEOPOLDSTADT":
+			SimulationSetup.MAP_M = 10;
+			SimulationSetup.MAP_N = 10;
+			SimulationSetup.iotDevicesNum = 100;
+			SimulationSetup.mobileNum = 40;
+			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
+			SimulationSetup.x_max = 11098;
+			SimulationSetup.y_max = 9099;
+			break;
+		case "SIMMERING":
+			SimulationSetup.MAP_M = 12;
+			SimulationSetup.MAP_N = 12;
+			SimulationSetup.iotDevicesNum = 144;
+			SimulationSetup.mobileNum = 48;
+			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
+			SimulationSetup.x_max = 6720;
+			SimulationSetup.y_max = 5623;
+			break;
+		}
 		SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.mobileNum * SimulationSetup.dataRate);
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
@@ -114,9 +144,9 @@ public class ACETONEMain {
 					default:
 						//search = new FFDCPUEdgePlacement(inputValues);
 						//search = new FFDCPUPlacement(inputValues);
-						//search = new FaaSDistancePlacement(inputValues);
+						search = new FaaSDistancePlacement(inputValues);
 						//search = new FaaSCostlessPlacement(inputValues);
-						search = new FFDPRODPlacement(inputValues);
+						//search = new FFDPRODPlacement(inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
@@ -213,7 +243,7 @@ public class ACETONEMain {
 			
 			System.out.println(mostFrequent._1());
 			System.out.println(mostFrequent._2());
-			System.out.println(mostFrequent._1.values().size());
+			//System.out.println(mostFrequent._1.values().size());
 		
 		try {
 			writer.close();
@@ -230,7 +260,7 @@ public class ACETONEMain {
 		String[] workflowSub = {"moisture"};
 		String[] workflowPub = {"moisture"};
 		FaaSWorkflow faasWorkflow = new FaaSTestWorkflow(0,workflowPub, workflowSub);
-		for(int i = 1; i < 10; i++)
+		for(int i = 1; i < SimulationSetup.numberOfApps; i++)
 		{
 			FaaSWorkflow faasWorkflowNew = new FaaSTestWorkflow(i,workflowPub, workflowSub);
 			faasWorkflow.joinParallel(faasWorkflowNew);

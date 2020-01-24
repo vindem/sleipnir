@@ -200,6 +200,8 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 	}
 	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
 		ConnectionMap connections = getInfrastructure().getConnectionMap();
+		if(src == null || trg == null)
+			return 0;
 		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
 	}
 	
