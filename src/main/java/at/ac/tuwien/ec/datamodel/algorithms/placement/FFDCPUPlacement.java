@@ -61,7 +61,7 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
-		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement();
+		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 		
 		ArrayList<ComputationalNode> sortedTargets = getInfrastructure().getAllNodes();
 		Collections.sort(sortedTargets,new CPUComparator());
@@ -101,12 +101,17 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 			ComputationalNode trg = null;
 			for(ComputationalNode cn : sortedTargets)
 			{
-				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-				if(avgCost < minAvgCost)
+				if(cn.getCapabilities().supports(msc.getHardwareRequirements()))
 				{
-					minAvgCost = avgCost;
 					trg = cn;
+					break;
 				}
+				//double avgCost = computeAverageCost(msc, cn, subscriberDevices);
+				//if(avgCost < minAvgCost)
+				//{
+					//minAvgCost = avgCost;
+					//trg = cn;
+				//}
 			}
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 		}
