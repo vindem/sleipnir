@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.workflow;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.workflow;
 
 import static java.util.Arrays.asList;
 

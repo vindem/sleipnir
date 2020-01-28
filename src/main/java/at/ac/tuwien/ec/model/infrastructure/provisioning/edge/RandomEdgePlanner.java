@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.edge;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.edge;
 
 import org.apache.commons.lang.math.RandomUtils;
 

@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.edge.mo;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo;
 
 
 import java.util.Random;

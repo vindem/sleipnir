@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.mobile.utils;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.utils;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.mobile;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.mobile;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;

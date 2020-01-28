@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning;
+package at.ac.tuwien.ec.model.infrastructure.provisioning;
 
 import static java.util.Arrays.asList;
 

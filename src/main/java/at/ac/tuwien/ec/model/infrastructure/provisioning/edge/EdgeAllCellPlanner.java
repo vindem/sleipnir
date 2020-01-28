@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.edge;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.edge;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.availability.AvailabilityModel;

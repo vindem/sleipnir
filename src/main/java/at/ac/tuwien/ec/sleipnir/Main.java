@@ -32,12 +32,12 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.planning.DefaultCloudPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.DefaultNetworkPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.EdgeAllCellPlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.RandomEdgePlanner;
-import at.ac.tuwien.ec.model.infrastructure.planning.edge.mo.MOEdgePlanning;
-import at.ac.tuwien.ec.model.infrastructure.planning.mobile.DefaultMobileDevicePlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.MOEdgePlanning;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -195,9 +195,6 @@ public class Main {
 							break;
 						case "nsgaIII":
 							singleSearch = new NSGAIIIResearch(inputValues);
-							break;
-						case "moplan":
-							singleSearch = new MOEdgePlanning(inputValues);
 							break;
 						default:
 							singleSearch =  new HEFTResearch(inputValues);

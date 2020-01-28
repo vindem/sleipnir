@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.edge.mo;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo;
 
 
 
@@ -21,33 +21,42 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
 
-public class EdgePlanningProblem extends OffloadScheduler implements ConstrainedProblem<EdgePlanningSolution>{
+public class EdgePlanningProblem implements ConstrainedProblem<EdgePlanningSolution>{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3668908307776025515L;
 	public OverallConstraintViolation<EdgePlanningSolution> overallConstraintViolationDegree = 
 			new OverallConstraintViolation<EdgePlanningSolution>();
 	public NumberOfViolatedConstraints<EdgePlanningSolution> numberOfViolatedConstraints =
 			new NumberOfViolatedConstraints<EdgePlanningSolution>();
 	
+	private MobileCloudInfrastructure currentInfrastructure;
+	private MobileApplication currentApplication;
+	
+	
+
 	public EdgePlanningProblem(MobileApplication A, MobileCloudInfrastructure I) {
 		super();
-		setMobileApplication(A);
-		setInfrastructure(I);
+		this.currentInfrastructure = I;
+		this.currentApplication = A;
 	}
 
 	@Override
 	public EdgePlanningSolution createSolution() {
 		//boolean wifi = SimulationSetup.wifiAvailableProbability;
 		boolean wifi = true;
-		getInfrastructure().setupEdgeNodes(SimulationSetup.edgeCoreNum,
+		getCurrentInfrastructure().setupEdgeNodes(SimulationSetup.edgeCoreNum,
 				SimulationSetup.timezoneData,
 				"random",
 				wifi);
-		return new EdgePlanningSolution(getInfrastructure());
+		return new EdgePlanningSolution(getCurrentInfrastructure());
 	}
 
 	@Override
 	public void evaluate(EdgePlanningSolution arg0) {
-		HEFTResearch rs = new HEFTResearch(this.getMobileApplication(),arg0.getInfrastructure());
+		HEFTResearch rs = new HEFTResearch(this.getCurrentApplication(),arg0.getInfrastructure());
 		OffloadScheduling dep = new OffloadScheduling();
 		ArrayList<OffloadScheduling> ds = rs.findScheduling();
 		if(ds == null)
@@ -82,7 +91,7 @@ public class EdgePlanningProblem extends OffloadScheduler implements Constrained
 	@Override
 	public int getNumberOfVariables() {
 		// TODO Auto-generated method stub
-		return getInfrastructure().getEdgeNodes().values().size();
+		return getCurrentInfrastructure().getEdgeNodes().values().size();
 	}
 
 	@Override
@@ -116,7 +125,7 @@ public class EdgePlanningProblem extends OffloadScheduler implements Constrained
 				ComputationalNode cn = (ComputationalNode) arg0.getOffloadScheduling().get(msc);
 
 				HardwareCapabilities cnHardware = cn.getCapabilities();
-				if(!isValid(temp,msc,cn))
+				if(!cnHardware.supports(msc.getHardwareRequirements()))
 				{
 					if(!hardwareConstraintViolation)
 					{
@@ -135,7 +144,7 @@ public class EdgePlanningProblem extends OffloadScheduler implements Constrained
 			{
 				MobileSoftwareComponent msc = (MobileSoftwareComponent) comps[i];
 				ComputationalNode cn = (ComputationalNode) arg0.getOffloadScheduling().get(msc);
-				undeploy(temp,msc,cn);
+				//undeploy(temp,msc,cn);
 			}
 
 			boolean offloadabilityConstraintViolation = false;
@@ -143,7 +152,7 @@ public class EdgePlanningProblem extends OffloadScheduler implements Constrained
 			{
 				MobileSoftwareComponent msc = ((MobileSoftwareComponent)comps[i]);
 				ComputationalNode cn = (ComputationalNode) arg0.getOffloadScheduling().get(msc);
-				if(!msc.isOffloadable() && !(cn.equals(getInfrastructure()
+				if(!msc.isOffloadable() && !(cn.equals(getCurrentInfrastructure()
 						.getMobileDevices().get(msc.getUserId()))))
 				{
 					if(!offloadabilityConstraintViolation)
@@ -177,16 +186,25 @@ public class EdgePlanningProblem extends OffloadScheduler implements Constrained
 		} 
 	}
 
+	public MobileApplication getCurrentApplication() {
+		return currentApplication;
+	}
+
+	public void setCurrentApplication(MobileApplication currentApplication) {
+		this.currentApplication = currentApplication;
+	}
+
+	public MobileCloudInfrastructure getCurrentInfrastructure() {
+		return currentInfrastructure;
+	}
+
+	public void setCurrentInfrastructure(MobileCloudInfrastructure currentInfrastructure) {
+		this.currentInfrastructure = currentInfrastructure;
+	}
+	
 	@Override
 	public int getNumberOfConstraints() {
 		return 6;
 	}
-
-	@Override
-	public ArrayList<? extends Scheduling> findScheduling() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 
 }

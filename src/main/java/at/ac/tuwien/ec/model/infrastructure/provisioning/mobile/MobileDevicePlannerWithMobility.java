@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.planning.mobile;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.mobile;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
-import at.ac.tuwien.ec.model.infrastructure.planning.mobile.utils.SumoTraceParser;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.utils.SumoTraceParser;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
