@@ -35,6 +35,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
@@ -150,7 +151,8 @@ public class EdgeProvisioning {
 			//histogram.saveAsTextFile("filedimerda");
 			writerIndex++;
 			
-			//System.out.println(histogram.first()._1());
+			System.out.println(histogram.first()._1());
+			
 		}
 		for(PrintWriter writer : writers)
 		{
@@ -286,6 +288,7 @@ public class EdgeProvisioning {
 
 	private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(int iterations) {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
+		
 		for(int i = 0; i < iterations; i++)
 		{
 			MobileWorkload globalWorkload = new MobileWorkload();
@@ -296,9 +299,12 @@ public class EdgeProvisioning {
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
-			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			DefaultNetworkPlanner.setupNetworkConnections(inf);
+			//DefaultNetworkPlanner.setupNetworkConnections(inf);
+			MOEdgePlanning moPlan = new MOEdgePlanning(globalWorkload, inf);
+			if(!moPlan.setupEdgeNodes(inf))
+				continue;
+			System.out.println("Edge nodes: " + inf.getEdgeNodes().size());
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}

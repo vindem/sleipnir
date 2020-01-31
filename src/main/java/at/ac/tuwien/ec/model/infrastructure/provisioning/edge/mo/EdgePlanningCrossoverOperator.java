@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.uma.jmetal.operator.CrossoverOperator;
 import org.uma.jmetal.util.JMetalException;
 
@@ -13,11 +14,13 @@ import org.uma.jmetal.util.JMetalException;
 public class EdgePlanningCrossoverOperator implements CrossoverOperator<EdgePlanningSolution> {
 
 	private double crossoverProbability;
-	Random randomGenerator;
+	UniformRealDistribution distr = new UniformRealDistribution(0.0, 1.0);
+	Random rand;
 	
 	public EdgePlanningCrossoverOperator(double crossover)
 	{
 		crossoverProbability = crossover;
+		rand = new Random();
 	}
 	
 	@Override
@@ -41,11 +44,11 @@ public class EdgePlanningCrossoverOperator implements CrossoverOperator<EdgePlan
 		offsprings.add((EdgePlanningSolution) parent1.copy());
 		offsprings.add((EdgePlanningSolution) parent2.copy());
 		
-		if(randomGenerator.nextDouble() < crossoverProbability)
+		if(distr.sample() < crossoverProbability)
 		{
 			for(int i = 0; i < parent1.getNumberOfVariables(); i++)
 			{
-				if(randomGenerator.nextBoolean())
+				if(rand.nextBoolean())
 				{
 					Boolean b1 = parent1.getVariableValue(i);
 					Boolean b2 = parent2.getVariableValue(i);

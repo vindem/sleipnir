@@ -22,6 +22,8 @@ import at.ac.tuwien.ec.model.infrastructure.costs.ElectricityPriceTrace;
 import at.ac.tuwien.ec.model.infrastructure.costs.PriceMap;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import scala.Tuple2;
@@ -255,7 +257,11 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	}
 
 	public void setupEdgeNodes(int edgeCoreNum, String timezoneData, String string, boolean wifi) {
-		// TODO Auto-generated method stub
+		if(string.equals("random"))
+		{
+			RandomEdgePlanner.setupEdgeNodes(this);
+			DefaultNetworkPlanner.setupNetworkConnections(this);
+		}
 		
 	}
 }

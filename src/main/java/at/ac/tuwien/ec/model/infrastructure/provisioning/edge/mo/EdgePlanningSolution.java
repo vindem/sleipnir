@@ -29,6 +29,7 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 	public EdgePlanningSolution(MobileCloudInfrastructure I) {
 		solutionAttributes = new HashMap<Object,Object>();
 		this.I = I;
+		edgeNodeMap = new boolean[SimulationSetup.MAP_M][SimulationSetup.MAP_N];
 	}
 
 		

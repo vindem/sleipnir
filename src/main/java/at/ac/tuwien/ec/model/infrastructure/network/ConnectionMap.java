@@ -105,7 +105,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
 		NetworkConnection link = getEdge(u,v);
 		if(link == null)
-			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
+			return Double.MAX_VALUE;
 		QoSProfile profile = getEdge(u,v).qosProfile;
 		if(profile == null)
 			return Double.MAX_VALUE;

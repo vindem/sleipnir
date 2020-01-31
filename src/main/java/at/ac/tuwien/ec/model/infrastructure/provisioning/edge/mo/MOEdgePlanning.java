@@ -17,11 +17,14 @@ import org.uma.jmetal.util.comparator.RankingComparator;
 import org.uma.jmetal.util.evaluator.impl.MultithreadedSolutionListEvaluator;
 import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
+import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgePlanner;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import scala.Tuple2;
 
 public class MOEdgePlanning extends EdgePlanner{
@@ -62,13 +65,13 @@ public class MOEdgePlanning extends EdgePlanner{
 				new SequentialSolutionListEvaluator<EdgePlanningSolution>();
 	}
 
-	public void setupEdgeNodes()
+	public boolean setupEdgeNodes(MobileCloudInfrastructure inf)
 	{
 		List<EdgePlanningSolution> population = new ArrayList<EdgePlanningSolution>();
 		try
 		{
 			NSGAIIBuilder<EdgePlanningSolution> nsgaBuilder = new NSGAIIBuilder<EdgePlanningSolution>(problem, crossover, mutation);
-			nsgaBuilder.setMaxEvaluations(50);
+			nsgaBuilder.setMaxEvaluations(100);
 			nsgaBuilder.setPopulationSize(populationSize);
 			algorithm = nsgaBuilder.build();
 			AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
@@ -79,6 +82,12 @@ public class MOEdgePlanning extends EdgePlanner{
 				Collections.sort(population, new RankingAndCrowdingDistanceComparator<>());
 			
 			EdgePlanningSolution solution = selectSingleSolution(population);
+			if(solution!=null) 
+			{
+				applySolutionToInfrastructure(solution, inf);
+				return true;
+			}
+			return false;
 		}
 		catch(Throwable T){
 			System.err.println("Selection Error");
@@ -91,11 +100,33 @@ public class MOEdgePlanning extends EdgePlanner{
 			}
 			return deployments;*/
 		}
-		
+		return false;
+	}
+
+	private void applySolutionToInfrastructure(EdgePlanningSolution solution, MobileCloudInfrastructure inf) {
+		Coordinates edgeNodeCoordinates = null;
+		double size_x = SimulationSetup.x_max/MAP_M;
+		double size_y = SimulationSetup.y_max/(MAP_N*2);
+		for(int k = 0; k < SimulationSetup.MAP_M * SimulationSetup.MAP_N; k++)
+			if(solution.getVariableValue(k))
+			{
+				int i = k / SimulationSetup.MAP_N;
+				int j = k % SimulationSetup.MAP_N;
+				double x = i*size_x + size_x/2.0;
+				double y = j*size_y + size_y/2.0;
+				edgeNodeCoordinates = new Coordinates(x,y);
+				EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
+				edge.setCoords(edgeNodeCoordinates);
+				edge.setCPUEnergyModel(defaultCPUEnergyModel);
+				//edge.setAvailabilityModel(model);
+				inf.addEdgeNode(edge);
+			}
 	}
 
 	private EdgePlanningSolution selectSingleSolution(List<EdgePlanningSolution> population) {
-		// TODO Auto-generated method stub
+		if(population != null)
+			if(population.size() > 0)
+				return population.get(0);
 		return null;
 	}
 

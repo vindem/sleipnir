@@ -92,6 +92,26 @@ public class DefaultNetworkPlanner {
 
 		}
 		
+		for(CloudDataCenter cn : inf.getCloudNodes().values())
+		{
+			
+			double CloudWiFiHQBandwidth = 16.0 + exponentialGeneration(1.6);
+			double CloudWiFiLQBandwidth = 2.0 + exponentialGeneration(1.0);
+			double cloudLatency = normalGeneration() * SimulationSetup.MAP_M;
+			
+			QoSProfile qosCloudUL;//,qosCloudDL
+			qosCloudUL = new QoSProfile(asList(
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency, CloudWiFiHQBandwidth), 0.9),
+					new Tuple2<QoS,Double>(new QoS(15.0 + cloudLatency , CloudWiFiLQBandwidth), 0.09),
+					new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
+					)) ;
+			for(EdgeNode en : inf.getEdgeNodes().values()) 
+			{
+				inf.addLink(en, cn, qosCloudUL);
+				inf.addLink(cn, en, qosCloudUL);
+			}
+		}
+		
 		
 	}
 	

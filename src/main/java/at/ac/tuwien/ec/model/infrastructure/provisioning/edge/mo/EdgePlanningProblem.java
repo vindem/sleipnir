@@ -89,7 +89,7 @@ public class EdgePlanningProblem implements ConstrainedProblem<EdgePlanningSolut
 	@Override
 	public int getNumberOfVariables() {
 		// TODO Auto-generated method stub
-		return getCurrentInfrastructure().getEdgeNodes().values().size();
+		return SimulationSetup.MAP_M * SimulationSetup.MAP_N;
 	}
 
 	@Override
