@@ -70,6 +70,20 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 		connectionMap.addVertex(edge);
 	}
 	
+	public void removeEdgeNode(EdgeNode edge)
+	{
+		connectionMap.removeAllEdges(connectionMap.outgoingEdgesOf(edge));
+		connectionMap.removeAllEdges(connectionMap.incomingEdgesOf(edge));
+		connectionMap.removeVertex(edge);
+		edgeNodes.remove(edge.getId());
+	}
+	
+	public void removeEdgeNodeAt(int i, int j)
+	{
+		EdgeNode edge = edgeNodes.get("edge("+i+","+j+")");
+		removeEdgeNode(edge);
+	}
+	
 	public void addCloudDataCenter(CloudDataCenter cloudDC) throws IllegalArgumentException
 	{
 		cloudNodes.put(cloudDC.getId(),cloudDC);
@@ -264,4 +278,6 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 		}
 		
 	}
+
+	
 }
