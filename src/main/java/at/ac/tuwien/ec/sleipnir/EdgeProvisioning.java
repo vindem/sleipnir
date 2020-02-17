@@ -196,6 +196,11 @@ public class EdgeProvisioning {
 							EdgeAllCellPlanner.setupEdgeNodes(inf);
 							DefaultNetworkPlanner.setupNetworkConnections(inf);
 							break;
+						default:
+							MOEdgePlanning moEPlan = new MOEdgePlanning(inputValues._1(), inf);
+							if(!moEPlan.setupEdgeNodes(inf))
+								return null; 
+							System.out.println("Edge nodes: " + inf.getEdgeNodes().size());
 							
 						}
 						

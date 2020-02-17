@@ -60,7 +60,7 @@ public class SimulationSetup {
 	public static double facebookImageSize = 20e3;
 	public static double facerecImageSize = 10e3;
 	public static double navigatorMapSize = 25e6;
-	public static String[] algorithms = {"ares"};
+	public static String[] algorithms = {"heft"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 10;
@@ -69,7 +69,7 @@ public class SimulationSetup {
 	public static double EchoAlpha;
 	public static double EchoBeta;
 	public static double Eta = 1.0;
-	public static int appNumber = 2;
+	public static int appNumber = 30;
 	
 	public static String[] topics = {"temperature", "moisture", "wind"};
 	public static int iotDevicesNum = 36;

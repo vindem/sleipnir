@@ -36,6 +36,7 @@ import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.ares.FirstStageAresPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -181,9 +182,21 @@ public class ARESMain {
 						MobileCloudInfrastructure infrastructure = inputValues._2().clone();
 						switch(SimulationSetup.placementAlgorithm)
 						{
+						case "RANDOM":
+							RandomEdgePlanner.setupEdgeNodes(infrastructure);
+							DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
+							break;
+						case "ALL":
+							EdgeAllCellPlanner.setupEdgeNodes(infrastructure);
+							DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
+							break;
 						case "ares":
 							FirstStageAresPlanner planner = new FirstStageAresPlanner(inputValues);
 							planner.setupEdgeNodes(infrastructure);
+							break;
+						default:
+							FirstStageAresPlanner aresP = new FirstStageAresPlanner(inputValues);
+							aresP.setupEdgeNodes(infrastructure);
 						}
 						
 						
@@ -208,7 +221,7 @@ public class ARESMain {
 							break;
 						
 						default:
-							singleSearch =  new HEFTResearch(inputValues);
+							singleSearch =  new HEFTResearch(inputValues._1(), infrastructure);
 						}
 						
 						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) singleSearch.findScheduling();
