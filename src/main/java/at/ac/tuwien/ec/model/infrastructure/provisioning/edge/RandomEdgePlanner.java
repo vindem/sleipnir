@@ -25,6 +25,7 @@ public class RandomEdgePlanner extends EdgePlanner{
 						EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 						edge.setCoords(currentEdgeNodeCoordinates);
 						edge.setCPUEnergyModel(defaultCPUEnergyModel);
+						edge.setNetEnergyModel(defaultNETEnergyModel);
 						inf.addEdgeNode(edge);
 					}
 				}

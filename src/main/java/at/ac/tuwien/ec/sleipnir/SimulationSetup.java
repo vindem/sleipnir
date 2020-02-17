@@ -6,6 +6,7 @@ import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.energy.AMDCPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
+import at.ac.tuwien.ec.model.infrastructure.energy.ComputationalNodeNetEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.Mobile3GNETEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.SamsungS2DualEnergyModel;
@@ -59,7 +60,7 @@ public class SimulationSetup {
 	public static double facebookImageSize = 20e3;
 	public static double facerecImageSize = 10e3;
 	public static double navigatorMapSize = 25e6;
-	public static String[] algorithms = {"nsgaIII"};
+	public static String[] algorithms = {"ares"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 10;
@@ -87,11 +88,12 @@ public class SimulationSetup {
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
 	public static String mobileApplication = "FACEBOOK";
-	public static String edgePlanningAlgorithm;
+	public static String edgePlanningAlgorithm = "ares";
 	public static String electricityTraceFile;
 	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
 	public static int numberOfApps = 30;
+	public static NETEnergyModel edgeNETEnergyModel = new ComputationalNodeNetEnergyModel();
 	
 }

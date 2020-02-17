@@ -171,7 +171,8 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	
 	public double getTransmissionTime(MobileSoftwareComponent sc, NetworkedNode networkedNode, NetworkedNode n)
 	{
-		//return 0.0;
+		if(networkedNode.equals(n))
+			return 0.0;
 		return connectionMap.getTransmissionTime(sc, networkedNode, n);
 	}
 	

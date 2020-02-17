@@ -8,6 +8,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.uma.jmetal.operator.CrossoverOperator;
 import org.uma.jmetal.util.JMetalException;
 
+import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.EdgePlanningSolution;
 
 public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstStageAresSolution>{
@@ -22,6 +23,7 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 	
 	public FirstStageAresCrossoverOperator(double crossoverProbability) {
 		this.crossoverProbability = crossoverProbability;
+		rand = new Random();
 	}
 
 	@Override
@@ -51,8 +53,10 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 					Boolean b1 = parent1.getVariableValue(i);
 					offsprings.get(0).setVariableValue(i, b1);
 					offsprings.get(1).setVariableValue(i, b0);
+					
 				}
 			}
+			
 		}
 			
 		return offsprings;

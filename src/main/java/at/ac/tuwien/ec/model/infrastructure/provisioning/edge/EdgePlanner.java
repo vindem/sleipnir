@@ -6,6 +6,7 @@ import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
+import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.pricing.EdgePricingModel;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
@@ -16,6 +17,7 @@ public class EdgePlanner {
 	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities.clone();
 	protected static EdgePricingModel defaultEdgePricingModel = SimulationSetup.edgePricingModel;
 	protected static CPUEnergyModel defaultCPUEnergyModel = SimulationSetup.edgeCPUEnergyModel;
+	protected static NETEnergyModel defaultNETEnergyModel = SimulationSetup.edgeNETEnergyModel;
 	
 	public static void addEdgeNodeAt(MobileCloudInfrastructure inf, int i, int j)
 	{
@@ -29,6 +31,7 @@ public class EdgePlanner {
 			EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
 			edge.setCoords(currentEdgeNodeCoordinates);
 			edge.setCPUEnergyModel(defaultCPUEnergyModel);
+			edge.setNetEnergyModel(defaultNETEnergyModel);
 			inf.addEdgeNode(edge);
 		}
 	}

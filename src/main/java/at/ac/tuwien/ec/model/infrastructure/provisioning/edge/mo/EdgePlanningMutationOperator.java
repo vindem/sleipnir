@@ -11,6 +11,10 @@ import org.uma.jmetal.operator.MutationOperator;
 
 public class EdgePlanningMutationOperator implements MutationOperator<EdgePlanningSolution> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7503935801560571134L;
 	private double mutationProbability;
 	
 	public EdgePlanningMutationOperator(double mutationProbability)

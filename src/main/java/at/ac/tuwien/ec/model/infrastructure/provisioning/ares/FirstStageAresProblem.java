@@ -1,18 +1,30 @@
 package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.uma.jmetal.problem.ConstrainedProblem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
+import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
+import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.EdgePlanningSolution;
+import at.ac.tuwien.ec.model.pricing.EdgePricingModel;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresSolution> {
+	
+	protected static int MAP_M = SimulationSetup.MAP_M;
+	protected static int MAP_N = SimulationSetup.MAP_N;
+	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities.clone();
+	protected static EdgePricingModel defaultEdgePricingModel = SimulationSetup.edgePricingModel;
+	protected static CPUEnergyModel defaultCPUEnergyModel = SimulationSetup.edgeCPUEnergyModel;
 
 	/**
 	 * 
@@ -50,6 +62,7 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 	@Override
 	public void evaluate(FirstStageAresSolution solution) {
 		MobileCloudInfrastructure infrastructure = solution.getInfrastructure();
+		DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
 		
 		double averageDistance, averageEnergy;
 		averageDistance = computeAverageDistance(infrastructure);
@@ -73,11 +86,11 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 				if(currHops < minHops)
 				{
 					minHops = currHops;
-					maxTransmissionDevEdge = edge.getNetEnergyModel().computeNETEnergy(msc, dev, infrastructure);
+					maxTransmissionDevEdge = dev.getNetEnergyModel().computeNETEnergy(msc, edge, infrastructure);
 				}
 				if(currHops == minHops) 
 				{
-					double currDevEdgeEnergy = edge.getNetEnergyModel().computeNETEnergy(msc, dev, infrastructure);
+					double currDevEdgeEnergy = dev.getNetEnergyModel().computeNETEnergy(msc, edge, infrastructure);
 					if(currDevEdgeEnergy > maxTransmissionDevEdge)
 						maxTransmissionDevEdge = currDevEdgeEnergy;
 				}
@@ -112,12 +125,31 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 
 	@Override
 	public FirstStageAresSolution createSolution() {
+		boolean[][] edgeNodeMap = new boolean[SimulationSetup.MAP_M][SimulationSetup.MAP_N];
 		boolean wifi = true;
-		infrastructure.setupEdgeNodes(SimulationSetup.edgeCoreNum,
-				SimulationSetup.timezoneData,
-				"random",
-				wifi);
-		return new FirstStageAresSolution(this.infrastructure);
+		for(int i = 0; i < MAP_M; i++)
+			for(int j = 0; j < MAP_N; j++)
+			{
+				Coordinates currentEdgeNodeCoordinates = null;
+				boolean val;
+				if(val = RandomUtils.nextBoolean())
+				{
+					if(i % 2 == 0 && j%2 == 0)
+						currentEdgeNodeCoordinates =  new Coordinates(i,j);
+					if(i%2==1 && j%2==1)
+						currentEdgeNodeCoordinates =  new Coordinates(i,j);
+					if(currentEdgeNodeCoordinates != null)
+					{
+						EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
+						edge.setCoords(currentEdgeNodeCoordinates);
+						edge.setCPUEnergyModel(defaultCPUEnergyModel);
+						infrastructure.addEdgeNode(edge);
+						edgeNodeMap[i][j] = val;
+					}
+				}
+			}
+		DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
+		return new FirstStageAresSolution(this.infrastructure, edgeNodeMap);
 	}
 
 	@Override

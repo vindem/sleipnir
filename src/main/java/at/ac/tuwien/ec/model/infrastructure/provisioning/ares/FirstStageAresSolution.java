@@ -18,10 +18,11 @@ public class FirstStageAresSolution implements PermutationSolution<Boolean>{
 	private double averageDistance;
 	private double energyConsumption;
 
-	public FirstStageAresSolution(MobileCloudInfrastructure infrastructure) {
+	public FirstStageAresSolution(MobileCloudInfrastructure infrastructure, boolean[][] edgeNodeMap) {
 		this.infrastructure = infrastructure;
-		edgeNodeMap = new boolean[SimulationSetup.MAP_M][SimulationSetup.MAP_N];
+		this.edgeNodeMap = edgeNodeMap;
 		solutionAttributes = new HashMap<Object,Object>();
+		
 	}
 
 	@Override
@@ -61,8 +62,10 @@ public class FirstStageAresSolution implements PermutationSolution<Boolean>{
 
 	@Override
 	public Boolean getVariableValue(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		int i,j;
+		i = index / SimulationSetup.MAP_N;
+		j = index % SimulationSetup.MAP_N;
+		return edgeNodeMap[i][j];
 	}
 
 	@Override
@@ -100,7 +103,7 @@ public class FirstStageAresSolution implements PermutationSolution<Boolean>{
 		for(int i = 0; i < edgeNodeMap.length; i++)
 			System.arraycopy(edgeNodeMap[i], 0, targetMap[i], 0, edgeNodeMap[i].length);
 		
-		return new FirstStageAresSolution(this.infrastructure);
+		return new FirstStageAresSolution(this.infrastructure, targetMap);
 	}
 	
 

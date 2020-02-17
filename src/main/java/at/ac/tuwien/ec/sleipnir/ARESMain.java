@@ -34,8 +34,8 @@ import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.ares.FirstStageAresPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
-import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -65,7 +65,7 @@ import scala.Tuple2;
 import scala.Tuple4;
 import scala.Tuple5;
 
-public class EdgeProvisioning {
+public class ARESMain {
 	
 	public static void main(String[] arg)
 	{
@@ -178,52 +178,37 @@ public class EdgeProvisioning {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
 						OffloadScheduler singleSearch;
-						MobileCloudInfrastructure inf = inputValues._2().clone();
-						
-						switch(SimulationSetup.edgePlanningAlgorithm)
+						MobileCloudInfrastructure infrastructure = inputValues._2().clone();
+						switch(SimulationSetup.placementAlgorithm)
 						{
-						case "MOPLAN":
-							MOEdgePlanning moPlan = new MOEdgePlanning(inputValues._1(), inf);
-							if(!moPlan.setupEdgeNodes(inf))
-								return null; 
-							System.out.println("Edge nodes: " + inf.getEdgeNodes().size());
-							break;
-						case "RANDOM":
-							RandomEdgePlanner.setupEdgeNodes(inf);
-							DefaultNetworkPlanner.setupNetworkConnections(inf);
-							break;
-						case "ALL":
-							EdgeAllCellPlanner.setupEdgeNodes(inf);
-							DefaultNetworkPlanner.setupNetworkConnections(inf);
-							break;
-							
+						case "ares":
+							FirstStageAresPlanner planner = new FirstStageAresPlanner(inputValues);
+							planner.setupEdgeNodes(infrastructure);
 						}
 						
 						
 						switch(algoritmName){
 						case "weighted":
-							singleSearch = new HeftEchoResearch(inputValues._1(), inf);
+							singleSearch = new HeftEchoResearch(inputValues._1(), infrastructure);
 							break;
 						case "heft":
-							singleSearch = new HEFTResearch(inputValues._1(), inf);
+							singleSearch = new HEFTResearch(inputValues._1(), infrastructure);
 							break;
 						case "hbatt":
-							singleSearch = new HEFTBattery(inputValues._1(), inf);
+							singleSearch = new HEFTBattery(inputValues._1(), infrastructure);
 							break;
 						case "hcost":
-							singleSearch = new HEFTCostResearch(inputValues._1(), inf);
+							singleSearch = new HEFTCostResearch(inputValues._1(), infrastructure);
 							break;
 						case "bforce-rt":
-							singleSearch = new BruteForceRuntimeOffloader(inputValues._1(), inf);
+							singleSearch = new BruteForceRuntimeOffloader(inputValues._1(), infrastructure);
 							break;
 						case "nsgaIII":
-							singleSearch = new NSGAIIIResearch(inputValues._1(), inf);
+							singleSearch = new NSGAIIIResearch(inputValues._1(), infrastructure);
 							break;
-						//case "moplan":
-							//singleSearch = new MOEdgePlanning(currentApp, I);
-							//break;
+						
 						default:
-							singleSearch =  new HEFTResearch(inputValues._1(), inf);
+							singleSearch =  new HEFTResearch(inputValues);
 						}
 						
 						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) singleSearch.findScheduling();
@@ -324,8 +309,10 @@ public class EdgeProvisioning {
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			//DefaultNetworkPlanner.setupNetworkConnections(inf);
-			
-			
+			//MOEdgePlanning moPlan = new MOEdgePlanning(globalWorkload, inf);
+			//if(!moPlan.setupEdgeNodes(inf))
+				//continue;
+			//System.out.println("Edge nodes: " + inf.getEdgeNodes().size());
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
