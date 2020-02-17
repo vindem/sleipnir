@@ -224,9 +224,6 @@ public class EdgeProvisioning {
 						case "nsgaIII":
 							singleSearch = new NSGAIIIResearch(inputValues._1(), inf);
 							break;
-						//case "moplan":
-							//singleSearch = new MOEdgePlanning(currentApp, I);
-							//break;
 						default:
 							singleSearch =  new HEFTResearch(inputValues._1(), inf);
 						}
