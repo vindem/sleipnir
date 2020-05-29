@@ -27,7 +27,7 @@ public class SimulationSetup {
 	public static double cloudRam = 256;
 	public static double cloudStorage = Double.MAX_VALUE;
 	public static double cloudMipsPerCore = 6400000.0;
-	public static int edgeCoreNum = 16;
+	public static int edgeCoreNum = 1;
 	public static double edgeRam = 128;
 	public static double edgeStorage = 5e9;
 	public static double edgeMipsPerCore = 80000.0;
@@ -87,7 +87,7 @@ public class SimulationSetup {
 	public static double x_max = 3119;
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
-	public static String mobileApplication = "FACEBOOK";
+	public static String mobileApplication = "NAVI";
 	public static String edgePlanningAlgorithm = "ares";
 	public static String electricityTraceFile;
 	public static String outfile = "../output/";

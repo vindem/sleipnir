@@ -129,6 +129,8 @@ public class Main {
 			
 			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
 					jscontext, inputSamples, algoName);
+
+      System.out.println("Creating file: " + filename);
 			if(!outFile.exists())
 			{
 				outFile.getParentFile().mkdirs();
@@ -160,6 +162,7 @@ public class Main {
 			writer.flush();
 		}		
 		jscontext.close();
+		System.out.println("Finished");
 	}
 
 	private static JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> runSparkSimulation(

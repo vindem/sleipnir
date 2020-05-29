@@ -1,163 +1,168 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.ac.tuwien.ec</groupId>
   <artifactId>core-java</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Sleipnir</name>
   <packaging>jar</packaging>
-  
+
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-  
-  
-	<dependencies>
-		<dependency>
-		<groupId>org.apache.spark</groupId>
-		<artifactId>spark-core_2.11</artifactId>
-		<version>2.4.0</version>
-		<scope>provided</scope>
-		</dependency>
-	
-		<dependency>
-			<groupId>org.jgrapht</groupId>
-  			<artifactId>jgrapht-core</artifactId>
- 			<version>1.2.0</version>
-		</dependency>
-	
-		<dependency>
-    		<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-lang3</artifactId>
-    		<version>3.0</version>
-		</dependency>
-		
-		<dependency>
-    		<groupId>com.opencsv</groupId>
-    		<artifactId>opencsv</artifactId>
-    		<version>3.3</version>
-		</dependency>
-		
-		<dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.1.0</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-    		<groupId>org.junit.platform</groupId>
-    		<artifactId>junit-platform-launcher</artifactId>
-    		<version>1.1.0</version>
-    		<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-    		<groupId>org.junit.platform</groupId>
-    		<artifactId>junit-platform-runner</artifactId>
-    		<version>1.1.0</version>
-    		<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-    		<groupId>org.junit.vintage</groupId>
-    		<artifactId>junit-vintage-engine</artifactId>
-    		<version>5.1.0</version>
-    		<scope>test</scope>
-    	</dependency>
-        
-        <dependency>
-            <groupId>org.uma.jmetal</groupId>
-            <artifactId>jmetal-core</artifactId>
-            <version>5.6</version>
-        </dependency>
-        
-       	<dependency>
-            <groupId>org.uma.jmetal</groupId>
-            <artifactId>jmetal-algorithm</artifactId>
-            <version>5.6</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.uma.jmetal</groupId>
-            <artifactId>jmetal-exec</artifactId>
-            <version>5.6</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.uma.jmetal</groupId>
-            <artifactId>jmetal-problem</artifactId>
-            <version>5.6</version>
-        </dependency>
-        
-        <dependency>
-    		<groupId>org.ojalgo</groupId>
-    		<artifactId>ojalgo</artifactId>
-    		<version>31.0</version>
-		</dependency>
-		
-	</dependencies>
-		
-	<build>
-        <finalName>sleipnir</finalName>
-        <plugins>
 
-           	<plugin>
-    			<groupId>org.apache.maven.plugins</groupId>
-    			<artifactId>maven-dependency-plugin</artifactId>
-   				<executions>
-        			<execution>
-            		<id>copy-dependencies</id>
-            		<phase>prepare-package</phase>
-            	<goals>
-                	<goal>copy-dependencies</goal>
-            	</goals>
-            	<configuration>
-                <outputDirectory>
-                    ${project.build.directory}/libs
-                </outputDirectory>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_2.11</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-core</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>3.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-runner</artifactId>
+      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>5.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uma.jmetal</groupId>
+      <artifactId>jmetal-core</artifactId>
+      <version>5.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uma.jmetal</groupId>
+      <artifactId>jmetal-algorithm</artifactId>
+      <version>5.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uma.jmetal</groupId>
+      <artifactId>jmetal-exec</artifactId>
+      <version>5.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uma.jmetal</groupId>
+      <artifactId>jmetal-problem</artifactId>
+      <version>5.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ojalgo</groupId>
+      <artifactId>ojalgo</artifactId>
+      <version>31.0</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>sleipnir</finalName>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>
+                ${project.build.directory}/libs
+              </outputDirectory>
             </configuration>
-        	</execution>
-    		</executions>
-			</plugin>
+          </execution>
+        </executions>
+      </plugin>
 
-			<plugin>
-    			<groupId>org.apache.maven.plugins</groupId>
-    			<artifactId>maven-jar-plugin</artifactId>
-    			<configuration>
-        		<archive>
-            	<manifest>
-                	<addClasspath>true</addClasspath>
-                	<classpathPrefix>libs/</classpathPrefix>
-                	<mainClass>
-                    	at.ac.tuwien.ec.sleipnir.Main
-                	</mainClass>
-            	</manifest>
-        		</archive>
-    			</configuration>
-			</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>libs/</classpathPrefix>
+              <mainClass>
+                at.ac.tuwien.ec.sleipnir.Main
+              </mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
 
-  		</plugins>
-	</build>
-	
-	<licenses>
+    </plugins>
+  </build>
+
+  <licenses>
     <license>
       <name>The MIT License (MIT)</name>
       <url>http://opensource.org/licenses/MIT</url>
       <distribution>repo</distribution>
     </license>
-	</licenses>
-	
-	<developers>
+  </licenses>
+
+  <developers>
     <developer>
       <name>Vincenzo De Maio</name>
       <email>vincenzo@ec.tuwien.ac.at</email>
       <organization>Vienna University of Technology</organization>
       <organizationUrl>http://www.tuwien.ac.at</organizationUrl>
     </developer>
-</developers>
-	
-	
-	
-  
+  </developers>
+
+
 </project>
