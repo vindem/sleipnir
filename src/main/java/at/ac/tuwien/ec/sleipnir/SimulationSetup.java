@@ -1,7 +1,5 @@
 package at.ac.tuwien.ec.sleipnir;
 
-import org.apache.commons.lang.math.RandomUtils;
-
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.energy.AMDCPUEnergyModel;

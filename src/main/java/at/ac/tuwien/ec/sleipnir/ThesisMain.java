@@ -9,45 +9,50 @@ import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileWorkload;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPRuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPBattery;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPRuntime;
 import java.util.ArrayList;
 import scala.Tuple2;
 
 public class ThesisMain {
   public static void main(String[] args) {
     System.out.println("Testing started");
-    ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
-        generateSamples(1);
+    int run = 3;
 
-    inputSamples.forEach(
-        sample -> {
-          boolean runHeft = true;
-          if (runHeft) {
+    for (int i = 0; i < 20; i++) {
+      ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
+          generateSamples(1);
 
-            HEFTResearch alg2 = new HEFTResearch(sample);
-            System.out.println("HEFT INIT");
+      for (Tuple2<MobileApplication, MobileCloudInfrastructure> sample : inputSamples) {
+        ArrayList<OffloadScheduling> offloads = null;
+        if (run == 0) {
 
-            ArrayList<OffloadScheduling> offloads2 = alg2.findScheduling();
-            System.out.println("HEFT finished");
+          HEFTResearch alg2 = new HEFTResearch(sample);
 
-            if (offloads2 != null)
-              for (OffloadScheduling os : offloads2) {
-                System.out.println(os.getRunTime());
-              }
-          } else {
-            CPOPRuntime alg = new CPOPRuntime(sample);
-            System.out.println("CPOP INIT");
+          offloads = alg2.findScheduling();
 
-            ArrayList<OffloadScheduling> offloads = alg.findScheduling();
-            System.out.println("CPOP finished");
+        } else if (run == 1) {
+          CPOPRuntime alg = new CPOPRuntime(sample);
 
-            if (offloads != null)
-              for (OffloadScheduling os : offloads) {
-                System.out.println(os.getRunTime());
-              }
+          offloads = alg.findScheduling();
+        } else if (run == 3) {
+          CPOPBattery alg = new CPOPBattery(sample);
+
+          offloads = alg.findScheduling();
+        } else if (run == 2) {
+          HEFTBattery alg2 = new HEFTBattery(sample);
+
+          offloads = alg2.findScheduling();
+        }
+
+        if (offloads != null)
+          for (OffloadScheduling os : offloads) {
+            System.out.println("[i] = " + i + " | " + os.getRunTime() + ", " + os.getBatteryLifetime());
           }
-        });
+      }
+    }
   }
 
   private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(

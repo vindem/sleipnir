@@ -6,9 +6,9 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import scala.Tuple2;
 
-public abstract class BaseCPOP extends OffloadScheduler {
+public abstract class BaseCPOP extends ThesisOffloadScheduler {
   protected final Map<MobileSoftwareComponent, CPOPSoftwareComponentProxy> mappings =
       new HashMap<>();
   protected final List<CPOPSoftwareComponentProxy> cpList;
@@ -41,9 +41,6 @@ public abstract class BaseCPOP extends OffloadScheduler {
   @Override
   public ArrayList<OffloadScheduling> findScheduling() {
     OffloadScheduling scheduling = new OffloadScheduling();
-    List<CPOPSoftwareComponentProxy> cpList = getCriticalPath();
-    ComputationalNode bestNode = getBestNode(cpList);
-
     PriorityQueue<MobileSoftwareComponent> scheduledNodes =
         new PriorityQueue<>(new RuntimeComparator());
 
@@ -83,8 +80,7 @@ public abstract class BaseCPOP extends OffloadScheduler {
         if (target == null) {
           break;
         }
-        ;
-        System.out.println(target.getId() + "->" + currTask.getId());
+
         deploy(scheduling, currTask, target);
         scheduledNodes.add(currTask);
       }
@@ -95,7 +91,8 @@ public abstract class BaseCPOP extends OffloadScheduler {
     return result;
   }
 
-  protected abstract ComputationalNode findTarget(MobileSoftwareComponent currTask, OffloadScheduling scheduling);
+  protected abstract ComputationalNode findTarget(
+      MobileSoftwareComponent currTask, OffloadScheduling scheduling);
 
   private List<CPOPSoftwareComponentProxy> getCriticalPath() {
     CPOPSoftwareComponentProxy entryNode = this.mappings.get(currentApp.readyTasks().get(0));
@@ -162,6 +159,7 @@ public abstract class BaseCPOP extends OffloadScheduler {
               mscp.setPriority(mscp.getRankUp() + mscp.getRankDown());
             });
 
+    /*
     CPOPSoftwareComponentProxy first = this.mappings.get(currentApp.readyTasks().get(0));
     System.out.println(first.getMsc().getId());
     mappings
@@ -176,6 +174,8 @@ public abstract class BaseCPOP extends OffloadScheduler {
                       + (first.getPriority() - mscp.getPriority())
                       + " ]");
             });
+
+     */
   }
 
   private double upRank(

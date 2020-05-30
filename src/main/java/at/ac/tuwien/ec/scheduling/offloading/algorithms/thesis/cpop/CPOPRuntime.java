@@ -31,10 +31,12 @@ public class CPOPRuntime extends BaseCPOP {
       }
 
     } else if (cpList.contains(mappings.get(currTask))) {
+
       if (isValid(scheduling, currTask, bestNode)) {
         target = bestNode;
       }
     } else {
+
       double maxP = Double.MIN_VALUE;
       for (MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask)) {
         if (cmp.getRunTime() > maxP) {
@@ -43,6 +45,7 @@ public class CPOPRuntime extends BaseCPOP {
       }
 
       for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
+
         if (maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin
             && isValid(scheduling, currTask, cn)) {
           tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
