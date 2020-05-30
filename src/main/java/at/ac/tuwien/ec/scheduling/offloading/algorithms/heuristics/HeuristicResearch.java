@@ -39,7 +39,8 @@ public abstract class HeuristicResearch extends OffloadScheduler {
 			}
 			
 			/* scheduledNodes is empty and deployment is not complete
-			  implies deployment not possible*/ 
+			  implies deployment not possible*/
+			// TODO: That would redeploy an already scheduled task
 			ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
 			if(readyTasks.isEmpty())
 				if(scheduledNodes.isEmpty())

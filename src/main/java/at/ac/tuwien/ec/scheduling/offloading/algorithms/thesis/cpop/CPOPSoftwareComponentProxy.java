@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.offloading.algorithms.cpopbased;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop;
 
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
