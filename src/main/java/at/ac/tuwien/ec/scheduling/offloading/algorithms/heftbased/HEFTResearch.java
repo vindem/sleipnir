@@ -98,7 +98,6 @@ public class HEFTResearch extends OffloadScheduler {
 			}
 			if(target != null)
 			{
-				System.out.println(target.getId() + "->" + currTask.getId());
 				deploy(scheduling,currTask,target);
 				scheduledNodes.add(currTask);
 			}

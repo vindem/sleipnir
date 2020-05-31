@@ -6,10 +6,11 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.FinishTimeComparator;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
-import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,13 +23,14 @@ import scala.Tuple2;
 public abstract class BaseCPOP extends ThesisOffloadScheduler {
   protected final Map<MobileSoftwareComponent, CPOPSoftwareComponentProxy> mappings =
       new HashMap<>();
-  protected final List<CPOPSoftwareComponentProxy> cpList;
-  protected final ComputationalNode bestNode;
+  protected List<CPOPSoftwareComponentProxy> cpList;
+  protected ComputationalNode bestNode;
 
   public BaseCPOP(MobileApplication A, MobileCloudInfrastructure I) {
     super();
     setMobileApplication(A);
     setInfrastructure(I);
+
     setRank(this.currentApp, this.currentInfrastructure);
     cpList = getCriticalPath();
     bestNode = getBestNode(cpList);
@@ -40,18 +42,25 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
 
   @Override
   public ArrayList<OffloadScheduling> findScheduling() {
+    double start = System.nanoTime();
+
     OffloadScheduling scheduling = new OffloadScheduling();
     PriorityQueue<MobileSoftwareComponent> scheduledNodes =
-        new PriorityQueue<>(new RuntimeComparator());
+        new PriorityQueue<>(new FinishTimeComparator());
 
     int totalTaskNum = currentApp.getComponentNum();
+    int totalFinishedTasks = 0;
+    double currentRuntime = 0;
 
-    while (scheduling.size() < totalTaskNum) {
+    while (totalFinishedTasks < totalTaskNum) {
       if (!scheduledNodes.isEmpty()) {
         MobileSoftwareComponent finishedTask = scheduledNodes.remove();
         currentApp.removeEdgesFrom(finishedTask);
         currentApp.removeTask(finishedTask);
+
         ((ComputationalNode) scheduling.get(finishedTask)).undeploy(finishedTask);
+        currentRuntime += finishedTask.getRunTime();
+        totalFinishedTasks++;
       }
 
       MobileSoftwareComponent currTask;
@@ -65,13 +74,8 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
             }
           };
 
-      if (readyTasks.isEmpty()) {
-        if (scheduledNodes.isEmpty()) {
-          scheduling = null;
-          break;
-        } else {
-          continue;
-        }
+      if (readyTasks.isEmpty() && !scheduledNodes.isEmpty()) {
+        continue;
       }
 
       while ((currTask = readyTasks.poll()) != null) {
@@ -81,11 +85,13 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
           break;
         }
 
-        deploy(scheduling, currTask, target);
+        deploy(currentRuntime, scheduling, currTask, target);
         scheduledNodes.add(currTask);
       }
     }
 
+    double end = System.nanoTime();
+    scheduling.setExecutionTime(end - start);
     ArrayList<OffloadScheduling> result = new ArrayList<>();
     result.add(scheduling);
     return result;
@@ -93,6 +99,28 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
 
   protected abstract ComputationalNode findTarget(
       MobileSoftwareComponent currTask, OffloadScheduling scheduling);
+
+  protected double calcEST(
+      MobileSoftwareComponent currTask, OffloadScheduling scheduling, ComputationalNode cn) {
+    double readyTime = Double.MIN_VALUE;
+
+    for (MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask)) {
+      double otherReadyTime =
+          cmp.getFinishTime()
+              + currentInfrastructure.getTransmissionTime(cmp, scheduling.get(cmp), cn);
+      if (otherReadyTime > readyTime) {
+        readyTime = cmp.getRunTime();
+      }
+    }
+
+    double avail = 0;
+    SoftwareComponent sc = cn.getDeployedComponent();
+    if (sc != null) {
+      avail = ((MobileSoftwareComponent) sc).getFinishTime();
+    }
+
+    return Math.max(avail, readyTime);
+  }
 
   private List<CPOPSoftwareComponentProxy> getCriticalPath() {
     CPOPSoftwareComponentProxy entryNode = this.mappings.get(currentApp.readyTasks().get(0));

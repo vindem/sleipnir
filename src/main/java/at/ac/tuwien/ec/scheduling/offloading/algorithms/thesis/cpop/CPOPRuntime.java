@@ -17,9 +17,7 @@ public class CPOPRuntime extends BaseCPOP {
   }
 
   @Override
-  protected ComputationalNode findTarget(
-      MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
-    double tMin = Double.MAX_VALUE;
+  protected ComputationalNode findTarget(MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
     if (!currTask.isOffloadable()) {
@@ -36,33 +34,26 @@ public class CPOPRuntime extends BaseCPOP {
         target = bestNode;
       }
     } else {
-
-      double maxP = Double.MIN_VALUE;
-      for (MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask)) {
-        if (cmp.getRunTime() > maxP) {
-          maxP = cmp.getRunTime();
-        }
-      }
+      double tMin = Double.MAX_VALUE;
 
       for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
-
-        if (maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin
+        double est = calcEST(currTask, scheduling, cn);
+        double time = est + currTask.getRuntimeOnNode(cn, currentInfrastructure);
+        if (time < tMin
             && isValid(scheduling, currTask, cn)) {
-          tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure);
+          tMin = time;
           target = cn;
         }
       }
 
-      if (maxP
-                  + currTask.getRuntimeOnNode(
-                      (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()),
-                      currentInfrastructure)
+      ComputationalNode userNode =
+          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+
+      if (calcEST(currTask, scheduling, userNode)
+                  + currTask.getRuntimeOnNode(userNode, currentInfrastructure)
               < tMin
-          && isValid(
-              scheduling,
-              currTask,
-              (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-        target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+          && isValid(scheduling, currTask, userNode)) {
+        target = userNode;
       }
     }
 

@@ -19,40 +19,60 @@ import scala.Tuple2;
 public class ThesisMain {
   public static void main(String[] args) {
     System.out.println("Testing started");
-    int run = 3;
+    double avgRunTime = 0;
+    double avgBatteryConsumption = 0;
+    double avgExecutionTime = 0;
+    double rounds = 100;
 
-    for (int i = 0; i < 20; i++) {
+    int run = 1;
+
+    for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
           generateSamples(1);
 
       for (Tuple2<MobileApplication, MobileCloudInfrastructure> sample : inputSamples) {
         ArrayList<OffloadScheduling> offloads = null;
         if (run == 0) {
-
-          HEFTResearch alg2 = new HEFTResearch(sample);
-
-          offloads = alg2.findScheduling();
-
+          HEFTResearch alg = new HEFTResearch(sample);
+          offloads = alg.findScheduling();
         } else if (run == 1) {
           CPOPRuntime alg = new CPOPRuntime(sample);
-
           offloads = alg.findScheduling();
         } else if (run == 3) {
           CPOPBattery alg = new CPOPBattery(sample);
-
           offloads = alg.findScheduling();
         } else if (run == 2) {
           HEFTBattery alg2 = new HEFTBattery(sample);
-
           offloads = alg2.findScheduling();
         }
 
         if (offloads != null)
           for (OffloadScheduling os : offloads) {
-            System.out.println("[i] = " + i + " | " + os.getRunTime() + ", " + os.getBatteryLifetime());
+            System.out.println(
+                "[i] = "
+                    + i
+                    + " | "
+                    + os.getRunTime()
+                    + ", "
+                    + os.getBatteryLifetime()
+                    + " [ "
+                    + os.getExecutionTime()
+                    + "]");
+            avgRunTime += os.getRunTime();
+            avgBatteryConsumption += os.getBatteryLifetime();
+            avgExecutionTime += os.getExecutionTime();
           }
       }
     }
+
+    System.out.println(
+        "Result: "
+            + avgRunTime / rounds
+            + ", "
+            + avgBatteryConsumption / rounds
+            + " ["
+            + avgExecutionTime / rounds
+            + "]");
   }
 
   private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(

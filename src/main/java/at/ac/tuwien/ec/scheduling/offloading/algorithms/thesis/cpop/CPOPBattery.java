@@ -17,8 +17,7 @@ public class CPOPBattery extends BaseCPOP {
   }
 
   @Override
-  protected ComputationalNode findTarget(
-      MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
+  protected ComputationalNode findTarget(MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
     if (!currTask.isOffloadable()) {

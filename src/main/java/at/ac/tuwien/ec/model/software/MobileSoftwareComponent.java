@@ -13,6 +13,7 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 	 */
 	private static final long serialVersionUID = 5500721963611706499L;
 	private double inData,outData,runTime = Double.MAX_VALUE;
+	private double startTime;
 	private boolean offloadable;
 	private double rank = 0.0;
 	private boolean visited = false;
@@ -100,5 +101,17 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 
 	public void addInData(double inData) {
 		this.inData += inData;		
-	}	
+	}
+
+	public double getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(double startTime) {
+		this.startTime = startTime;
+	}
+
+	public double getFinishTime() {
+		return getStartTime() + getRunTime();
+	}
 }
