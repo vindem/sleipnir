@@ -5,7 +5,6 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
 import java.util.HashMap;
@@ -16,69 +15,30 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 import scala.Tuple2;
 
 public abstract class BaseCPOP extends ThesisOffloadScheduler {
-  protected final Map<MobileSoftwareComponent, CPOPSoftwareComponentProxy> mappings =
+  protected final Map<MobileSoftwareComponent, CPOPSoftwareComponentAdapter> mappings =
       new HashMap<>();
-  protected final List<CPOPSoftwareComponentProxy> cpList;
-  protected final ComputationalNode bestNode;
+  protected List<CPOPSoftwareComponentAdapter> cpList;
+  protected ComputationalNode bestNode;
 
   public BaseCPOP(MobileApplication A, MobileCloudInfrastructure I) {
     super();
     setMobileApplication(A);
     setInfrastructure(I);
-
-    setRank();
-    cpList = getCriticalPath();
-    bestNode = getBestNode(cpList);
   }
 
   public BaseCPOP(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
     this(t._1(), t._2());
   }
 
-  protected abstract ComputationalNode findTarget(
-      MobileSoftwareComponent currTask, OffloadScheduling scheduling);
-
-  private List<CPOPSoftwareComponentProxy> getCriticalPath() {
-    CPOPSoftwareComponentProxy entryNode = this.mappings.get(currentApp.readyTasks().get(0));
-
-    return this.mappings.values().stream()
-        .filter(
-            mscp -> {
-              return Math.abs(entryNode.getPriority() - mscp.getPriority()) < Math.pow(0.1, 10);
-            })
-        .collect(Collectors.toList());
-  }
-
-  private ComputationalNode getBestNode(List<CPOPSoftwareComponentProxy> cpList) {
-    ComputationalNode bestNode = null;
-    double bestTime = Double.MAX_VALUE;
-    for (ComputationalNode node : currentInfrastructure.getAllNodes()) {
-      double result =
-          cpList.stream()
-              .reduce(
-                  0.0,
-                  (time, mscp) -> {
-                    return time + mscp.getMsc().getRuntimeOnNode(node, currentInfrastructure);
-                  },
-                  Double::sum);
-
-      if (result < bestTime) {
-        bestTime = result;
-        bestNode = node;
-      }
-    }
-
-    return bestNode;
-  }
-
-  private void setRank() {
+  @Override
+  protected void prepareAlgorithm() {
     currentApp
         .getTaskDependencies()
         .vertexSet()
         .forEach(
             mobileSoftwareComponent -> {
               mappings.put(
-                  mobileSoftwareComponent, new CPOPSoftwareComponentProxy(mobileSoftwareComponent));
+                  mobileSoftwareComponent, new CPOPSoftwareComponentAdapter(mobileSoftwareComponent));
             });
 
     for (MobileSoftwareComponent msc : currentApp.getTaskDependencies().vertexSet()) {
@@ -121,6 +81,42 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
             });
 
      */
+
+    cpList = getCriticalPath();
+    bestNode = getBestNode(cpList);
+  }
+
+  private List<CPOPSoftwareComponentAdapter> getCriticalPath() {
+    CPOPSoftwareComponentAdapter entryNode = this.mappings.get(currentApp.readyTasks().get(0));
+
+    return this.mappings.values().stream()
+        .filter(
+            mscp -> {
+              return Math.abs(entryNode.getPriority() - mscp.getPriority()) < Math.pow(0.1, 10);
+            })
+        .collect(Collectors.toList());
+  }
+
+  private ComputationalNode getBestNode(List<CPOPSoftwareComponentAdapter> cpList) {
+    ComputationalNode bestNode = null;
+    double bestTime = Double.MAX_VALUE;
+    for (ComputationalNode node : currentInfrastructure.getAllNodes()) {
+      double result =
+          cpList.stream()
+              .reduce(
+                  0.0,
+                  (time, mscp) -> {
+                    return time + mscp.getMsc().getRuntimeOnNode(node, currentInfrastructure);
+                  },
+                  Double::sum);
+
+      if (result < bestTime) {
+        bestTime = result;
+        bestNode = node;
+      }
+    }
+
+    return bestNode;
   }
 
   private double upRank(

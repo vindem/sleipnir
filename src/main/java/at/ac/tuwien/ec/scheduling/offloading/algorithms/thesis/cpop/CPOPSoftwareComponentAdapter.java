@@ -2,12 +2,12 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop;
 
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 
-public class CPOPSoftwareComponentProxy {
+public class CPOPSoftwareComponentAdapter {
   private double rankUp = 0;
   private double rankDown = 0;
   private final MobileSoftwareComponent msc;
 
-  public CPOPSoftwareComponentProxy(
+  public CPOPSoftwareComponentAdapter(
       MobileSoftwareComponent msc) {
     this.msc = msc;
   }

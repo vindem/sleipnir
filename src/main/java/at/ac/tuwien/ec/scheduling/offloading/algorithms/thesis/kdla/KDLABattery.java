@@ -13,17 +13,16 @@ import java.util.ArrayList;
 import java.util.Set;
 import scala.Tuple2;
 
-public class KDLARuntime extends BaseKDLA {
+public class KDLABattery extends BaseKDLA {
 
-  public KDLARuntime(MobileApplication A, MobileCloudInfrastructure I) {
+  public KDLABattery(MobileApplication A, MobileCloudInfrastructure I) {
     super(A, I);
   }
 
-  public KDLARuntime(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
+  public KDLABattery(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
     super(t);
   }
 
-  // TODO: Chooses sometimes the cloud
   @Override
   protected ComputationalNode findTarget(
       MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
@@ -57,16 +56,33 @@ public class KDLARuntime extends BaseKDLA {
     return target;
   }
 
-  protected double calcEbl(MobileSoftwareComponent msc, ComputationalNode node, int k) {
-    double w_computation_cost = msc.getRuntimeOnNode(node, this.currentInfrastructure);
-    double c_avg_communication_cost =
-        CalcUtils.calcAverageCommunicationCost(msc, node, this.currentInfrastructure);
+  protected double calcEbl(MobileSoftwareComponent currTask, ComputationalNode node, int k) {
+    double b_energy = 0;
 
-    ArrayList<ComponentLink> task_successors = this.currentApp.getOutgoingEdgesFrom(msc);
+    if (node == currentInfrastructure.getNodeById(currTask.getUserId())) {
+      ComputationalNode userNode =
+          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+      b_energy =
+          userNode.getCPUEnergyModel().computeCPUEnergy(currTask, userNode, currentInfrastructure)
+              * currTask.getLocalRuntimeOnNode(userNode, currentInfrastructure);
+    } else {
+      b_energy =
+          currentInfrastructure
+                  .getNodeById(currTask.getUserId())
+                  .getNetEnergyModel()
+                  .computeNETEnergy(currTask, node, currentInfrastructure)
+              * currentInfrastructure.getTransmissionTime(
+                  currTask, currentInfrastructure.getNodeById(currTask.getUserId()), node);
+    }
+
+    double c_avg_communication_cost =
+        CalcUtils.calcAverageCommunicationCost(currTask, node, this.currentInfrastructure);
+
+    ArrayList<ComponentLink> task_successors = this.currentApp.getOutgoingEdgesFrom(currTask);
     Set<NetworkConnection> node_neighbours = this.currentInfrastructure.getOutgoingLinksFrom(node);
 
     double result =
-        w_computation_cost
+        b_energy
             + c_avg_communication_cost
                 * Math.ceil(task_successors.size() / (node_neighbours.size() * 1.0));
     if (k > 1 && task_successors.size() > 0) {

@@ -13,14 +13,14 @@ public abstract class BaseKDLA extends ThesisOffloadScheduler {
   public BaseKDLA(MobileApplication A, MobileCloudInfrastructure I) {
     setMobileApplication(A);
     setInfrastructure(I);
-    setRanks();
   }
 
   public BaseKDLA(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
     this(t._1(), t._2());
   }
 
-  private void setRanks() {
+  @Override
+  protected void prepareAlgorithm() {
     for (MobileSoftwareComponent msc : currentApp.getTaskDependencies().vertexSet()) {
       msc.setVisited(false);
     }

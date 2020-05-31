@@ -22,16 +22,7 @@ public class CPOPRuntime extends BaseCPOP {
       MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
-    if (!currTask.isOffloadable()) {
-      if (isValid(
-          scheduling,
-          currTask,
-          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-        target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-      }
-
-    } else if (cpList.contains(mappings.get(currTask))) {
-
+    if (cpList.contains(mappings.get(currTask))) {
       if (isValid(scheduling, currTask, bestNode)) {
         target = bestNode;
       }
@@ -40,8 +31,11 @@ public class CPOPRuntime extends BaseCPOP {
 
       for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
         double est =
-            CalcUtils.calcEST(currTask, scheduling, cn, this.currentApp, this.currentInfrastructure);
-        double time = est + currTask.getRuntimeOnNode(cn, currentInfrastructure);
+            CalcUtils.calcEST(
+                currTask, scheduling, cn, this.currentApp, this.currentInfrastructure);
+        double w = currTask.getRuntimeOnNode(cn, currentInfrastructure);
+        double time = est + w;
+
         if (time < tMin && isValid(scheduling, currTask, cn)) {
           tMin = time;
           target = cn;

@@ -17,17 +17,11 @@ public class CPOPBattery extends BaseCPOP {
   }
 
   @Override
-  protected ComputationalNode findTarget(MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
+  protected ComputationalNode findTarget(
+      MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
-    if (!currTask.isOffloadable()) {
-      if (isValid(
-          scheduling,
-          currTask,
-          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-        target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-      }
-    } else if (cpList.contains(mappings.get(currTask))) {
+    if (cpList.contains(mappings.get(currTask))) {
       if (isValid(scheduling, currTask, bestNode)) {
         target = bestNode;
       }
@@ -47,16 +41,12 @@ public class CPOPBattery extends BaseCPOP {
           target = cn;
         }
       }
+
+      ComputationalNode userNode =
+          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
       double mobileEnergy =
-          ((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))
-                  .getCPUEnergyModel()
-                  .computeCPUEnergy(
-                      currTask,
-                      (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()),
-                      currentInfrastructure)
-              * currTask.getLocalRuntimeOnNode(
-                  (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()),
-                  currentInfrastructure);
+          userNode.getCPUEnergyModel().computeCPUEnergy(currTask, userNode, currentInfrastructure)
+              * currTask.getLocalRuntimeOnNode(userNode, currentInfrastructure);
 
       if (mobileEnergy < minEnergy
           && isValid(

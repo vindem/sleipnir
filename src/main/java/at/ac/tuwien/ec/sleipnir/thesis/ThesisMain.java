@@ -13,6 +13,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPRuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLABattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLARuntime;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 1;
+    double rounds = 10;
 
     int run = 3;
 
@@ -50,12 +51,20 @@ public class ThesisMain {
             case 3:
               scheduler = new KDLARuntime(sample);
               break;
+            case 4:
+              scheduler = new KDLABattery(sample);
+              break;
           }
           offloads = (ArrayList<OffloadScheduling>) scheduler.findScheduling();
         }
 
-        if (offloads != null)
+        if (offloads != null) {
           for (OffloadScheduling os : offloads) {
+            os.forEach(
+                (key, value) -> {
+                  System.out.println(key.getId() + "->" + value.getId());
+                });
+
             System.out.println(
                 "[i] = "
                     + i
@@ -64,22 +73,30 @@ public class ThesisMain {
                     + ", "
                     + os.getBatteryLifetime()
                     + " [ "
-                    + os.getExecutionTime()
+                    + os.getExecutionTime() / Math.pow(10, 9)
                     + "]");
             avgRunTime += os.getRunTime();
             avgBatteryConsumption += os.getBatteryLifetime();
             avgExecutionTime += os.getExecutionTime();
           }
+        }
       }
     }
 
+    double avg_seconds = (avgExecutionTime / rounds) / Math.pow(10, 9);
+    double sum_seconds = (avgExecutionTime) / Math.pow(10, 9);
+
+    System.out.println();
+    System.out.println("================= FINISHED ================= ");
     System.out.println(
         "Result: "
             + avgRunTime / rounds
             + ", "
             + avgBatteryConsumption / rounds
             + " ["
-            + avgExecutionTime / rounds
+            + avg_seconds
+            + ", "
+            + sum_seconds
             + "]");
   }
 

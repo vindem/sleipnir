@@ -2,7 +2,6 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis;
 
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
@@ -13,8 +12,10 @@ import java.util.stream.Collectors;
 public abstract class ThesisOffloadScheduler extends OffloadScheduler {
 
   @Override
-  public ArrayList<? extends Scheduling> findScheduling() {
+  public ArrayList<OffloadScheduling> findScheduling() {
     double start = System.nanoTime();
+
+    prepareAlgorithm();
 
     OffloadScheduling scheduling = new OffloadScheduling();
     PriorityQueue<MobileSoftwareComponent> scheduledNodes =
@@ -51,13 +52,25 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
       }
 
       while ((currTask = readyTasks.poll()) != null) {
-        ComputationalNode target = findTarget(currTask, scheduling);
+
+        ComputationalNode target = null;
+
+        if (!currTask.isOffloadable()) {
+          if (isValid(
+              scheduling,
+              currTask,
+              (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
+            target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+          }
+        } else {
+          target = findTarget(currTask, scheduling);
+        }
 
         if (target == null) {
           break;
         }
 
-        System.out.println(currTask.getId() + "->" + target.getId());
+        // System.out.println(currTask.getId() + "->" + target.getId());
         deploy(currentRuntime, scheduling, currTask, target);
         scheduledNodes.add(currTask);
       }
@@ -81,11 +94,17 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     return compatible && offloadPossible;
   }
 
-  protected synchronized void deploy(double currentRuntime, OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
+  protected synchronized void deploy(
+      double currentRuntime,
+      OffloadScheduling deployment,
+      MobileSoftwareComponent s,
+      ComputationalNode n) {
     super.deploy(deployment, s, n);
     s.setStartTime(currentRuntime);
   }
 
   protected abstract ComputationalNode findTarget(
       MobileSoftwareComponent currTask, OffloadScheduling scheduling);
+
+  protected abstract void prepareAlgorithm();
 }
