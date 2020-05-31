@@ -4,8 +4,11 @@ import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.pricing.PricingModel;
+import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class ComputationalNode extends NetworkedNode implements Serializable {
 
@@ -32,7 +35,7 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
   protected CPUEnergyModel cpuEnergyModel;
   protected PricingModel priceModel;
   protected double bandwidth, latency;
-  protected SoftwareComponent deployedComponent = null;
+  protected Set<MobileSoftwareComponent> deployedComponents = new HashSet<>();
 
   public ComputationalNode(String id, HardwareCapabilities capabilities) {
     super(id, capabilities);
@@ -65,13 +68,21 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
   }
 
   public boolean deploy(SoftwareComponent sc) {
-    deployedComponent = sc;
     return capabilities.deploy(sc);
   }
 
   public void undeploy(SoftwareComponent sc) {
-    deployedComponent = null;
     capabilities.undeploy(sc);
+  }
+
+  public boolean deploy(MobileSoftwareComponent msc) {
+    this.deployedComponents.add(msc);
+    return capabilities.deploy(msc);
+  }
+
+  public void undeploy(MobileSoftwareComponent msc) {
+    this.deployedComponents.remove(msc);
+    capabilities.undeploy(msc);
   }
 
   public abstract void sampleNode();
@@ -100,11 +111,7 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
     capabilities.deploy(vm);
   }
 
-  public SoftwareComponent getDeployedComponent() {
-    return deployedComponent;
-  }
-
-  public void setDeployedComponent(SoftwareComponent deployedComponent) {
-    this.deployedComponent = deployedComponent;
+  public Set<MobileSoftwareComponent> getDeployedComponents() {
+    return deployedComponents;
   }
 }
