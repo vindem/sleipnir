@@ -23,7 +23,6 @@ public class KDLARuntime extends BaseKDLA {
     super(t);
   }
 
-  // TODO: Chooses sometimes the cloud
   @Override
   protected ComputationalNode findTarget(
       MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
@@ -60,7 +59,7 @@ public class KDLARuntime extends BaseKDLA {
   protected double calcEbl(MobileSoftwareComponent msc, ComputationalNode node, int k) {
     double w_computation_cost = msc.getRuntimeOnNode(node, this.currentInfrastructure);
     double c_avg_communication_cost =
-        CalcUtils.calcAverageCommunicationCost(msc, node, this.currentInfrastructure);
+        CalcUtils.calcAverageCommunicationCost(msc, this.currentInfrastructure);
 
     ArrayList<ComponentLink> task_successors = this.currentApp.getOutgoingEdgesFrom(msc);
     Set<NetworkConnection> node_neighbours = this.currentInfrastructure.getOutgoingLinksFrom(node);

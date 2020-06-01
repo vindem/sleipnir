@@ -18,8 +18,8 @@ public class SimulationSetup {
 	}
 	
 	
-	public static int MAP_M = 6;
-	public static int MAP_N = 6;
+	public static int MAP_M = 2;
+	public static int MAP_N = 2;
 	public static int cloudMaxHops = 10;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 256;

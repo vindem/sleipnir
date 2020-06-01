@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -9,13 +9,14 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import scala.Tuple2;
 
-public abstract class BaseKDLA extends ThesisOffloadScheduler {
-  public BaseKDLA(MobileApplication A, MobileCloudInfrastructure I) {
+public abstract class BaseHEFT extends ThesisOffloadScheduler {
+  public BaseHEFT(MobileApplication A, MobileCloudInfrastructure I) {
+    super();
     setMobileApplication(A);
     setInfrastructure(I);
   }
 
-  public BaseKDLA(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
+  public BaseHEFT(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
     this(t._1(), t._2());
   }
 
@@ -26,11 +27,11 @@ public abstract class BaseKDLA extends ThesisOffloadScheduler {
     }
 
     for (MobileSoftwareComponent msc : currentApp.getTaskDependencies().vertexSet()) {
-      bLevel(msc, currentApp.getTaskDependencies(), currentInfrastructure);
+      upRank(msc, currentApp.getTaskDependencies(), currentInfrastructure);
     }
   }
 
-  private double bLevel(
+  private double upRank(
       MobileSoftwareComponent msc,
       DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> dag,
       MobileCloudInfrastructure I) {
@@ -47,9 +48,9 @@ public abstract class BaseKDLA extends ThesisOffloadScheduler {
           MobileSoftwareComponent n_succ = neigh.getTarget();
           double c_communication_cost =
               CalcUtils.calcAverageCommunicationCost(n_succ, I);
-          double b_level = bLevel(n_succ, dag, I);
+          double n_rank_up = upRank(n_succ, dag, I);
 
-          maxSRank = Math.max(b_level + c_communication_cost, maxSRank);
+          maxSRank = Math.max(n_rank_up + c_communication_cost, maxSRank);
         }
 
         msc.setRank(w_computational_cost + maxSRank);

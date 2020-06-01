@@ -65,7 +65,7 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
             });
 
     /*
-    CPOPSoftwareComponentProxy first = this.mappings.get(currentApp.readyTasks().get(0));
+    CPOPSoftwareComponentAdapter first = this.mappings.get(currentApp.readyTasks().get(0));
     System.out.println(first.getMsc().getId());
     mappings
         .values()
@@ -74,13 +74,17 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
               System.out.println(
                   mscp.getMsc().getId()
                       + ":"
+                      + mscp.getRankUp()
+                      + " + "
+                      + mscp.getRankDown()
+                      + " = "
                       + mscp.getPriority()
                       + "[DIFFERENCE: "
                       + (first.getPriority() - mscp.getPriority())
                       + " ]");
             });
+    */
 
-     */
 
     cpList = getCriticalPath();
     bestNode = getBestNode(cpList);
@@ -116,6 +120,20 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
       }
     }
 
+    ComputationalNode userNode = (ComputationalNode) currentInfrastructure.getNodeById(cpList.get(0).getMsc().getUserId());
+    double result =
+        cpList.stream()
+            .reduce(
+                0.0,
+                (time, mscp) -> {
+                  return time + mscp.getMsc().getRuntimeOnNode(userNode, currentInfrastructure);
+                },
+                Double::sum);
+
+    if (result < bestTime) {
+      bestNode = userNode;
+    }
+
     return bestNode;
   }
 
@@ -135,7 +153,7 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
         for (ComponentLink neigh : dag.outgoingEdgesOf(msc)) {
           MobileSoftwareComponent n_succ = neigh.getTarget();
           double c_communication_cost =
-              CalcUtils.calcAverageCommunicationCost(n_succ, I.getNodeById(msc.getUserId()), I);
+              CalcUtils.calcAverageCommunicationCost(n_succ, I);
           double n_rank_up = upRank(n_succ, dag, I);
 
           maxSRank = Math.max(n_rank_up + c_communication_cost, maxSRank);
@@ -164,7 +182,7 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
 
           double w_computational_cost = CalcUtils.calcAverageComputationalCost(n_pred, I);
           double c_communication_cost =
-              CalcUtils.calcAverageCommunicationCost(msc, I.getNodeById(n_pred.getUserId()), I);
+              CalcUtils.calcAverageCommunicationCost(msc, I);
           double n_rank_down = downRank(n_pred, dag, I);
 
           maxSRank = Math.max(n_rank_down + w_computational_cost + c_communication_cost, maxSRank);

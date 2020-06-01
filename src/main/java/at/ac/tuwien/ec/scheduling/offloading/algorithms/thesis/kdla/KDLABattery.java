@@ -76,7 +76,7 @@ public class KDLABattery extends BaseKDLA {
     }
 
     double c_avg_communication_cost =
-        CalcUtils.calcAverageCommunicationCost(currTask, node, this.currentInfrastructure);
+        CalcUtils.calcAverageCommunicationCost(currTask, this.currentInfrastructure);
 
     ArrayList<ComponentLink> task_successors = this.currentApp.getOutgoingEdgesFrom(currTask);
     Set<NetworkConnection> node_neighbours = this.currentInfrastructure.getOutgoingLinksFrom(node);

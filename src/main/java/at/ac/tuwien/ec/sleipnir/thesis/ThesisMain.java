@@ -13,6 +13,8 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.cpop.CPOPRuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTBattery;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLABattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLARuntime;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -25,9 +27,9 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 10;
+    double rounds = 100;
 
-    int run = 3;
+    int run = 4;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -35,23 +37,29 @@ public class ThesisMain {
 
       for (Tuple2<MobileApplication, MobileCloudInfrastructure> sample : inputSamples) {
         ArrayList<OffloadScheduling> offloads = null;
-        if (run == 0) {
+        if (run == -1) {
           offloads = new HEFTResearch(sample).findScheduling();
 
         } else {
           ThesisOffloadScheduler scheduler = null;
 
           switch (run) {
+            case 0:
+              scheduler = new ThesisHEFTRuntime(sample);
+              break;
             case 1:
-              scheduler = new CPOPRuntime(sample);
+              scheduler = new ThesisHEFTBattery(sample);
               break;
             case 2:
-              scheduler = new CPOPBattery(sample);
+              scheduler = new CPOPRuntime(sample);
               break;
             case 3:
-              scheduler = new KDLARuntime(sample);
+              scheduler = new CPOPBattery(sample);
               break;
             case 4:
+              scheduler = new KDLARuntime(sample);
+              break;
+            case 5:
               scheduler = new KDLABattery(sample);
               break;
           }
@@ -62,7 +70,7 @@ public class ThesisMain {
           for (OffloadScheduling os : offloads) {
             os.forEach(
                 (key, value) -> {
-                  System.out.println(key.getId() + "->" + value.getId());
+                  // System.out.println(key.getId() + "->" + value.getId());
                 });
 
             System.out.println(

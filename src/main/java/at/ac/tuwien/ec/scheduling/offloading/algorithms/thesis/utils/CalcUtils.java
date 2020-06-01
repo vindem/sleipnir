@@ -2,7 +2,6 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
@@ -49,12 +48,12 @@ public class CalcUtils {
   }
 
   public static double calcAverageCommunicationCost(
-      MobileSoftwareComponent msc, NetworkedNode from, MobileCloudInfrastructure I) {
+      MobileSoftwareComponent msc, MobileCloudInfrastructure I) {
     if (msc.isOffloadable()) {
       double c_communication_cost = 0;
       for (ComputationalNode cn : I.getAllNodes()) {
-        double time = I.getTransmissionTime(msc, from, cn);
-        if (time != Double.MAX_VALUE) {
+        double time = I.getTransmissionTime(msc, I.getNodeById(msc.getUserId()), cn);
+        if (time != Double.MAX_VALUE && time != Double.POSITIVE_INFINITY) {
           c_communication_cost += time;
         }
       }
