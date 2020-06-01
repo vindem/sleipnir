@@ -42,6 +42,9 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
               .filter(MobileSoftwareComponent::isOffloadable)
               .toArray(MobileSoftwareComponent[]::new);
       HashMap<ComputationalNode, List<Integer>> assignments = new HashMap<>();
+      allNodes.forEach(cn -> {
+        assignments.putIfAbsent(cn, new ArrayList<>());
+      });
 
       double[][] assignmentValues = new double[tasks.length][allNodes.size()];
       boolean[] taskAssigned = new boolean[tasks.length];
@@ -58,8 +61,6 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
         int nodeIndex = findMinNode(assignmentValues[taskIndex]);
 
         ComputationalNode cn = allNodes.get(nodeIndex);
-
-        assignments.putIfAbsent(cn, new ArrayList<>());
         assignments.get(cn).add(taskIndex);
 
         double newAssignmentValue = calcNewAssignmentValue(cn, assignments, tasks);
@@ -86,8 +87,8 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
             int nodeIndex = findMaxNode(assignmentValues[minMscIndex]);
 
             if (assignmentValues[minMscIndex][nodeIndex] < makespan) {
-              values.remove(minMscIndex);
-              assignments.get(allNodes.get(nodeIndex)).add(nodeIndex);
+              values.remove(Integer.valueOf(minMscIndex));
+              assignments.get(allNodes.get(nodeIndex)).add(minMscIndex);
               break;
             } else {
               invalid.add(minMscIndex);
@@ -104,6 +105,7 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
             ComputationalNode cn = entry.getKey();
 
             if (isValid(scheduling, msc, cn)) {
+              // System.out.println(cn.getId() + "->" + msc.getId());
               deploy(currentRuntime, scheduling, msc, entry.getKey());
               scheduledNodes.add(tasks[index]);
             }
@@ -114,10 +116,10 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
   }
 
   protected abstract double calcAssignmentValue(
-      OffloadScheduling scheduling, MobileSoftwareComponent msc, ComputationalNode node);
+      OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn);
 
   protected abstract double calcNewAssignmentValue(
-      ComputationalNode node,
+      ComputationalNode cn,
       HashMap<ComputationalNode, List<Integer>> assignments,
       MobileSoftwareComponent[] tasks);
 

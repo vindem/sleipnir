@@ -20,16 +20,16 @@ public class MMOLBRuntime extends BaseMMOLB {
   }
 
   @Override
-  protected double calcAssignmentValue(OffloadScheduling scheduling, MobileSoftwareComponent msc, ComputationalNode node) {
-    return CalcUtils.calcEFT(msc, scheduling, node, this.currentApp, this.currentInfrastructure);
+  protected double calcAssignmentValue(OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn) {
+    return CalcUtils.calcEFT(currTask, scheduling, cn, this.currentApp, this.currentInfrastructure);
   }
 
   @Override
   protected double calcNewAssignmentValue(
-      ComputationalNode node,
+      ComputationalNode cn,
       HashMap<ComputationalNode, List<Integer>> assignments,
       MobileSoftwareComponent[] tasks) {
-    return assignments.get(node).stream()
+    return assignments.get(cn).stream()
         .reduce(0.0, (time, index) -> time + tasks[index].getRunTime(), Double::sum);
   }
 }

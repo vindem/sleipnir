@@ -17,6 +17,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTBa
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLABattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLARuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.mmolb.MMOLBBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.mmolb.MMOLBRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTRuntime;
@@ -74,6 +75,9 @@ public class ThesisMain {
             case 8:
               scheduler = new MMOLBRuntime(sample);
               break;
+            case 9:
+              scheduler = new MMOLBBattery(sample);
+              break;
           }
           offloads = (ArrayList<OffloadScheduling>) scheduler.findScheduling();
         }
@@ -82,7 +86,7 @@ public class ThesisMain {
           for (OffloadScheduling os : offloads) {
             os.forEach(
                 (key, value) -> {
-                  System.out.println(key.getId() + "->" + value.getId());
+                  // System.out.println(key.getId() + "->" + value.getId());
                 });
 
             System.out.println(
