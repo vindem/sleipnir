@@ -8,6 +8,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRank
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public abstract class ThesisOffloadScheduler extends OffloadScheduler {
 
@@ -36,7 +37,6 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
         totalFinishedTasks++;
       }
 
-      MobileSoftwareComponent currTask;
       PriorityQueue<MobileSoftwareComponent> readyTasks =
           new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator()) {
             {
@@ -51,29 +51,7 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
         continue;
       }
 
-      while ((currTask = readyTasks.poll()) != null) {
-
-        ComputationalNode target = null;
-
-        if (!currTask.isOffloadable()) {
-          if (isValid(
-              scheduling,
-              currTask,
-              (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-            target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-          }
-        } else {
-          target = findTarget(currTask, scheduling);
-        }
-
-        if (target == null) {
-          break;
-        }
-
-        // System.out.println(currTask.getId() + "->" + target.getId());
-        deploy(currentRuntime, scheduling, currTask, target);
-        scheduledNodes.add(currTask);
-      }
+      processReadyTasks(currentRuntime, readyTasks, scheduling, scheduledNodes);
     }
 
     double end = System.nanoTime();
@@ -81,6 +59,37 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     ArrayList<OffloadScheduling> result = new ArrayList<>();
     result.add(scheduling);
     return result;
+  }
+
+  protected void processReadyTasks(
+      double currentRuntime,
+      PriorityQueue<MobileSoftwareComponent> readyTasks,
+      OffloadScheduling scheduling,
+      PriorityQueue<MobileSoftwareComponent> scheduledNodes) {
+    MobileSoftwareComponent currTask;
+
+    while ((currTask = readyTasks.poll()) != null) {
+      ComputationalNode target = null;
+
+      if (!currTask.isOffloadable()) {
+        if (isValid(
+            scheduling,
+            currTask,
+            (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
+          target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+        }
+      } else {
+        target = findTarget(currTask, scheduling);
+      }
+
+      if (target == null) {
+        break;
+      }
+
+      // System.out.println(currTask.getId() + "->" + target.getId());
+      deploy(currentRuntime, scheduling, currTask, target);
+      scheduledNodes.add(currTask);
+    }
   }
 
   // TODO: What should happen if the device has no battery anymore?
@@ -103,8 +112,10 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     s.setStartTime(currentRuntime);
   }
 
-  protected abstract ComputationalNode findTarget(
-      MobileSoftwareComponent currTask, OffloadScheduling scheduling);
+  protected ComputationalNode findTarget(
+      MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
+    throw new NotImplementedException();
+  };
 
   protected abstract void prepareAlgorithm();
 }

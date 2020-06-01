@@ -16,8 +16,8 @@ public class SimulationSetup {
 	public static void readFromFile(String url){
 		
 	}
-	
-	
+
+	public static int cloudNum = 2;
 	public static int MAP_M = 2;
 	public static int MAP_N = 2;
 	public static int cloudMaxHops = 10;
@@ -62,7 +62,6 @@ public class SimulationSetup {
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 10;
-	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
 	public static double EchoBeta;

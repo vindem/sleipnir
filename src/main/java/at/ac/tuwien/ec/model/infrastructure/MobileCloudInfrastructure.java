@@ -7,17 +7,14 @@ package at.ac.tuwien.ec.model.infrastructure;
 
 
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.math.RandomUtils;
-
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.QoSProfile;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.*;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.costs.ElectricityPriceTrace;
 import at.ac.tuwien.ec.model.infrastructure.costs.PriceMap;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
@@ -25,7 +22,11 @@ import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.model.software.SoftwareComponent;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import org.apache.commons.lang.math.RandomUtils;
 import scala.Tuple2;
 /**
  *
@@ -230,6 +231,16 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	{
 		ArrayList<ComputationalNode> allNodes = new ArrayList<ComputationalNode>();
 		//allNodes.addAll(mobileDevices.values());
+		allNodes.addAll(edgeNodes.values());
+		allNodes.addAll(cloudNodes.values());
+		return allNodes;
+	}
+
+
+	public ArrayList<ComputationalNode> getAllNodesWithMobile()
+	{
+		ArrayList<ComputationalNode> allNodes = new ArrayList<ComputationalNode>();
+		allNodes.addAll(mobileDevices.values());
 		allNodes.addAll(edgeNodes.values());
 		allNodes.addAll(cloudNodes.values());
 		return allNodes;

@@ -17,6 +17,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTBa
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLABattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLARuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.mmolb.MMOLBRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTRuntime;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -29,9 +30,9 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 10;
+    double rounds = 100;
 
-    int run = 4;
+    int run = 8;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -70,6 +71,9 @@ public class ThesisMain {
             case 7:
               scheduler = new ThesisPEFTBattery(sample);
               break;
+            case 8:
+              scheduler = new MMOLBRuntime(sample);
+              break;
           }
           offloads = (ArrayList<OffloadScheduling>) scheduler.findScheduling();
         }
@@ -78,7 +82,7 @@ public class ThesisMain {
           for (OffloadScheduling os : offloads) {
             os.forEach(
                 (key, value) -> {
-                  // System.out.println(key.getId() + "->" + value.getId());
+                  System.out.println(key.getId() + "->" + value.getId());
                 });
 
             System.out.println(
