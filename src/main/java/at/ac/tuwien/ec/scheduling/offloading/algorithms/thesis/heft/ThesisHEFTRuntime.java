@@ -8,7 +8,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
 import scala.Tuple2;
 
-public class ThesisHEFTRuntime extends BaseHEFT {
+public class ThesisHEFTRuntime extends BaseThesisHEFT {
   public ThesisHEFTRuntime(MobileApplication A, MobileCloudInfrastructure I) {
     super(A, I);
   }
@@ -25,23 +25,18 @@ public class ThesisHEFTRuntime extends BaseHEFT {
     double tMin = Double.MAX_VALUE;
 
     for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
-      double est =
-          CalcUtils.calcEST(currTask, scheduling, cn, this.currentApp, this.currentInfrastructure);
-      double w = currTask.getRuntimeOnNode(cn, currentInfrastructure);
-      double time = est + w;
-
-      if (time < tMin && isValid(scheduling, currTask, cn)) {
-        tMin = time;
+      double eft = CalcUtils.calcEFT(currTask, scheduling, cn, currentApp, currentInfrastructure);
+      if (eft < tMin && isValid(scheduling, currTask, cn)) {
+        tMin = eft;
         target = cn;
       }
     }
 
     ComputationalNode userNode =
         (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-    double est =
-        CalcUtils.calcEST(
-            currTask, scheduling, userNode, this.currentApp, this.currentInfrastructure);
-    if (est + currTask.getRuntimeOnNode(userNode, currentInfrastructure) < tMin
+    double eft = CalcUtils.calcEFT(currTask, scheduling, userNode, currentApp, currentInfrastructure);
+
+    if (eft < tMin
         && isValid(scheduling, currTask, userNode)) {
       target = userNode;
     }

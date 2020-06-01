@@ -9,14 +9,14 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import scala.Tuple2;
 
-public abstract class BaseHEFT extends ThesisOffloadScheduler {
-  public BaseHEFT(MobileApplication A, MobileCloudInfrastructure I) {
+public abstract class BaseThesisHEFT extends ThesisOffloadScheduler {
+  public BaseThesisHEFT(MobileApplication A, MobileCloudInfrastructure I) {
     super();
     setMobileApplication(A);
     setInfrastructure(I);
   }
 
-  public BaseHEFT(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
+  public BaseThesisHEFT(Tuple2<MobileApplication, MobileCloudInfrastructure> t) {
     this(t._1(), t._2());
   }
 

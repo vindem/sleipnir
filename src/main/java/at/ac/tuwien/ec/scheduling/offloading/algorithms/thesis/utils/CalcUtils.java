@@ -33,6 +33,18 @@ public class CalcUtils {
     return Math.max(avail, readyTime);
   }
 
+  public static double calcEFT(
+      MobileSoftwareComponent currTask,
+      OffloadScheduling scheduling,
+      ComputationalNode cn,
+      MobileApplication currentApp,
+      MobileCloudInfrastructure currentInfrastructure) {
+    double est =
+        CalcUtils.calcEST(currTask, scheduling, cn, currentApp, currentInfrastructure);
+    double w = currTask.getRuntimeOnNode(cn, currentInfrastructure);
+    return est + w;
+  }
+
   public static double calcAverageComputationalCost(
       MobileSoftwareComponent msc, MobileCloudInfrastructure I) {
     double w_computational_cost = 0;

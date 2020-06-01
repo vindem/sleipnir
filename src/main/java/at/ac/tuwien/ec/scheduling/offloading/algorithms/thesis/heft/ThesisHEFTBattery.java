@@ -7,7 +7,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import scala.Tuple2;
 
-public class ThesisHEFTBattery extends BaseHEFT {
+public class ThesisHEFTBattery extends BaseThesisHEFT {
   public ThesisHEFTBattery(MobileApplication A, MobileCloudInfrastructure I) {
     super(A, I);
   }

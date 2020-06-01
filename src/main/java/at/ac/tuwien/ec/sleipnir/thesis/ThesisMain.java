@@ -17,6 +17,8 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTBa
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.heft.ThesisHEFTRuntime;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLABattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.kdla.KDLARuntime;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTBattery;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.peft.ThesisPEFTRuntime;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import java.util.ArrayList;
 import scala.Tuple2;
@@ -27,7 +29,7 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 100;
+    double rounds = 10;
 
     int run = 4;
 
@@ -61,6 +63,12 @@ public class ThesisMain {
               break;
             case 5:
               scheduler = new KDLABattery(sample);
+              break;
+            case 6:
+              scheduler = new ThesisPEFTRuntime(sample);
+              break;
+            case 7:
+              scheduler = new ThesisPEFTBattery(sample);
               break;
           }
           offloads = (ArrayList<OffloadScheduling>) scheduler.findScheduling();
