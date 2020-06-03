@@ -99,6 +99,7 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     if (s.getMillionsOfInstruction() == 0) return true;
     boolean compatible = n.isCompatible(s);
     boolean offloadPossible = isOffloadPossibleOn(s, n);
+    boolean linksOk = checkLinks(deployment,s,n);
     // check links
     return compatible && offloadPossible;
   }

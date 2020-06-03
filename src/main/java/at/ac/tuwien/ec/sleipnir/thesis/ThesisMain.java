@@ -33,7 +33,7 @@ public class ThesisMain {
     double avgExecutionTime = 0;
     double rounds = 50;
 
-    int run = 7;
+    int run = 9;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -69,21 +69,23 @@ public class ThesisMain {
               scheduler = new KDLARuntime(sample);
               break;
             case 5:
-              // Antivirus: [30, 3, 50] Result: Result: 118.66876947882606, -0.2740613952782846 [0.02016472194, 1.008236097]
+              // Antivirus: [30, 3, 50] Result: 118.66876947882606, -0.2740613952782846 [0.02016472194, 1.008236097]
               scheduler = new KDLABattery(sample);
               break;
             case 6:
-              // Antivirus: [30, 3, 50] Result: Result: 110.49546372302359, -0.2892570308976229 [0.19670902463999998, 9.835451232]
+              // Antivirus: [30, 3, 50] Result: 110.49546372302359, -0.2892570308976229 [0.19670902463999998, 9.835451232]
               scheduler = new ThesisPEFTRuntime(sample);
               break;
             case 7:
-              // Antivirus: [30, 3, 50] Result: Result: 130.6004071315862, -0.040505432764712204 [0.18871299186, 9.435649593]
+              // Antivirus: [30, 3, 50] Result: 130.6004071315862, -0.040505432764712204 [0.18871299186, 9.435649593]
               scheduler = new ThesisPEFTBattery(sample);
               break;
             case 8:
+              // Antivirus: [30, 3, 50] Result: 117.02049784576202, -0.2622242803168731 [0.03553655644, 1.776827822]
               scheduler = new MMOLBRuntime(sample);
               break;
             case 9:
+              // Antivirus: [30, 3, 50] Result: 111.68444997632697, -0.037664061954772794 [0.042572114960000004, 2.128605748]
               scheduler = new MMOLBBattery(sample);
               break;
           }
