@@ -72,11 +72,12 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
       ComputationalNode target = null;
 
       if (!currTask.isOffloadable()) {
+        ComputationalNode userNode = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
         if (isValid(
             scheduling,
             currTask,
-            (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-          target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+            userNode)) {
+          target = userNode;
         }
       } else {
         target = findTarget(currTask, scheduling);

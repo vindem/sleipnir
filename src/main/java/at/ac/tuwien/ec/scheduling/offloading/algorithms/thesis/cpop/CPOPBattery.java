@@ -21,42 +21,83 @@ public class CPOPBattery extends BaseCPOP {
       MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
-    if (cpList.contains(mappings.get(currTask))) {
-      if (isValid(scheduling, currTask, bestNode)) {
-        target = bestNode;
+    if (criticalPath.get(currTask.getUserId()).contains(currTask)) {
+      ComputationalNode node = bestNode.get(currTask.getUserId());
+      if (isValid(scheduling, currTask, node)) {
+        target = node;
       }
     } else {
       double minEnergy = Double.MAX_VALUE;
 
-      for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
-        double offloadEnergy =
-            currentInfrastructure
-                    .getNodeById(currTask.getUserId())
-                    .getNetEnergyModel()
-                    .computeNETEnergy(currTask, cn, currentInfrastructure)
-                * currentInfrastructure.getTransmissionTime(
-                    currTask, currentInfrastructure.getNodeById(currTask.getUserId()), cn);
-        if (offloadEnergy < minEnergy && isValid(scheduling, currTask, cn)) {
-          minEnergy = offloadEnergy;
-          target = cn;
+      for (ComputationalNode cn :
+          currentInfrastructure.getAllNodesWithMobile(currTask.getUserId())) {
+        if (isValid(scheduling, currTask, cn)) {
+          double energy;
+          if (currentInfrastructure.getMobileDevices().containsValue(cn)) {
+            energy =
+                cn.getCPUEnergyModel().computeCPUEnergy(currTask, cn, currentInfrastructure)
+                    * currTask.getLocalRuntimeOnNode(cn, currentInfrastructure);
+          } else {
+            energy =
+                currentInfrastructure
+                        .getNodeById(currTask.getUserId())
+                        .getNetEnergyModel()
+                        .computeNETEnergy(currTask, cn, currentInfrastructure)
+                    * currentInfrastructure.getTransmissionTime(
+                        currTask, currentInfrastructure.getNodeById(currTask.getUserId()), cn);
+          }
+
+          if (energy < minEnergy) {
+            minEnergy = energy;
+            target = cn;
+          }
         }
-      }
-
-      ComputationalNode userNode =
-          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-      double mobileEnergy =
-          userNode.getCPUEnergyModel().computeCPUEnergy(currTask, userNode, currentInfrastructure)
-              * currTask.getLocalRuntimeOnNode(userNode, currentInfrastructure);
-
-      if (mobileEnergy < minEnergy
-          && isValid(
-              scheduling,
-              currTask,
-              (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()))) {
-        target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
       }
     }
 
     return target;
+  }
+
+  @Override
+  protected void initBestNodes() {
+    this.criticalPath.forEach(
+        (userId, value) -> {
+          double bestEnergy = Double.MAX_VALUE;
+          ComputationalNode node = null;
+
+          for (ComputationalNode cn : currentInfrastructure.getAllNodesWithMobile(userId)) {
+            double result =
+                value.stream()
+                    .reduce(
+                        0.0,
+                        (acc, currTask) -> {
+                          double energy;
+
+                          if (currentInfrastructure.getMobileDevices().containsValue(cn)) {
+                            energy =
+                                cn.getCPUEnergyModel().computeCPUEnergy(currTask, cn, currentInfrastructure)
+                                    * currTask.getLocalRuntimeOnNode(cn, currentInfrastructure);
+                          } else {
+                            energy =
+                                currentInfrastructure
+                                    .getNodeById(currTask.getUserId())
+                                    .getNetEnergyModel()
+                                    .computeNETEnergy(currTask, cn, currentInfrastructure)
+                                    * currentInfrastructure.getTransmissionTime(
+                                    currTask, currentInfrastructure.getNodeById(currTask.getUserId()), cn);
+                          }
+
+                          return acc + energy;
+                        },
+                        Double::sum);
+
+            if (result < bestEnergy) {
+              bestEnergy = result;
+              node = cn;
+            }
+          }
+
+          this.bestNode.put(userId, node);
+        });
   }
 }

@@ -31,9 +31,9 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 20;
+    double rounds = 50;
 
-    int run = 2;
+    int run = 3;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -49,15 +49,19 @@ public class ThesisMain {
 
           switch (run) {
             case 0:
+              // Antivirus: [30, 3, 50] Result: 112.30046161969106, -0.3639259062451909 [0.010911062400000001, 0.54555312]
               scheduler = new ThesisHEFTRuntime(sample);
               break;
             case 1:
+              // Antivirus: [30, 3, 50] Result: 130.5995580561844, -0.04047668415438508 [0.01040796244, 0.520398122]
               scheduler = new ThesisHEFTBattery(sample);
               break;
             case 2:
+              // Antivirus: [30, 3, 50] Result: 92.58141291822493, -0.059909283210564934 [0.01415890922, 0.707945461]
               scheduler = new CPOPRuntime(sample);
               break;
             case 3:
+              // Antivirus: [30, 3, 50] Result: 91.33109640427773, -0.03352931623919683 [0.01483446902, 0.741723451]
               scheduler = new CPOPBattery(sample);
               break;
             case 4:

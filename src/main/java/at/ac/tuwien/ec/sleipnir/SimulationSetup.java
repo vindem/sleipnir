@@ -66,7 +66,7 @@ public class SimulationSetup {
 	public static double EchoAlpha;
 	public static double EchoBeta;
 	public static double Eta = 1.0;
-	public static int appNumber = 3;
+	public static int appNumber = 30;
 	
 	public static String[] topics = {"temperature", "moisture", "wind"};
 	public static int iotDevicesNum = 36;
@@ -84,7 +84,7 @@ public class SimulationSetup {
 	public static double x_max = 3119;
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
-	public static String mobileApplication = "CHESS";
+	public static String mobileApplication = "ANTIVIRUS";
 	public static String edgePlanningAlgorithm = "ares";
 	public static String electricityTraceFile;
 	public static String outfile = "../output/";

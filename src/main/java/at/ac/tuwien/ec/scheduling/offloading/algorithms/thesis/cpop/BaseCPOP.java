@@ -7,18 +7,19 @@ import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import scala.Tuple2;
 
 public abstract class BaseCPOP extends ThesisOffloadScheduler {
   protected final Map<MobileSoftwareComponent, CPOPSoftwareComponentAdapter> mappings =
       new HashMap<>();
-  protected List<CPOPSoftwareComponentAdapter> cpList;
-  protected ComputationalNode bestNode;
+  protected final Map<String, List<MobileSoftwareComponent>> criticalPath = new HashMap<>();
+  protected final Map<String, ComputationalNode> bestNode = new HashMap<>();
 
   public BaseCPOP(MobileApplication A, MobileCloudInfrastructure I) {
     super();
@@ -38,7 +39,8 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
         .forEach(
             mobileSoftwareComponent -> {
               mappings.put(
-                  mobileSoftwareComponent, new CPOPSoftwareComponentAdapter(mobileSoftwareComponent));
+                  mobileSoftwareComponent,
+                  new CPOPSoftwareComponentAdapter(mobileSoftwareComponent));
             });
 
     for (MobileSoftwareComponent msc : currentApp.getTaskDependencies().vertexSet()) {
@@ -85,57 +87,51 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
             });
     */
 
-
-    cpList = getCriticalPath();
-    bestNode = getBestNode(cpList);
+    initCriticalPaths();
+    initBestNodes();
   }
 
-  private List<CPOPSoftwareComponentAdapter> getCriticalPath() {
-    CPOPSoftwareComponentAdapter entryNode = this.mappings.get(currentApp.readyTasks().get(0));
+  private void initCriticalPaths() {
+    currentApp
+        .readyTasks()
+        .forEach(
+            msc -> {
+              String userId = msc.getUserId();
+              CPOPSoftwareComponentAdapter entryTask = this.mappings.get(msc);
 
-    return this.mappings.values().stream()
-        .filter(
-            mscp -> {
-              return Math.abs(entryNode.getPriority() - mscp.getPriority()) < Math.pow(0.1, 10);
-            })
-        .collect(Collectors.toList());
+              if (!criticalPath.containsKey(userId)
+                  || this.mappings.get(this.criticalPath.get(userId).get(0)).getPriority()
+                      < entryTask.getPriority()) {
+                List<MobileSoftwareComponent> path = new ArrayList<>();
+
+                CPOPSoftwareComponentAdapter currentTask = entryTask;
+                while (currentTask != null) {
+                  Optional<ComponentLink> nextLink =
+                      this.currentApp.getOutgoingEdgesFrom(currentTask.getMsc()).stream()
+                          .filter(
+                              next -> {
+                                return Math.abs(
+                                        entryTask.getPriority()
+                                            - this.mappings.get(next.getTarget()).getPriority())
+                                    < Math.pow(0.1, 10);
+                              })
+                          .findFirst();
+
+                  if (nextLink.isPresent()) {
+                    MobileSoftwareComponent node = nextLink.get().getTarget();
+                    path.add(node);
+                    currentTask = this.mappings.get(node);
+                  } else {
+                    break;
+                  }
+                }
+
+                criticalPath.put(userId, path);
+              }
+            });
   }
 
-  private ComputationalNode getBestNode(List<CPOPSoftwareComponentAdapter> cpList) {
-    ComputationalNode bestNode = null;
-    double bestTime = Double.MAX_VALUE;
-    for (ComputationalNode node : currentInfrastructure.getAllNodes()) {
-      double result =
-          cpList.stream()
-              .reduce(
-                  0.0,
-                  (time, mscp) -> {
-                    return time + mscp.getMsc().getRuntimeOnNode(node, currentInfrastructure);
-                  },
-                  Double::sum);
-
-      if (result < bestTime) {
-        bestTime = result;
-        bestNode = node;
-      }
-    }
-
-    ComputationalNode userNode = (ComputationalNode) currentInfrastructure.getNodeById(cpList.get(0).getMsc().getUserId());
-    double result =
-        cpList.stream()
-            .reduce(
-                0.0,
-                (time, mscp) -> {
-                  return time + mscp.getMsc().getRuntimeOnNode(userNode, currentInfrastructure);
-                },
-                Double::sum);
-
-    if (result < bestTime) {
-      bestNode = userNode;
-    }
-
-    return bestNode;
-  }
+  protected abstract void initBestNodes();
 
   private double upRank(
       MobileSoftwareComponent msc,
@@ -152,8 +148,7 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
 
         for (ComponentLink neigh : dag.outgoingEdgesOf(msc)) {
           MobileSoftwareComponent n_succ = neigh.getTarget();
-          double c_communication_cost =
-              CalcUtils.calcAverageCommunicationCost(n_succ, I);
+          double c_communication_cost = CalcUtils.calcAverageCommunicationCost(n_succ, I);
           double n_rank_up = upRank(n_succ, dag, I);
 
           maxSRank = Math.max(n_rank_up + c_communication_cost, maxSRank);
@@ -181,8 +176,7 @@ public abstract class BaseCPOP extends ThesisOffloadScheduler {
           MobileSoftwareComponent n_pred = neigh.getSource();
 
           double w_computational_cost = CalcUtils.calcAverageComputationalCost(n_pred, I);
-          double c_communication_cost =
-              CalcUtils.calcAverageCommunicationCost(msc, I);
+          double c_communication_cost = CalcUtils.calcAverageCommunicationCost(msc, I);
           double n_rank_down = downRank(n_pred, dag, I);
 
           maxSRank = Math.max(n_rank_down + w_computational_cost + c_communication_cost, maxSRank);

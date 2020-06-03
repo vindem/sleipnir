@@ -22,32 +22,53 @@ public class CPOPRuntime extends BaseCPOP {
       MobileSoftwareComponent currTask, OffloadScheduling scheduling) {
     ComputationalNode target = null;
 
-    if (cpList.contains(mappings.get(currTask))) {
-      if (isValid(scheduling, currTask, bestNode)) {
-        target = bestNode;
+    if (criticalPath.get(currTask.getUserId()).contains(currTask)) {
+      ComputationalNode node = bestNode.get(currTask.getUserId());
+      if (isValid(scheduling, currTask, node)) {
+        target = node;
       }
     } else {
       double tMin = Double.MAX_VALUE;
 
-      for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
-        double eft = CalcUtils.calcEFT(currTask, scheduling, cn, currentApp, currentInfrastructure);
-
-        if (eft < tMin && isValid(scheduling, currTask, cn)) {
-          tMin = eft;
-          target = cn;
+      for (ComputationalNode cn : currentInfrastructure.getAllNodesWithMobile(currTask.getUserId())) {
+        if (isValid(scheduling, currTask, cn)) {
+          double eft = CalcUtils.calcEFT(currTask, scheduling, cn, currentApp, currentInfrastructure);
+          if (eft < tMin) {
+            tMin = eft;
+            target = cn;
+          }
         }
-      }
-
-      ComputationalNode userNode =
-          (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-      double eft =
-          CalcUtils.calcEFT(currTask, scheduling, userNode, currentApp, currentInfrastructure);
-
-      if (eft < tMin && isValid(scheduling, currTask, userNode)) {
-        target = userNode;
       }
     }
 
     return target;
   }
+
+  @Override
+  protected void initBestNodes() {
+    this.criticalPath.forEach(
+        (userId, value) -> {
+          double bestTime = Double.MAX_VALUE;
+          ComputationalNode node = null;
+
+          for (ComputationalNode cn : currentInfrastructure.getAllNodesWithMobile(userId)) {
+            double result =
+                value.stream()
+                    .reduce(
+                        0.0,
+                        (time, msc) -> {
+                          return time + msc.getRuntimeOnNode(cn, currentInfrastructure);
+                        },
+                        Double::sum);
+
+            if (result < bestTime) {
+              bestTime = result;
+              node = cn;
+            }
+          }
+
+          this.bestNode.put(userId, node);
+        });
+  }
+
 }
