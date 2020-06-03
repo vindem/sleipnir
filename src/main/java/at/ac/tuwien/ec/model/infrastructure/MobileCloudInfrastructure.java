@@ -237,10 +237,10 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	}
 
 
-	public ArrayList<ComputationalNode> getAllNodesWithMobile()
+	public ArrayList<ComputationalNode> getAllNodesWithMobile(String userId)
 	{
 		ArrayList<ComputationalNode> allNodes = new ArrayList<ComputationalNode>();
-		allNodes.addAll(mobileDevices.values());
+		allNodes.add((ComputationalNode) getNodeById(userId));
 		allNodes.addAll(edgeNodes.values());
 		allNodes.addAll(cloudNodes.values());
 		return allNodes;

@@ -24,21 +24,14 @@ public class ThesisHEFTRuntime extends BaseThesisHEFT {
 
     double tMin = Double.MAX_VALUE;
 
-    for (ComputationalNode cn : currentInfrastructure.getAllNodes()) {
-      double eft = CalcUtils.calcEFT(currTask, scheduling, cn, currentApp, currentInfrastructure);
-      if (eft < tMin && isValid(scheduling, currTask, cn)) {
-        tMin = eft;
-        target = cn;
+    for (ComputationalNode cn : currentInfrastructure.getAllNodesWithMobile(currTask.getUserId())) {
+      if (isValid(scheduling, currTask, cn)) {
+        double eft = CalcUtils.calcEFT(currTask, scheduling, cn, currentApp, currentInfrastructure);
+        if (eft < tMin) {
+          tMin = eft;
+          target = cn;
+        }
       }
-    }
-
-    ComputationalNode userNode =
-        (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-    double eft = CalcUtils.calcEFT(currTask, scheduling, userNode, currentApp, currentInfrastructure);
-
-    if (eft < tMin
-        && isValid(scheduling, currTask, userNode)) {
-      target = userNode;
     }
 
     return target;

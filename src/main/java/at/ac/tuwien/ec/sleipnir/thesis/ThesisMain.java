@@ -31,9 +31,9 @@ public class ThesisMain {
     double avgRunTime = 0;
     double avgBatteryConsumption = 0;
     double avgExecutionTime = 0;
-    double rounds = 100;
+    double rounds = 20;
 
-    int run = 8;
+    int run = 2;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -86,7 +86,7 @@ public class ThesisMain {
           for (OffloadScheduling os : offloads) {
             os.forEach(
                 (key, value) -> {
-                  // System.out.println(key.getId() + "->" + value.getId());
+                  System.out.println(key.getId() + "->" + value.getId());
                 });
 
             System.out.println(

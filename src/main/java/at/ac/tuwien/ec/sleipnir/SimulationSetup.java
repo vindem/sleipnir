@@ -31,8 +31,8 @@ public class SimulationSetup {
 	public static double edgeMipsPerCore = 80000.0;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 1;
-	public static double mobileEnergyBudget = 26640.0;
+	public static int mobileNum = 3;
+	public static double mobileEnergyBudget = 0; // 26640.0;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
 	public static HardwareCapabilities defaultIoTDeviceHardwareCapabilities = 
@@ -66,7 +66,7 @@ public class SimulationSetup {
 	public static double EchoAlpha;
 	public static double EchoBeta;
 	public static double Eta = 1.0;
-	public static int appNumber = 30;
+	public static int appNumber = 3;
 	
 	public static String[] topics = {"temperature", "moisture", "wind"};
 	public static int iotDevicesNum = 36;
@@ -84,7 +84,7 @@ public class SimulationSetup {
 	public static double x_max = 3119;
 	public static String mobilityTraceFile = "traces/hernals.coords";
 	
-	public static String mobileApplication = "NAVI";
+	public static String mobileApplication = "CHESS";
 	public static String edgePlanningAlgorithm = "ares";
 	public static String electricityTraceFile;
 	public static String outfile = "../output/";

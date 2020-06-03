@@ -36,7 +36,8 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
       PriorityQueue<MobileSoftwareComponent> scheduledNodes) {
 
     if (processNonOffloadableTasks(currentRuntime, readyTasks, scheduling, scheduledNodes)) {
-      List<ComputationalNode> allNodes = currentInfrastructure.getAllNodesWithMobile();
+      // TODO: use get all nodes with mobile
+      List<ComputationalNode> allNodes = currentInfrastructure.getAllNodes();
       MobileSoftwareComponent[] tasks =
           readyTasks.stream()
               .filter(MobileSoftwareComponent::isOffloadable)
