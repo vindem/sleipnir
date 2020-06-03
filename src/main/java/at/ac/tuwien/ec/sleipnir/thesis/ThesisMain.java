@@ -33,7 +33,7 @@ public class ThesisMain {
     double avgExecutionTime = 0;
     double rounds = 50;
 
-    int run = 3;
+    int run = 5;
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =
@@ -65,9 +65,11 @@ public class ThesisMain {
               scheduler = new CPOPBattery(sample);
               break;
             case 4:
+              // Antivirus: [30, 3, 50] Result: 111.70548464784314, -0.35408985863415327 [0.02259076464, 1.129538232]
               scheduler = new KDLARuntime(sample);
               break;
             case 5:
+              // Antivirus: [30, 3, 50] Result: Result: 118.66876947882606, -0.2740613952782846 [0.02016472194, 1.008236097]
               scheduler = new KDLABattery(sample);
               break;
             case 6:
