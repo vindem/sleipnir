@@ -55,13 +55,15 @@ public abstract class BaseThesisPEFT extends ThesisOffloadScheduler {
     // finding average communication time
     double avgComm = 0.0;
     for (ComponentLink neigh : currentApp.getOutgoingEdgesFrom(ti)) {
-      for (ComputationalNode cn0 : currentInfrastructure.getMobileDevices().values())
-        for (ComputationalNode cn1 : currentInfrastructure.getEdgeNodes().values())
+      for (ComputationalNode cn0 : currentInfrastructure.getMobileDevices().values()) {
+        for (ComputationalNode cn1 : currentInfrastructure.getEdgeNodes().values()) {
           avgComm += currentInfrastructure.getTransmissionTime(neigh.getTarget(), cn0, cn1);
+        }
 
-      for (ComputationalNode cn0 : currentInfrastructure.getMobileDevices().values())
-        for (ComputationalNode cn1 : currentInfrastructure.getCloudNodes().values())
+        for (ComputationalNode cn1 : currentInfrastructure.getCloudNodes().values()) {
           avgComm += currentInfrastructure.getTransmissionTime(neigh.getTarget(), cn0, cn1);
+        }
+      }
 
       avgComm =
           avgComm

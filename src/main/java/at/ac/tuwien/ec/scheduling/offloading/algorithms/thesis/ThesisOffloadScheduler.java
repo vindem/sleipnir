@@ -93,7 +93,6 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     }
   }
 
-  // TODO: What should happen if the device has no battery anymore?
   @Override
   protected boolean isValid(
       OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
