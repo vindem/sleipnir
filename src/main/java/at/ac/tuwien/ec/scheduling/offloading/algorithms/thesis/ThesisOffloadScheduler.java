@@ -101,7 +101,7 @@ public abstract class ThesisOffloadScheduler extends OffloadScheduler {
     boolean offloadPossible = isOffloadPossibleOn(s, n);
     boolean linksOk = checkLinks(deployment,s,n);
     // check links
-    return compatible && offloadPossible;
+    return compatible && offloadPossible && linksOk;
   }
 
   protected synchronized void deploy(
