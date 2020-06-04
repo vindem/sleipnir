@@ -33,7 +33,9 @@ public class ThesisMain {
     double avgExecutionTime = 0;
     double rounds = 50;
 
-    int run = 9;
+    int run = 8;
+
+    // Result: 741.4851078566378, -11108.065911746387 [0.18348651980000003, 9.17432599]
 
     for (int i = 1; i <= rounds; i++) {
       ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples =

@@ -79,6 +79,11 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
           ComputationalNode cn = allNodes.get(nodeIndex);
           assignments.get(cn).add(taskIndex);
 
+          double newAssignmentValue = calcNewAssignmentValue(cn, assignments, tasks);
+          for (int time_i = 0; time_i < assignmentValues.length; time_i++) {
+            assignmentValues[time_i][nodeIndex] += newAssignmentValue;
+          }
+
           taskAssigned[taskIndex] = true;
         }
 
@@ -129,6 +134,11 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
 
   protected abstract double calcAssignmentValue(
       OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn);
+
+  protected abstract double calcNewAssignmentValue(
+      ComputationalNode cn,
+      HashMap<ComputationalNode, List<Integer>> assignments,
+      MobileSoftwareComponent[] tasks);
 
   private boolean processNonOffloadableTasks(
       double currentRuntime,
