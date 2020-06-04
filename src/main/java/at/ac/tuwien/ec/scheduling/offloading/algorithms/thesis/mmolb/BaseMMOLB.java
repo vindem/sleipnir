@@ -7,11 +7,13 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.ThesisOffloadScheduler;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.PriorityQueue;
-import java.util.stream.IntStream;
+import java.util.Set;
+import java.util.stream.Collectors;
 import scala.Tuple2;
 
 public abstract class BaseMMOLB extends ThesisOffloadScheduler {
@@ -43,87 +45,77 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
               .toArray(MobileSoftwareComponent[]::new);
 
       if (tasks.length > 0) {
-        List<ComputationalNode> allNodes = currentInfrastructure.getAllNodes();
-        allNodes.addAll(currentInfrastructure.getMobileDevices().values());
-        HashMap<ComputationalNode, List<Integer>> assignments = new HashMap<>();
+        List<MMOLBComputationalNode> allNodes =
+            currentInfrastructure.getAllNodes().stream()
+                .map(
+                    cn -> {
+                      return new MMOLBComputationalNode(
+                          cn, scheduling, currentApp, currentInfrastructure, this);
+                    })
+                .collect(Collectors.toList());
+        allNodes.addAll(
+            currentInfrastructure.getMobileDevices().values().stream()
+                .map(
+                    cn ->
+                        new MMOLBComputationalNode(
+                            cn, scheduling, currentApp, currentInfrastructure, this))
+                .collect(Collectors.toList()));
 
-        allNodes.forEach(
-            cn -> {
-              assignments.putIfAbsent(cn, new ArrayList<>());
-            });
-
-        double[][] assignmentValues = new double[tasks.length][allNodes.size()];
-        boolean[] taskAssigned = new boolean[tasks.length];
-
-        for (int i = 0; i < tasks.length; i++) {
-          MobileSoftwareComponent currTask = tasks[i];
-          for (int j = 0; j < allNodes.size(); j++) {
-            ComputationalNode node = allNodes.get(j);
-            if (this.currentInfrastructure.getMobileDevices().containsValue(node)
-                && !node.getId().equals(currTask.getUserId())) {
-              assignmentValues[i][j] = Double.NaN;
-            } else {
-              assignmentValues[i][j] = calcAssignmentValue(scheduling, currTask, allNodes.get(j));
-            }
-          }
-        }
+        Set<MobileSoftwareComponent> alreadyAssigned = new HashSet<>();
 
         for (int i = 0; i < tasks.length; i++) {
-          int taskIndex = findMaxTask(assignmentValues, taskAssigned);
-          MobileSoftwareComponent msc = tasks[taskIndex];
-          int nodeIndex = findMinNode(assignmentValues[taskIndex], msc, scheduling, allNodes);
-          if (nodeIndex < 0) {
+          MobileSoftwareComponent msc = findMaxTask(tasks, allNodes, alreadyAssigned);
+          MMOLBComputationalNode node = findMinNode(msc, allNodes, scheduling);
+          if (node == null) {
             return;
           }
 
-          ComputationalNode cn = allNodes.get(nodeIndex);
-          assignments.get(cn).add(taskIndex);
-
-          double newAssignmentValue = calcNewAssignmentValue(cn, assignments, tasks);
-          for (int time_i = 0; time_i < assignmentValues.length; time_i++) {
-            assignmentValues[time_i][nodeIndex] += newAssignmentValue;
-          }
-
-          taskAssigned[taskIndex] = true;
+          node.add(msc);
+          alreadyAssigned.add(msc);
         }
 
-        for (Entry<ComputationalNode, List<Integer>> entry : assignments.entrySet()) {
-          List<Integer> values = entry.getValue();
-          if (values.size() > 0) {
-            List<Integer> invalid = new ArrayList<>();
-            while (invalid.size() < values.size()) {
-              double makespan =
-                  values.stream()
-                      .reduce(0.0, (time, index) -> time + tasks[index].getRunTime(), Double::sum);
-              int minMscIndex =
-                  values.stream()
-                      .filter(msc -> !invalid.contains(msc))
-                      .reduce((a, b) -> tasks[a].getRunTime() > tasks[b].getRunTime() ? a : b)
-                      .get();
-              int nodeIndex = findMaxNode(assignmentValues[minMscIndex]);
+        Set<MMOLBComputationalNode> alreadyChecked = new HashSet<>();
+        MMOLBComputationalNode highestCn = findMaxCT(allNodes, alreadyChecked);
+        double makespan = highestCn.getMakeSpan();
 
-              if (assignmentValues[minMscIndex][nodeIndex] < makespan) {
-                values.remove(Integer.valueOf(minMscIndex));
-                assignments.get(allNodes.get(nodeIndex)).add(minMscIndex);
+        while (alreadyChecked.size() != allNodes.size()) {
+          List<MobileSoftwareComponent> assignments = highestCn.getAssignments();
+          int assigmentSize = assignments.size();
+          if (assigmentSize > 0) {
+            List<MobileSoftwareComponent> notRemoveAble = new ArrayList<>();
+
+            while (notRemoveAble.size() < assigmentSize) {
+              MobileSoftwareComponent msc = highestCn.getMinMsc(notRemoveAble);
+              MMOLBComputationalNode maxNode = findMaxNode(msc, allNodes, scheduling);
+
+              if (maxNode.getValue(msc) < makespan) {
+                highestCn.remove(msc);
+                maxNode.add(msc);
                 break;
               } else {
-                invalid.add(minMscIndex);
+                notRemoveAble.add(msc);
               }
             }
+          } else {
+            break;
+          }
+
+          alreadyChecked.add(highestCn);
+          highestCn = findMaxCT(allNodes, alreadyChecked);
+          if (highestCn == null) {
+            break;
           }
         }
 
-        for (Entry<ComputationalNode, List<Integer>> entry : assignments.entrySet()) {
-          List<Integer> values = entry.getValue();
-          if (values.size() > 0) {
-            for (Integer index : values) {
-              MobileSoftwareComponent msc = tasks[index];
-              ComputationalNode cn = entry.getKey();
-
+        for (MMOLBComputationalNode node : allNodes) {
+          List<MobileSoftwareComponent> assignments = node.getAssignments();
+          if (assignments.size() > 0) {
+            for (MobileSoftwareComponent msc : assignments) {
+              ComputationalNode cn = node.getNode();
               if (isValid(scheduling, msc, cn)) {
                 // System.out.println(cn.getId() + "->" + msc.getId());
-                deploy(currentRuntime, scheduling, msc, entry.getKey());
-                scheduledNodes.add(tasks[index]);
+                deploy(currentRuntime, scheduling, msc, cn);
+                scheduledNodes.add(msc);
               }
             }
           }
@@ -133,12 +125,7 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
   }
 
   protected abstract double calcAssignmentValue(
-      OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn);
-
-  protected abstract double calcNewAssignmentValue(
-      ComputationalNode cn,
-      HashMap<ComputationalNode, List<Integer>> assignments,
-      MobileSoftwareComponent[] tasks);
+      OffloadScheduling scheduling, MobileSoftwareComponent currTask, MMOLBComputationalNode mmolbcn);
 
   private boolean processNonOffloadableTasks(
       double currentRuntime,
@@ -164,53 +151,91 @@ public abstract class BaseMMOLB extends ThesisOffloadScheduler {
     return true;
   }
 
-  private int findMaxTask(double[][] times, boolean[] taskAssigned) {
-    int index = 0;
+  private MMOLBComputationalNode findMaxCT(
+      List<MMOLBComputationalNode> allNodes, Set<MMOLBComputationalNode> alreadyChecked) {
+    double makespan = Double.MIN_VALUE;
+    MMOLBComputationalNode maxNode = null;
+
+    for (MMOLBComputationalNode node :
+        allNodes.stream().filter(n -> !alreadyChecked.contains(n)).collect(Collectors.toList())) {
+      double temp = node.getMakeSpan();
+
+      if (makespan < temp) {
+        makespan = temp;
+        maxNode = node;
+      }
+    }
+
+    return maxNode;
+  }
+
+  private MobileSoftwareComponent findMaxTask(
+      MobileSoftwareComponent[] tasks,
+      List<MMOLBComputationalNode> allNodes,
+      Set<MobileSoftwareComponent> alreadyAssigned) {
+    MobileSoftwareComponent msc = null;
     double max = Double.MIN_VALUE;
 
-    for (int i = 0; i < times.length; i++) {
-      if (taskAssigned[i]) {
-        continue;
-      }
+    for (MobileSoftwareComponent task :
+        Arrays.stream(tasks)
+            .filter(t -> !alreadyAssigned.contains(t))
+            .collect(Collectors.toList())) {
+      List<Double> times =
+          allNodes.stream()
+              .map(n -> n.getValue(task))
+              .filter(Double::isFinite)
+              .collect(Collectors.toList());
 
-      for (int j = 0; j < times[i].length; j++) {
-        double tempMax = times[i][j];
-        if (Double.isFinite(tempMax) && tempMax > max) {
-          max = tempMax;
-          index = i;
+      double temp = Collections.max(times);
+
+      if (max < temp) {
+        msc = task;
+        max = temp;
+      }
+    }
+
+    return msc;
+  }
+
+  private MMOLBComputationalNode findMinNode(
+      MobileSoftwareComponent task,
+      List<MMOLBComputationalNode> allNodes,
+      OffloadScheduling scheduling) {
+    MMOLBComputationalNode cn = null;
+    double min = Double.MAX_VALUE;
+
+    for (MMOLBComputationalNode node : allNodes) {
+      if (isValid(scheduling, task, node.getNode())) {
+        double temp = node.getValue(task);
+
+        if (min > temp) {
+          cn = node;
+          min = temp;
         }
       }
     }
 
-    return index;
+    return cn;
   }
 
-  private int findMinNode(
-      double[] times,
-      MobileSoftwareComponent msc,
-      OffloadScheduling scheduling,
-      List<ComputationalNode> allNodes) {
+  private MMOLBComputationalNode findMaxNode(
+      MobileSoftwareComponent task,
+      List<MMOLBComputationalNode> allNodes,
+      OffloadScheduling scheduling) {
+    MMOLBComputationalNode cn = null;
+    double max = Double.MIN_VALUE;
 
-    int index;
-    List<Integer> ignoreList = new ArrayList<>();
+    for (MMOLBComputationalNode node : allNodes) {
+      if (isValid(scheduling, task, node.getNode())) {
+        double temp = node.getValue(task);
 
-    while (ignoreList.size() < times.length) {
-
-      index =
-          IntStream.range(0, times.length)
-              .filter(id -> !ignoreList.contains(id))
-              .reduce(0, (acc, j) -> times[acc] > times[j] ? j : acc);
-
-      if (isValid(scheduling, msc, allNodes.get(index))) {
-        return index;
+        if (max < temp) {
+          cn = node;
+          max = temp;
+        }
       }
-
-      ignoreList.add(index);
     }
-    return -1;
-  }
 
-  private int findMaxNode(double[] times) {
-    return IntStream.range(0, times.length).reduce(0, (i, j) -> times[i] > times[j] ? i : j);
+    return cn;
   }
 }

@@ -34,7 +34,8 @@ public class ThesisMain {
           "HEFT-R", "HEFT-B", "CPOP-R", "CPOP-B", "KDLA-R", "KDLA-B", "PEFT-R", "PEFT-B", "LLOBM-R",
           "LLOBM-B"
         };
-    Integer[] ids = new Integer[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    // Integer[] ids = new Integer[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Integer[] ids = new Integer[] {8, 9};
 
     for (Integer id : ids) {
       double avgRunTime = 0;

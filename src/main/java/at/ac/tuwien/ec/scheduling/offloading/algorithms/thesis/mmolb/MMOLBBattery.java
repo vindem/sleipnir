@@ -5,8 +5,6 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import java.util.HashMap;
-import java.util.List;
 import scala.Tuple2;
 
 // TODO: Doesnt work like expected the algorithm would fail for it!
@@ -21,7 +19,8 @@ public class MMOLBBattery extends BaseMMOLB {
 
   @Override
   protected double calcAssignmentValue(
-      OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn) {
+      OffloadScheduling scheduling, MobileSoftwareComponent currTask, MMOLBComputationalNode mmolbcn) {
+    ComputationalNode cn = mmolbcn.getNode();
     if (this.currentInfrastructure.getMobileDevices().containsValue(cn)) {
       ComputationalNode userNode =
           (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
@@ -38,13 +37,5 @@ public class MMOLBBattery extends BaseMMOLB {
           * currentInfrastructure.getTransmissionTime(
               currTask, currentInfrastructure.getNodeById(currTask.getUserId()), cn);
     }
-  }
-
-  @Override
-  protected double calcNewAssignmentValue(
-      ComputationalNode cn,
-      HashMap<ComputationalNode, List<Integer>> assignments,
-      MobileSoftwareComponent[] tasks) {
-    return 0;
   }
 }

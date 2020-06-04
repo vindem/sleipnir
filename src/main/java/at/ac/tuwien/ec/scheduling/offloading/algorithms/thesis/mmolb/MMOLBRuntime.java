@@ -1,13 +1,10 @@
 package at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.mmolb;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.thesis.utils.CalcUtils;
-import java.util.HashMap;
-import java.util.List;
 import scala.Tuple2;
 
 public class MMOLBRuntime extends BaseMMOLB {
@@ -20,16 +17,7 @@ public class MMOLBRuntime extends BaseMMOLB {
   }
 
   @Override
-  protected double calcAssignmentValue(OffloadScheduling scheduling, MobileSoftwareComponent currTask, ComputationalNode cn) {
-    return CalcUtils.calcEFT(currTask, scheduling, cn, this.currentApp, this.currentInfrastructure);
-  }
-
-  @Override
-  protected double calcNewAssignmentValue(
-      ComputationalNode cn,
-      HashMap<ComputationalNode, List<Integer>> assignments,
-      MobileSoftwareComponent[] tasks) {
-    return assignments.get(cn).stream()
-        .reduce(0.0, (acc, index) -> acc + tasks[index].getRunTime(), Double::sum);
+  protected double calcAssignmentValue(OffloadScheduling scheduling, MobileSoftwareComponent currTask, MMOLBComputationalNode mmolbcn) {
+    return CalcUtils.calcEFT(currTask, scheduling, mmolbcn.getNode(), this.currentApp, this.currentInfrastructure) + mmolbcn.getMakeSpan();
   }
 }
