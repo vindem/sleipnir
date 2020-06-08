@@ -137,7 +137,7 @@
               <addClasspath>true</addClasspath>
               <classpathPrefix>libs/</classpathPrefix>
               <mainClass>
-                at.ac.tuwien.ec.sleipnir.Main
+                at.ac.tuwien.ec.sleipnir.thesis.ThesisEvaluationMain
               </mainClass>
             </manifest>
           </archive>

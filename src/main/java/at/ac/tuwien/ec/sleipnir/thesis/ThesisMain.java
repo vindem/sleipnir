@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import scala.Tuple2;
 
 public class ThesisMain {
+  // TODO: Use the same setup like the other mains
   public static void main(String[] args) {
     System.out.println("Testing started");
 

@@ -7,7 +7,6 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import scala.Tuple2;
 
-// TODO: Doesnt work like expected the algorithm would fail for it!
 public class MMOLBBattery extends BaseMMOLB {
   public MMOLBBattery(MobileApplication A, MobileCloudInfrastructure I) {
     super(A, I);

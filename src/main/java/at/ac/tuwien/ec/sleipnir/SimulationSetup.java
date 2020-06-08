@@ -58,7 +58,7 @@ public class SimulationSetup {
 	public static double facebookImageSize = 20e3;
 	public static double facerecImageSize = 10e3;
 	public static double navigatorMapSize = 25e6;
-	public static String[] algorithms = {"heft"};
+	public static String[] algorithms = {"heft-r", "heft-b", "cpop-r", "cpop-b", "kdla-r", "kdla-b", "peft-r", "peft-b", "mmolb-r", "mmolb-b"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
 	public static int iterations = 10;
