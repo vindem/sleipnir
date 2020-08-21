@@ -19,6 +19,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
@@ -64,11 +65,12 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		double startTime = System.currentTimeMillis();
+		int currentTimestamp = 0;
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 		
-		ArrayList<EdgeNode> sortedTargets = new ArrayList<EdgeNode>();
-		sortedTargets.addAll(getInfrastructure().getEdgeNodes().values());
+		ArrayList<ComputationalNode> sortedTargets = new ArrayList<ComputationalNode>();
+		sortedTargets.addAll(getInfrastructure().getAllNodes());
 		Collections.sort(sortedTargets,new ProdComparator());
 		
 		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
@@ -113,6 +115,10 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 				}
 			}
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
+			currentTimestamp = (int) Math.round(getCurrentTime());
+			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
+				d.updateCoordsWithMobility((double)currentTimestamp);
+			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 		}
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;
@@ -122,98 +128,4 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 		
 	}
 	
-	protected void deploy(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg, ArrayList<IoTDevice> publisherDevices, ArrayList<MobileDevice> subscriberDevices)
-	{
-		super.deploy(placement, msc, trg);
-		addAverageLatency(placement,msc,trg,publisherDevices,subscriberDevices);
-		addCost(placement,msc,trg);
-	}
-	
-	private void addCost(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg) {
-		double predTime = Double.MIN_VALUE;
-		ComputationalNode maxTrg = null;
-		for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
-		{
-			ComputationalNode prevTarget = (ComputationalNode) placement.get(pred);
-			double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-			if(currTime > predTime) 
-			{
-				predTime = currTime;
-				maxTrg = prevTarget;
-			}
-		}
-		placement.addCost(msc, maxTrg, trg, getInfrastructure());
-	}
-
-	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
-			ComputationalNode trg, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) {
-		if(isSource(msc))
-		{
-			double maxLatency = Double.MIN_VALUE;
-			for(IoTDevice publisher : publishers) 
-			{
-				double currTTime = computeTransmissionTime(publisher,trg);
-				if(currTTime > maxLatency)
-					maxLatency = currTTime;
-				msc.addInData(publisher.getOutData());
-			}
-			placement.addAverageLatency(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			msc.setRunTime(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			trg.setOutData(msc.getOutData());
-		}
-		else if(isSink(msc))
-		{
-			double maxLatency = Double.MIN_VALUE;
-			trg.setOutData(msc.getOutData());
-			for(MobileDevice subscriber : subscribers) 
-			{
-				double currTTime = computeTransmissionTime(trg,subscriber);
-				if(currTTime > maxLatency)
-					maxLatency = currTTime;
-			}
-			placement.addAverageLatency(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
-			msc.setRunTime(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
-			trg.setOutData(msc.getOutData());
-		}
-		else
-		{
-			double predTime = Double.MIN_VALUE;
-			NetworkedNode maxTrg = null;
-			for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
-			{
-				NetworkedNode prevTarget = placement.get(pred);
-				double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-				if(currTime > predTime) 
-				{
-					predTime = currTime;
-					maxTrg = prevTarget;
-				}
-			}
-			placement.addAverageLatency(computeTransmissionTime(maxTrg,trg) 
-					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			msc.setRunTime(computeTransmissionTime(maxTrg,trg) 
-					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			trg.setOutData(msc.getOutData());
-			
-		}
-		
-	}
-	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
-		ConnectionMap connections = getInfrastructure().getConnectionMap();
-		if(src == null || trg == null)
-			return 0;
-		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
-	}
-	
-	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
-			ArrayList<MobileDevice> subscriberDevices) {
-		double nDevs = subscriberDevices.size();
-		double cost = 0.0;
-		for(MobileDevice dev : subscriberDevices)
-			cost += cn.computeCost(msc, getInfrastructure());
-		
-		return cost / nDevs;
-		
-	}
-
 }

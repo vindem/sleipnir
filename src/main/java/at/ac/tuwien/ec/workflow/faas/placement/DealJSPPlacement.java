@@ -9,7 +9,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
+import org.jgrapht.alg.shortestpath.GraphMeasurer;
+import org.jgrapht.alg.shortestpath.JohnsonShortestPaths;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
@@ -21,22 +24,25 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import scala.Tuple2;
 
-public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
+public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 	
 	private ArrayList<IoTDevice> publisherDevices;
 	private ArrayList<MobileDevice> subscriberDevices;
 	private ArrayList<ComputationalNode> candidateCenters;
-	private double updateTime;
-	
-	public FaaSCostlessPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
+	private double currentTime = 0.0;
+	TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator;
+		
+	public DealJSPPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
 		super();
 		setCurrentWorkflow(arg._1());
@@ -50,7 +56,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
-		
+		this.workflowIterator = new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
 		
 		for(IoTDevice iot : currInf.getIotDevices().values())
 		{
@@ -69,7 +75,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		
 		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		candidateCenters = findCenters(infrastructureMap, 5);
+		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
 	
@@ -89,6 +95,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 	 */
 	private static final long serialVersionUID = -1302954506550171766L;
 
+		
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		double startTime = System.currentTimeMillis();
@@ -97,22 +104,26 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 				
+		int i = 0;
 		//Extract subgraph
 		if(updateCondition()) 
 		{
 			ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-			candidateCenters = findCenters(infrastructureMap, 20);
+			candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 		}
-		//for(int i = 0; i < candidateCenters.size(); i++)
-			//System.out.println(candidateCenters.get(i).getId()+" ");
 		//all of this before should be moved in the constructor
 		
-		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
-			= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
 		
 		while(workflowIterator.hasNext())
 		{
+			if(updateCondition()) 
+			{
+				ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
+				extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
+			}
+			
 			MobileSoftwareComponent msc = workflowIterator.next();
 			double minAvgCost = Double.MAX_VALUE;
 			ComputationalNode trg = null;
@@ -140,15 +151,16 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 					}
 				}
 			}
+			if(trg==null)
+				return schedulings;
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
-			updateTime = scheduling.getAverageLatency();
-			int tmp = (int) (updateTime / 1000);
-			if(tmp > currentTimestamp)
-			{
-				currentTimestamp = tmp;
-				for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
-					d.updateCoordsWithMobility((double)currentTimestamp);
-			}
+			
+			currentTimestamp = (int) Math.round(getCurrentTime());
+			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
+				d.updateCoordsWithMobility((double)currentTimestamp);
+			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
+			
+			
 		}
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;
@@ -157,24 +169,25 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		return schedulings;
 	}
 	
+	//private boolean updateCondition() {
+		//return updateTime % 144.0 == 0;
+		//return getCurrentTime() % SimulationSetup.updateTime == 0;
+	//}
+
 	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
 			ArrayList<MobileDevice> subscriberDevices) {
 		double nDevs = subscriberDevices.size();
 		double cost = 0.0;
 		for(MobileDevice dev : subscriberDevices)
-			cost += cn.computeCost(msc, getInfrastructure());
+			if(getInfrastructure().getConnectionMap().containsEdge(dev,cn))
+				cost += cn.computeCost(msc, getInfrastructure()) * computeTransmissionTime(dev, cn);
 		
 		return cost / nDevs;
 		
 	}
 
-	protected void deploy(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg, ArrayList<IoTDevice> publisherDevices, ArrayList<MobileDevice> subscriberDevices)
-	{
-		super.deploy(placement, msc, trg);
-		addAverageLatency(placement,msc,trg,publisherDevices,subscriberDevices);
-		addCost(placement,msc,trg);
-	}
-	
+		
+
 	private void extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
 	{
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
@@ -192,10 +205,13 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
 		ArrayList<ComputationalNode> centers = new ArrayList<ComputationalNode>();
-		infrastructureMap.setCostlessWeights(getInfrastructure());
+		infrastructureMap.setEdgeWeights();
 		
-		FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
-			= new FloydWarshallShortestPaths<>(infrastructureMap);
+		//FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
+			//= new FloydWarshallShortestPaths<>(infrastructureMap);
+		
+		JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
+				new JohnsonShortestPaths<>(infrastructureMap);
 		
 		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
 		vertices.addAll(infrastructureMap.vertexSet());
@@ -218,14 +234,13 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 					if(dist > maxDistance)
 						currNode.setMaxDistance(dist);
 				}
-				if(getInfrastructure().getEdgeNodes().containsValue(currNode))
-					centers.add((ComputationalNode) currNode);
+				centers.add((ComputationalNode) currNode);
 			}
 		}
 		
 		Collections.sort(centers, new MaxDistanceComparator());
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, Math.min(centers.size(), nCenters)));
+		toReturn.addAll(centers.subList(0, Math.min(centers.size(), SimulationSetup.nCenters)));
 		return toReturn;				
 	}
 

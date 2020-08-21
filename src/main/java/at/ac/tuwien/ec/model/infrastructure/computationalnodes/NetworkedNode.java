@@ -82,7 +82,7 @@ public abstract class NetworkedNode implements Serializable{
 	
 	public double getOutData()
 	{
-		return 0;
+		return this.outData;
 	}
 	
 	public void setOutData(double oD)

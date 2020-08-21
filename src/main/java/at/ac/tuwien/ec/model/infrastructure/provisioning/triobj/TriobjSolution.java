@@ -1,5 +1,6 @@
-package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.triobj;
 
+import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -8,7 +9,7 @@ import org.uma.jmetal.solution.Solution;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
-public class FirstStageAresSolution implements Solution<Boolean>{
+public class TriobjSolution implements Solution<Boolean>{
 	
 	/**
 	 * 
@@ -31,31 +32,31 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 	
 	private HashMap<Object,Object> solutionAttributes;
 	private double averageDistance;
-	private double energyConsumption, activeEnergy, idleEnergy;
+	private double energyConsumption;
+	private BigDecimal failureProb;
 	
-	public double getActiveEnergy() {
-		return activeEnergy;
+	public BigDecimal getFailureProb() {
+		return failureProb;
 	}
 
-	public void setActiveEnergy(double activeEnergy) {
-		this.activeEnergy = activeEnergy;
+	public void setFailureProb(BigDecimal failureProb) {
+		this.failureProb = failureProb;
 	}
 
-	public FirstStageAresSolution() {
+	public TriobjSolution() {
 		super();
 		solutionAttributes = new HashMap<Object,Object>();
 		edgeNodeMap = new BitSet(SimulationSetup.admissibleEdgeCoordinates.size());
 	}
 	
-	public FirstStageAresSolution(BitSet bs)
+	public TriobjSolution(BitSet bs)
 	{
 		super();
 		solutionAttributes = new HashMap<Object,Object>();
 		edgeNodeMap = bs;
 	}
 
-	public FirstStageAresSolution(String tmp) {
-		double[] energy;
+	public TriobjSolution(String tmp) {
 		tmp = tmp.replace('[',' ');
 		tmp = tmp.replace(']',' ');
 		tmp = tmp.trim();
@@ -67,11 +68,9 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 			edgeNodeMap.set(idx-1,true);
 		}
 		solutionAttributes = new HashMap<Object,Object>();
-		this.averageDistance = FirstStageAresProblem.computeMaxMinDistance(this);
-		energy = FirstStageAresProblem.computeEnergyConsumption(this);
-		this.idleEnergy = energy[0];
-		this.activeEnergy = energy[1];
-		this.energyConsumption = this.idleEnergy + this.activeEnergy;
+		this.averageDistance = TriobjProblem.computeMaxMinDistance(this);
+		this.energyConsumption = TriobjProblem.computeEnergyConsumption(this);
+		this.failureProb = TriobjProblem.computeFailureProb(this);
 	}
 
 	@Override
@@ -81,6 +80,8 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 			case 0: this.averageDistance = value;
 				break;
 			case 1: this.energyConsumption = value;
+				break;
+			case 2: this.failureProb = new BigDecimal(value);
 				break;
 		}
 		
@@ -92,15 +93,17 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 		{
 		case 0: return this.averageDistance;
 		case 1: return this.energyConsumption;
+		case 2: return this.failureProb.doubleValue();
 		default: return 0.0;
 		}
 	}
 
 	@Override
 	public double[] getObjectives() {
-		double[] objectives = new double[2];
+		double[] objectives = new double[3];
 		objectives[0] = this.averageDistance;
 		objectives[1] = this.energyConsumption;
+		objectives[2] = this.failureProb.doubleValue();
 		return objectives;
 	}
 
@@ -123,13 +126,13 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 
 	@Override
 	public int getNumberOfObjectives() {
-		return 2;
+		return 3;
 	}
 
 	@Override
 	public Solution<Boolean> copy() {
 		BitSet bs = (BitSet) this.edgeNodeMap.clone();
-		return new FirstStageAresSolution(bs);
+		return new TriobjSolution(bs);
 		
 	}
 
@@ -161,8 +164,7 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 		solution+="\n";
 		
 		solution += "Edge nodes used: "+edgeNodeMap.cardinality()+"/"+SimulationSetup.admissibleEdgeCoordinates.size()+
-				"; Max Min Distance= "+this.averageDistance+"; Total Energy Consumption= "
-					+this.energyConsumption + " Average active energy" + this.activeEnergy;
+				"; Max Min Distance= "+this.averageDistance+"; Energy Consumption= "+this.energyConsumption+"; Reliability="+new BigDecimal(1.0).subtract(this.failureProb);
 		
 		return solution;
 	}
@@ -175,7 +177,7 @@ public class FirstStageAresSolution implements Solution<Boolean>{
 	@Override
 	public boolean equals(Object in)
 	{
-		FirstStageAresSolution sol = (FirstStageAresSolution) in;
+		TriobjSolution sol = (TriobjSolution) in;
 		for(int i = 0; i < sol.getNumberOfVariables(); i++)
 		{
 			if(this.getVariableValue(i) != sol.getVariableValue(i))

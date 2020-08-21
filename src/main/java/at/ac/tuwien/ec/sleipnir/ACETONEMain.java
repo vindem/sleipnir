@@ -34,6 +34,7 @@ import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultIoTPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.DefaultMobileDevicePlanner;
@@ -41,10 +42,15 @@ import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.MobileDevicePlan
 import at.ac.tuwien.ec.workflow.faas.FaaSTestWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
+import at.ac.tuwien.ec.workflow.faas.OFWorkflow;
+import at.ac.tuwien.ec.workflow.faas.IRWorkflow;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
-import at.ac.tuwien.ec.workflow.faas.placement.FaaSDistancePlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.DealJSPPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
+import at.ac.tuwien.ec.workflow.faas.placement.PEFTFaaSScheduler;
 import scala.Tuple2;
+import scala.Tuple3;
 import scala.Tuple4;
 
 
@@ -125,10 +131,11 @@ public class ACETONEMain {
 			e1.printStackTrace();
 		}			
 		
-		
+		for(String currAlgorithm : SimulationSetup.algorithms)
+		{
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
-					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double,Double>>() {
+					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double ,Double>>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -137,16 +144,28 @@ public class ACETONEMain {
 					ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
 							new ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>>();
 					//HEFTResearch search = new HEFTResearch(inputValues);
-					FaaSPlacementAlgorithm search;
-					switch(SimulationSetup.placementAlgorithm)
-					{
 					
-					default:
-						//search = new FFDCPUEdgePlacement(inputValues);
-						//search = new FFDCPUPlacement(inputValues);
-						search = new FaaSDistancePlacement(inputValues);
-						//search = new FaaSCostlessPlacement(inputValues);
-						//search = new FFDPRODPlacement(inputValues);
+					FaaSPlacementAlgorithm search = null;
+					//switch(SimulationSetup.placementAlgorithm)
+					switch(currAlgorithm)
+					{
+						case "PEFT":
+							search = new PEFTFaaSScheduler(inputValues);
+							break;
+						case "DEAL-JSP":
+							search = new DealJSPPlacement(inputValues);
+							break;
+						case "DEAL-FW":
+							search = new DealFWPPlacement(inputValues);
+							break;
+						case "FFD":
+							search = new FFDPRODPlacement(inputValues);
+							break;
+						case "COSTLESS":
+							search = new FaaSCostlessPlacement(inputValues);
+							break;
+						default:
+							search = new PEFTFaaSScheduler(inputValues);
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
@@ -166,6 +185,7 @@ public class ACETONEMain {
 						}
 					return output.iterator();
 				}
+					
 			});
 
 			//System.out.println(results.first());
@@ -230,6 +250,12 @@ public class ACETONEMain {
 							);
 			
 			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			
+			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> placements = results.toLocalIterator();
+			
+			Tuple3<Double,Double,Double> stdDeviations = calculateStandardDeviation(mostFrequent._1(), placements, mostFrequent._2());
+			
+			Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> confidenceIntervals = calculateCI(mostFrequent._2(), stdDeviations, 2.326);
 			//try {
 				// writer.append("\n");
 				// writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
@@ -240,9 +266,18 @@ public class ACETONEMain {
 				// TODO Auto-generated catch block
 			//	e.printStackTrace();
 			//}
-			
+			System.out.println(currAlgorithm);
 			System.out.println(mostFrequent._1());
 			System.out.println(mostFrequent._2());
+			System.out.println("Standard deviations: ");
+			System.out.println(stdDeviations);
+			System.out.println("Confidence Intervals: ");
+			System.out.println(confidenceIntervals._1());
+			System.out.println(confidenceIntervals._2());
+			System.out.println(confidenceIntervals._3());
+			
+			System.out.println("##############");
+		}
 			//System.out.println(mostFrequent._1.values().size());
 		
 		try {
@@ -254,18 +289,59 @@ public class ACETONEMain {
 		jscontext.close();
 	}
 
+	private static Tuple3<Tuple2<Double, Double>, Tuple2<Double, Double>, Tuple2<Double, Double>> calculateCI(
+			Tuple4<Integer, Double, Double, Double> means, Tuple3<Double, Double, Double> stdDeviations, double confidence) {
+		Tuple2<Double,Double> latCI;
+		Tuple2<Double,Double> exeCI;
+		Tuple2<Double,Double> cstCI;
+		
+		latCI = new Tuple2<Double,Double>(means._2() - confidence*stdDeviations._1()/means._1(),
+				means._2() + confidence*stdDeviations._1()/means._1());
+		exeCI = new Tuple2<Double,Double>(means._3() - confidence*stdDeviations._2()/means._1(),
+				means._3() + confidence*stdDeviations._2()/means._1());
+		cstCI = new Tuple2<Double,Double>(means._4() - confidence*stdDeviations._3()/means._1(),
+				means._4() + confidence*stdDeviations._3()/means._1());
+		return new Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>>(latCI, exeCI, cstCI);
+	}
+
+	private static Tuple3<Double,Double,Double> calculateStandardDeviation(FaaSWorkflowPlacement key,
+			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> placements,
+			Tuple4<Integer,Double,Double,Double> means) {
+		
+		double latencyStd = 0.0, executionTimeStd = 0.0, costStd = 0.0;
+		
+		while(placements.hasNext())
+		{
+			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> placement = placements.next();
+			
+			if(placement._1().equals(key))
+			{
+				latencyStd += Math.pow(placement._2()._2() - means._2(),2.0);
+				executionTimeStd += Math.pow(placement._2()._3() - means._3(),2.0);
+				costStd += Math.pow(placement._2()._4() - means._4(),2.0);
+			}
+		}
+		
+		latencyStd = latencyStd / ((double) means._1());
+		executionTimeStd = executionTimeStd / ((double)means._1());
+		costStd = costStd / ((double)means._1());
+		
+		return new Tuple3<Double,Double,Double>(latencyStd, executionTimeStd, costStd);
+	}
+
 	private static ArrayList<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
 		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>>();
 		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
 		String[] workflowSub = {"moisture"};
 		String[] workflowPub = {"moisture"};
-		FaaSWorkflow faasWorkflow = new FaaSTestWorkflow(0,workflowPub, workflowSub);
-		for(int i = 1; i < SimulationSetup.numberOfApps; i++)
+		FaaSWorkflow faasWorkflow = new FaaSWorkflow(workflowPub, workflowSub);
+		System.out.println(faasWorkflow.getComponentNum());
+		for(int i = 0; i < SimulationSetup.numberOfApps; i++)
 		{
-			FaaSWorkflow faasWorkflowNew = new FaaSTestWorkflow(i,workflowPub, workflowSub);
-			faasWorkflow.joinParallel(faasWorkflowNew);
+			FaaSWorkflow faasWorkflowNew = new IRWorkflow(i,workflowPub, workflowSub);
+			faasWorkflow.joinSequential(faasWorkflowNew);
 		}
-		
+		System.out.println(faasWorkflow.getComponentNum());
 		for(int i = 0; i < iterations; i++)
 		{
 			//ArrayList<DataEntry> globalWorkload = ddg.getGeneratedData();
@@ -278,7 +354,8 @@ public class ACETONEMain {
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
 			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			DefaultNetworkPlanner.setupNetworkConnections(inf);
+			MobilityBasedNetworkPlanner.setupNetworkConnections(inf);
+			MobilityBasedNetworkPlanner.setupMobileConnections(inf);
 			Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> singleSample = 
 					new Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>(faasWorkflow,inf);
 			samples.add(singleSample);

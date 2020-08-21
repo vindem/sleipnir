@@ -76,7 +76,7 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
     }
 	
 	public void addAverageLatency(MobileSoftwareComponent s, ComputationalNode v, MobileCloudInfrastructure I){
-    	double tmp = s.getRuntimeOnNode(v, I);
+    	double tmp = s.getLocalRuntimeOnNode(v, I);
 		s.setRunTime(tmp);
     	this.averageLatency += tmp;
     }
@@ -97,19 +97,9 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 		
 	}
 
-	public void addCost(MobileSoftwareComponent s, ComputationalNode u ,ComputationalNode v, MobileCloudInfrastructure i)
+	public void addCost(double cost)
 	{		
-		if(workflow.getSink().equals(s))
-		{
-			double dist = 0.0;
-			for(MobileDevice dev : subscriberDevices)
-				dist += i.getDistanceBetweenNodes(dev,v);
-			this.cost += v.computeCost(s,i) * dist/subscriberDevices.size();
-		}
-		else if(u != null)
-			this.cost += v.computeCost(s,i) * (i.getDistanceBetweenNodes(u, v));
-		else
-			this.cost += v.computeCost(s, i);
+		this.cost += cost;
 	}
 	
 	

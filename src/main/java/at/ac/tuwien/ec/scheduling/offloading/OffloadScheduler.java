@@ -24,6 +24,11 @@ import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 public abstract class OffloadScheduler extends SimIteration implements Serializable{
 	
 		
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3536972473535149228L;
+
 	public OffloadScheduler()
 	{
 
@@ -99,6 +104,8 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 		}
 		// System.out.println("UNDEP"+deployment);
 	}
+
+	
 
 	
 

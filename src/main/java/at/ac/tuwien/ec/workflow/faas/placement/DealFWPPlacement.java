@@ -9,7 +9,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
+import org.jgrapht.alg.shortestpath.GraphMeasurer;
+import org.jgrapht.alg.shortestpath.JohnsonShortestPaths;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
@@ -21,22 +24,25 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import scala.Tuple2;
 
-public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
+public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 	
 	private ArrayList<IoTDevice> publisherDevices;
 	private ArrayList<MobileDevice> subscriberDevices;
 	private ArrayList<ComputationalNode> candidateCenters;
-	private double updateTime;
-	
-	public FaaSDistancePlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
+	private double currentTime = 0.0;
+	TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator;
+		
+	public DealFWPPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
 		super();
 		setCurrentWorkflow(arg._1());
@@ -50,7 +56,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
-		
+		this.workflowIterator = new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
 		
 		for(IoTDevice iot : currInf.getIotDevices().values())
 		{
@@ -69,7 +75,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		
 		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
 		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		candidateCenters = findCenters(infrastructureMap, 4);
+		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
 	
@@ -89,45 +95,64 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 	 */
 	private static final long serialVersionUID = -1302954506550171766L;
 
+		
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		double startTime = System.currentTimeMillis();
+		int currentTimestamp = 0;
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 				
-		//Extract subgraph
-		if(updateCondition()) 
-		{
-			ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
-			extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-			candidateCenters = findCenters(infrastructureMap, 20);
-		}
-		//for(int i = 0; i < candidateCenters.size(); i++)
-			//System.out.println(candidateCenters.get(i).getId()+" ");
-		//all of this before should be moved in the constructor
-		
-		TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator 
-			= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
-		
+				
 		while(workflowIterator.hasNext())
 		{
+			//Extract subgraph
+			if(updateCondition()) 
+			{
+				ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
+				extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
+			}
+			//all of this before should be moved in the constructor
 			MobileSoftwareComponent msc = workflowIterator.next();
 			double minAvgCost = Double.MAX_VALUE;
 			ComputationalNode trg = null;
-			for(ComputationalNode cn : candidateCenters)
+			if(msc.isOffloadable()) 
 			{
-				double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-				if(avgCost < minAvgCost && cn.isCompatible(msc))
+				for(ComputationalNode cn : candidateCenters)
 				{
-					minAvgCost = avgCost;
-					trg = cn;
+					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
+					if(avgCost < minAvgCost && cn.isCompatible(msc))
+					//if(avgCost < minAvgCost)
+					{
+						minAvgCost = avgCost;
+						trg = cn;
+					}
+				}
+			}
+			else
+			{
+				for(ComputationalNode cn : this.getInfrastructure().getCloudNodes().values())
+				{
+					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
+					//if(avgCost < minAvgCost && cn.isCompatible(msc))
+					if(avgCost < minAvgCost)
+					{
+						minAvgCost = avgCost;
+						trg = cn;
+					}
 				}
 			}
 			if(trg==null)
 				return schedulings;
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
-			updateTime = scheduling.getRunTime();
+			
+			currentTimestamp = (int) Math.round(getCurrentTime());
+			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
+				d.updateCoordsWithMobility((double)currentTimestamp);
+			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
+			
 		}
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;
@@ -136,10 +161,6 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		return schedulings;
 	}
 	
-	private boolean updateCondition() {
-		return updateTime % 144.0 == 0;
-	}
-
 	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
 			ArrayList<MobileDevice> subscriberDevices) {
 		double nDevs = subscriberDevices.size();
@@ -151,90 +172,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		
 	}
 
-	protected void deploy(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg, ArrayList<IoTDevice> publisherDevices, ArrayList<MobileDevice> subscriberDevices)
-	{
-		super.deploy(placement, msc, trg);
-		addAverageLatency(placement,msc,trg,publisherDevices,subscriberDevices);
-		addCost(placement,msc,trg);
-	}
 	
-	private void addCost(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg) {
-		double predTime = Double.MIN_VALUE;
-		ComputationalNode maxTrg = null;
-		for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
-		{
-			ComputationalNode prevTarget = (ComputationalNode) placement.get(pred);
-			double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-			if(currTime > predTime) 
-			{
-				predTime = currTime;
-				maxTrg = prevTarget;
-			}
-		}
-		placement.addCost(msc, maxTrg, trg, getInfrastructure());
-	}
-
-	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
-			ComputationalNode trg, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) {
-		if(isSource(msc))
-		{
-			double maxLatency = Double.MIN_VALUE;
-			for(IoTDevice publisher : publishers) 
-			{
-				double currTTime = computeTransmissionTime(publisher,trg);
-				if(currTTime > maxLatency)
-					maxLatency = currTTime;
-				msc.addInData(publisher.getOutData());
-			}
-			placement.addAverageLatency(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			msc.setRunTime(maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			trg.setOutData(msc.getOutData());
-		}
-		else if(isSink(msc))
-		{
-			double maxLatency = Double.MIN_VALUE;
-			trg.setOutData(msc.getOutData());
-			for(MobileDevice subscriber : subscribers) 
-			{
-				double currTTime = computeTransmissionTime(trg,subscriber);
-				if(currTTime > maxLatency)
-					maxLatency = currTTime;
-			}
-			placement.addAverageLatency(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
-			msc.setRunTime(msc.getLocalRuntimeOnNode(trg, getInfrastructure()) + maxLatency);
-			trg.setOutData(msc.getOutData());
-		}
-		else
-		{
-			double predTime = Double.MIN_VALUE;
-			NetworkedNode maxTrg = null;
-			for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
-			{
-				NetworkedNode prevTarget = placement.get(pred);
-				double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-				if(currTime > predTime) 
-				{
-					predTime = currTime;
-					maxTrg = prevTarget;
-				}
-			}
-			placement.addAverageLatency(computeTransmissionTime(maxTrg,trg) 
-					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			msc.setRunTime(computeTransmissionTime(maxTrg,trg) 
-					+ msc.getLocalRuntimeOnNode(trg, getInfrastructure()));
-			trg.setOutData(msc.getOutData());
-			
-		}
-		
-	}
-
-	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
-		ConnectionMap connections = getInfrastructure().getConnectionMap();
-		if(src == null || trg == null)
-			return 0;
-		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
-	}
-
 		
 	private void extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
 	{
@@ -257,6 +195,9 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		
 		FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
 			= new FloydWarshallShortestPaths<>(infrastructureMap);
+		
+		//JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
+			//	new JohnsonShortestPaths<>(infrastructureMap);
 		
 		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
 		vertices.addAll(infrastructureMap.vertexSet());
@@ -285,7 +226,7 @@ public class FaaSDistancePlacement extends FaaSPlacementAlgorithm {
 		
 		Collections.sort(centers, new MaxDistanceComparator());
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, nCenters));
+		toReturn.addAll(centers.subList(0, Math.min(centers.size(), nCenters)));
 		return toReturn;				
 	}
 

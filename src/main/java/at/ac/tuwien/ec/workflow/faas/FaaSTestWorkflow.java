@@ -6,8 +6,7 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 public class FaaSTestWorkflow extends FaaSWorkflow {
 
 	public FaaSTestWorkflow(int wId, String[] publisherTopics, String[] subscribersTopics) {
-		super(publisherTopics, subscribersTopics);
-		// TODO Auto-generated constructor stub
+		super(wId,publisherTopics, subscribersTopics);
 	}
 	
 	public FaaSTestWorkflow(String[] publisherTopics, String[] subscribersTopics) {

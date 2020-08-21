@@ -11,6 +11,8 @@ import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -20,7 +22,7 @@ import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, NetworkConnection> implements Serializable{
 
 	
-	final int maxHops = FGCSSetup.cloudMaxHops;
+	final double maxHops = SimulationSetup.cloudMaxHops;
 	//int cloudHops = SimulationSetup.cloudMaxHops;
 	NormalDistribution nDistr = new NormalDistribution(SimulationSetup.MAP_M, 0.5);
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
@@ -126,15 +128,31 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(!vertexSet().contains(v))
 			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
 		NetworkConnection link = getEdge(u,v);
+		QoSProfile profile = null;
 		if(link == null)
-			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
-		QoSProfile profile = getEdge(u,v).qosProfile;
-		if(profile == null)
-			return Double.MAX_VALUE;
+		{
+			if(u instanceof MobileDevice || v instanceof MobileDevice) 
+			{
+				NetworkedNode src = (u instanceof MobileDevice) ? u : v;
+				for(NetworkConnection conn : outgoingEdgesOf(src))
+				{
+					if(conn.getTarget() instanceof EdgeNode)
+					{
+						profile = conn.getQoSProfile();
+						break;
+					}
+
+				}
+			}
+			else
+				return Double.MAX_VALUE;
+		}
+		else	
+			profile = getEdge(u,v).qosProfile;
 		
-		if(profile.getLatency()==Integer.MAX_VALUE)
-			return Double.MAX_VALUE;
+		profile.sampleQoS();
 		
+				
 		return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
 
@@ -195,29 +213,33 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		//return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 		//System.out.println(u.getId() + "," + v.getId() + " : " + profile.getLatency() + " , " + profile.getBandwidth() );
+		profile.sampleQoS();
 		return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
 				(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
 	}
 	
 	public double getInDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile){
+		profile.sampleQoS();
 		return (((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
 	public double getOutDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile)
 	{
+		profile.sampleQoS();
 		return ((msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
 	public double computeDistance(NetworkedNode u, NetworkedNode v)
 	{
+		
 		//return 1.0;
 		Coordinates c1,c2;
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
-			return 10.0;
+			return SimulationSetup.cloudMaxHops;
 		//mapping coordinates to cells
 		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
 		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);
@@ -233,6 +255,40 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			//					- Math.abs(Math.round(c1.getLongitude()/size_y)-Math.round(c2.getLongitude()/size_y)) )/2;
 		double dist2 = Math.abs(u_i - v_i) + Math.max(0,(Math.abs(u_i-v_i)- Math.abs(u_j-v_j) )/2);
 		return dist2;
+		/*
+		if(u.equals(v))
+			return 0.0;
+		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
+			return 10.0;
+		
+		Coordinates c1,c2;
+		
+		c1 = u.getCoords();
+		c2 = v.getCoords();
+		
+		double x1,x2,y1,y2;
+		
+		x1 = getXCoord(c1.getLatitude());
+		x2 = getXCoord(c2.getLatitude());
+		y1 = getYCoord(c1.getLongitude());
+		y2 = getYCoord(c2.getLongitude());
+		
+		double dist2 = Math.abs(x1 - x2) + Math.max(0,(Math.abs(x1-x2)- Math.abs(y1-y2) )/2.0);
+		return dist2;*/		
+	}
+	
+	private int getYCoord(double longitude) {
+		double min = 48.12426368;
+		double max = 48.30119579;
+		double cellNIndex = Math.ceil(((longitude - min)/(max-min))*(SimulationSetup.MAP_N));  
+		return (int) cellNIndex;
+	}
+
+	private int getXCoord(double latitude) {
+		double min = 16.21259754;
+		double max = 16.52969867;
+		double cellMIndex = Math.ceil(((latitude - min)/(max-min))*(SimulationSetup.MAP_M));  
+		return (int) cellMIndex;
 	}
 	
 	private double computeCost(NetworkedNode n, MobileDataDistributionInfrastructure I)

@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.triobj;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
@@ -6,7 +6,7 @@ import org.uma.jmetal.operator.MutationOperator;
 
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 
-public class FirstStageAresMutationOperator implements MutationOperator<FirstStageAresSolution>{
+public class TriobjMutationOperator implements MutationOperator<TriobjSolution>{
 
 	/**
 	 * 
@@ -14,12 +14,12 @@ public class FirstStageAresMutationOperator implements MutationOperator<FirstSta
 	private static final long serialVersionUID = -6788440882109554270L;
 	private double mutationProbability;
 	
-	public FirstStageAresMutationOperator(double mutationProbability) {
+	public TriobjMutationOperator(double mutationProbability) {
 		this.mutationProbability = mutationProbability;
 	}
 
 	@Override
-	public FirstStageAresSolution execute(FirstStageAresSolution solution) {
+	public TriobjSolution execute(TriobjSolution solution) {
 		UniformRealDistribution mutationRandomGenerator = new UniformRealDistribution();
 		UniformIntegerDistribution indexGenerator = 
 				new UniformIntegerDistribution(0, solution.getNumberOfVariables());

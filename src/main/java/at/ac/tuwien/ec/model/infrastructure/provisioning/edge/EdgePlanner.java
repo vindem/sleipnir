@@ -4,6 +4,7 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
@@ -36,9 +37,18 @@ public class EdgePlanner {
 		}
 	}
 	
-	public static void removeEdgeNodeAt(MobileCloudInfrastructure inf, int i, int j)
+	public static void addEdgeNodeAt(MobileDataDistributionInfrastructure inf, Coordinates coord, int index)
 	{
-		inf.removeEdgeNodeAt(i, j);
+		EdgeNode edge = new EdgeNode("edge_"+index, defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
+		edge.setCoords(coord);
+		edge.setCPUEnergyModel(defaultCPUEnergyModel);
+		edge.setNetEnergyModel(defaultNETEnergyModel);
+		inf.addEdgeNode(edge);
+	}
+	
+	public static void removeEdgeNodeAt(MobileDataDistributionInfrastructure inf, Coordinates coord, int index)
+	{
+		inf.removeEdgeNodeAt(coord, index);
 	}
 
 }

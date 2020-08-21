@@ -20,6 +20,7 @@ public class SumoTraceMobility implements Serializable{
 
 	public Coordinates getCoordinatesForTimestep(double timestep) {
 		int index = (int) Math.ceil(timestep);
+		index = index % trace.size();
 		return trace.get(index);
 	}
 

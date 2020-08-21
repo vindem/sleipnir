@@ -45,7 +45,7 @@ public class HEFTResearch extends OffloadScheduler {
 	
 	
 	@Override
-	public ArrayList<OffloadScheduling> findScheduling() {
+	public ArrayList<? extends OffloadScheduling> findScheduling() {
 		double start = System.nanoTime();
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
@@ -124,7 +124,7 @@ public class HEFTResearch extends OffloadScheduler {
 		return deployments;
 	}
 
-	private void setRank(MobileApplication A, MobileCloudInfrastructure I)
+	protected void setRank(MobileApplication A, MobileCloudInfrastructure I)
 	{
 		for(MobileSoftwareComponent msc : A.getTaskDependencies().vertexSet())
 			msc.setVisited(false);

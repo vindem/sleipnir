@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.triobj;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -13,7 +13,7 @@ import org.uma.jmetal.util.JMetalException;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo.EdgePlanningSolution;
 
-public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstStageAresSolution>{
+public class TriobjCrossoverOperator implements CrossoverOperator<TriobjSolution>{
 
 	/**
 	 * 
@@ -23,13 +23,13 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 	UniformRealDistribution distr = new UniformRealDistribution(0.0, 1.0);
 	Random rand;
 	
-	public FirstStageAresCrossoverOperator(double crossoverProbability) {
+	public TriobjCrossoverOperator(double crossoverProbability) {
 		this.crossoverProbability = crossoverProbability;
 		rand = new Random();
 	}
 
 	@Override
-	public List<FirstStageAresSolution> execute(List<FirstStageAresSolution> source) {
+	public List<TriobjSolution> execute(List<TriobjSolution> source) {
 		//System.out.println("CROSSOVER!");
 		if(source == null) 
 			throw new JMetalException("Parent list can't be null");
@@ -39,10 +39,10 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 		return doSinglePointCrossover(crossoverProbability, source.get(0), source.get(1));
 	}
 	
-	private List<FirstStageAresSolution> doUniformCrossover(double crossoverProbability, FirstStageAresSolution parent0,
-			FirstStageAresSolution parent1) {
-		List<FirstStageAresSolution> offspring
-			= new ArrayList<FirstStageAresSolution>(getNumberOfGeneratedChildren());
+	private List<TriobjSolution> doUniformCrossover(double crossoverProbability, TriobjSolution parent0,
+			TriobjSolution parent1) {
+		List<TriobjSolution> offspring
+			= new ArrayList<TriobjSolution>(getNumberOfGeneratedChildren());
 		Random rand = new Random();	
 		if(distr.sample() < crossoverProbability)
 		{
@@ -57,14 +57,14 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 					bs1.set(i,b0);
 				}
 			
-			offspring.add(new FirstStageAresSolution(bs0));
-			offspring.add(new FirstStageAresSolution(bs1));
+			offspring.add(new TriobjSolution(bs0));
+			offspring.add(new TriobjSolution(bs1));
 			
 		}
 		else
 		{
-			offspring.add((FirstStageAresSolution) parent0.copy());
-			offspring.add((FirstStageAresSolution) parent1.copy());
+			offspring.add((TriobjSolution) parent0.copy());
+			offspring.add((TriobjSolution) parent1.copy());
 		}
 		
 		
@@ -72,10 +72,10 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 		
 	}
 
-	private List<FirstStageAresSolution> doSinglePointCrossover(double crossoverProbability, FirstStageAresSolution parent0,
-			FirstStageAresSolution parent1) {
-		List<FirstStageAresSolution> offspring
-			= new ArrayList<FirstStageAresSolution>(getNumberOfGeneratedChildren());
+	private List<TriobjSolution> doSinglePointCrossover(double crossoverProbability, TriobjSolution parent0,
+			TriobjSolution parent1) {
+		List<TriobjSolution> offspring
+			= new ArrayList<TriobjSolution>(getNumberOfGeneratedChildren());
 		Random rand = new Random();
 		if(distr.sample() < crossoverProbability)
 		{
@@ -90,14 +90,14 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 					bs1.set(i,b0);
 			}
 			
-			offspring.add(new FirstStageAresSolution(bs0));
-			offspring.add(new FirstStageAresSolution(bs1));
+			offspring.add(new TriobjSolution(bs0));
+			offspring.add(new TriobjSolution(bs1));
 			
 		}
 		else
 		{
-			offspring.add((FirstStageAresSolution) parent0.copy());
-			offspring.add((FirstStageAresSolution) parent1.copy());
+			offspring.add((TriobjSolution) parent0.copy());
+			offspring.add((TriobjSolution) parent1.copy());
 		}
 		
 		

@@ -1,5 +1,6 @@
-package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
+package at.ac.tuwien.ec.model.infrastructure.provisioning.triobj;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -31,7 +32,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.ListBasedIoTPlanner;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresSolution> {
+public class TriobjProblem implements ConstrainedProblem<TriobjSolution> {
 	
 	protected static int MAP_M = SimulationSetup.MAP_M;
 	protected static int MAP_N = SimulationSetup.MAP_N;
@@ -49,7 +50,7 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 			new NumberOfViolatedConstraints<EdgePlanningSolution>();
 	
 		
-	public FirstStageAresProblem()
+	public TriobjProblem()
 	{
 		super();		
 	}
@@ -65,7 +66,7 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 	@Override
 	public int getNumberOfObjectives() {
 		// TODO Auto-generated method stub
-		return 2;
+		return 3;
 	}
 
 	@Override
@@ -74,25 +75,26 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 		return "ARES First Stage";
 	}
 
-	public void evaluate(FirstStageAresSolution solution) {
+	public void evaluate(TriobjSolution solution) {
 		
 		//DefaultNetworkPlanner.setupNetworkConnections(infrastructure);
 		
 		double maxMinDistance = 0.0, totalEnergy = 0.0;
-		double[] energy;
+		BigDecimal failureProb = new BigDecimal(1.0);
 		
 		maxMinDistance = computeMaxMinDistance(solution);
-		energy = computeEnergyConsumption(solution);
-		totalEnergy = energy[0] + energy[1];
+		totalEnergy = computeEnergyConsumption(solution);
+		failureProb = computeFailureProb(solution);
 		
 		solution.setObjective(0, maxMinDistance);
 		solution.setObjective(1, totalEnergy);
+		solution.setObjective(2, failureProb.doubleValue());
 	}
 
-	public static double[] computeEnergyConsumption(FirstStageAresSolution sol) {
+	public static double computeEnergyConsumption(TriobjSolution sol) {
 		//todo: include active energy
 		double idleEnergy = 0.0;
-		double[] energyValues = new double[2];
+		
 		double maxMinDist = computeMaxMinDistance(sol);
 		double lifeTime = 60.0*60.0;
 		double latency = DefaultNetworkPlanner.qosUL.getLatency();
@@ -120,12 +122,11 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 			if(sol.getVariableValue(i))
 				idleEnergy += 804.0 * lifeTime;
 		
-		energyValues[0] = idleEnergy;
-		energyValues[1] = activeEnergy;
-		return energyValues;
+		
+		return idleEnergy + activeEnergy;
 	}
 
-	public static double computeMaxMinDistance(FirstStageAresSolution sol) {
+	public static double computeMaxMinDistance(TriobjSolution sol) {
 		double maxMinDist = Double.MIN_VALUE;
 		for(Coordinates iotCoords : SimulationSetup.iotDevicesCoordinates)
 		{
@@ -185,18 +186,29 @@ public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresS
 		return 2;
 	}
 
-	public void evaluateConstraints(FirstStageAresSolution solution) {
+	public void evaluateConstraints(TriobjSolution solution) {
 				
 	}
 
 	@Override
-	public FirstStageAresSolution createSolution() {
+	public TriobjSolution createSolution() {
 		Random rand = new Random();
 		BitSet bs = new BitSet(SimulationSetup.edgeNodeLimit);
 		for(int i = 0; i < bs.size(); i++)
 			bs.set(i,rand.nextBoolean());
 		
-		return new FirstStageAresSolution(bs);
+		return new TriobjSolution(bs);
+	}
+
+	public static BigDecimal computeFailureProb(TriobjSolution triobjSolution) {
+		BigDecimal failureProb = new BigDecimal(1.0);
+		for(int i = 0; i < triobjSolution.getNumberOfVariables(); i++)
+		{
+			if(triobjSolution.getVariableValue(i)) 
+				failureProb = failureProb.multiply(new BigDecimal(SimulationSetup.failureProbList.get(i)));
+			
+		}
+		return failureProb;
 	}
 
 	

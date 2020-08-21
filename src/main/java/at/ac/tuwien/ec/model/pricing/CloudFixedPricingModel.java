@@ -13,14 +13,15 @@ public class CloudFixedPricingModel implements PricingModel{
 
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn0 , MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
-		return sc.getLocalRuntimeOnNode(cn0, i) * sc.getHardwareRequirements().getCores() * 0.03 + sc.getHardwareRequirements().getRam() * 0.0
-				+ sc.getHardwareRequirements().getStorage() * 0.01;
+		return sc.getLocalRuntimeOnNode(cn0, i) * sc.getHardwareRequirements().getCores() * 0.5 + sc.getHardwareRequirements().getRam() * 0.3
+				+ sc.getHardwareRequirements().getStorage() * 0.2;
 	}
 
 	@Override
 	public double computeCost(SoftwareComponent sc, ComputationalNode src, ComputationalNode trg,
 			MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
+		System.out.println("No!");
 		return 0;
 	}
 

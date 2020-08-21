@@ -85,7 +85,7 @@ public class MobileSoftwareComponent extends SoftwareComponent implements Serial
 	}
 	
 	public double getRuntimeOnNode(ComputationalNode n, ComputationalNode m, MobileCloudInfrastructure i) {
-		return ((n==null || m == null)? 0 : i.getTransmissionTime((MobileSoftwareComponent)this, n, m)*1.0) 
+		return ((n==null || m == null)? 0 : i.getTransmissionTime((MobileSoftwareComponent)this, n, m)) 
 				+ (millionsOfInstruction/m.getMipsPerCore());
 		//return ((n==null)? 0 : (m.getLatency()/1000.0) + (this.getOutData()/(m.getBandwidth()*125000.0))
 			//+ (millionsOfInstruction/m.getMipsPerCore()));

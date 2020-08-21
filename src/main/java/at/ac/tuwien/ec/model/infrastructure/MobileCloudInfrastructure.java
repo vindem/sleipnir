@@ -72,8 +72,13 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	
 	public void removeEdgeNode(EdgeNode edge)
 	{
-		connectionMap.removeAllEdges(connectionMap.outgoingEdgesOf(edge));
-		connectionMap.removeAllEdges(connectionMap.incomingEdgesOf(edge));
+		Set<NetworkConnection> outEdges = connectionMap.outgoingEdgesOf(edge);
+		while(outEdges.iterator().hasNext())
+			connectionMap.removeEdge(outEdges.iterator().next());
+		Set<NetworkConnection> inEdges = connectionMap.incomingEdgesOf(edge);
+		while(inEdges.iterator().hasNext())
+			connectionMap.removeEdge(inEdges.iterator().next());
+				
 		connectionMap.removeVertex(edge);
 		edgeNodes.remove(edge.getId());
 	}
@@ -100,7 +105,8 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 			throw new IllegalArgumentException("Profile is null");
 		if(!connectionMap.containsVertex(u) || !connectionMap.containsVertex(v))
 			throw new IllegalArgumentException((connectionMap.containsVertex(u)? v : u).getId() + ": No such vertex");
-		connectionMap.addEdge(u, v, profile);
+		if(!connectionMap.containsEdge(u,v))
+			connectionMap.addEdge(u, v, profile);
 	}
 	
 	public void addLink(NetworkedNode u, NetworkedNode v, double latency, double bandwidth) throws IllegalArgumentException
@@ -171,6 +177,8 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	
 	public double getTransmissionTime(MobileSoftwareComponent sc, NetworkedNode networkedNode, NetworkedNode n)
 	{
+		if(networkedNode == null || n == null)
+			return Double.MAX_VALUE;
 		if(networkedNode.equals(n))
 			return 0.0;
 		return connectionMap.getTransmissionTime(sc, networkedNode, n);
@@ -275,8 +283,16 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 		if(string.equals("random"))
 		{
 			RandomEdgePlanner.setupEdgeNodes(this);
-			DefaultNetworkPlanner.setupNetworkConnections(this);
+			//DefaultNetworkPlanner.setupNetworkConnections(this);
 		}
+		
+	}
+
+	public void removeAllEdgeNodes() {
+		// TODO Auto-generated method stub
+		ArrayList<EdgeNode> nodes = new ArrayList<EdgeNode>(edgeNodes.values());
+		for(EdgeNode node : nodes)
+			this.removeEdgeNode(node);
 		
 	}
 

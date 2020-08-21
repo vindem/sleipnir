@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.model.infrastructure;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -7,6 +8,7 @@ import java.util.LinkedHashMap;
 import org.jgrapht.Graph;
 
 import at.ac.tuwien.ec.datamodel.DataEntry;
+import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -14,11 +16,12 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ContainerInstance;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
-public class MobileDataDistributionInfrastructure extends MobileCloudInfrastructure {
+public class MobileDataDistributionInfrastructure extends MobileCloudInfrastructure implements Serializable,Cloneable {
 	
 	/**
 	 * 
@@ -137,6 +140,18 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 	public ConnectionMap getConnectionMap() {
 		// TODO Auto-generated method stub
 		return this.connectionMap;
+	}
+
+	public void removeEdgeNodeAt(Coordinates coord, int index) {
+		EdgeNode edge = edgeNodes.get("edge_"+index);
+		if(edge != null)
+			removeEdgeNode(edge);
+	}
+	
+	public MobileDataDistributionInfrastructure clone() throws CloneNotSupportedException
+	{
+		return (MobileDataDistributionInfrastructure) super.clone();
+		
 	}
 	
 }
