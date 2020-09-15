@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
@@ -16,6 +17,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.MobilityBasedNetworkPlanner;
+import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.MobileDevicePlannerWithMobility;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -25,6 +27,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 import at.ac.tuwien.ec.scheduling.workflow.WorkflowScheduling;
+import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import scala.Tuple2;
@@ -47,15 +50,20 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 		
 		OCT = new double[A.getTasks().size()][I.getAllNodes().size()];
 				
-		String[] sourceTopics = A.getPublisherTopics();
-		String[] trgTopics = A.getSubscribersTopic();
+		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
+		ArrayList<String> activeTopics = new ArrayList<String>();
+		for(String topic : currInf.getRegistry().keySet())
+		{
+			if(!currInf.getRegistry().get(topic).isEmpty())
+				activeTopics.add(topic);
+		}
+		String[] sourceTopics = activeTopics.toArray(new String[0]);
 		publisherDevices = new ArrayList<IoTDevice>();
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
 		
-		
-		for(IoTDevice iot : I.getIotDevices().values())
+		for(IoTDevice iot : currInf.getIotDevices().values())
 		{
 			Set<String> iotTopics = new HashSet<String>(Arrays.asList(iot.getTopics()));
 			iotTopics.retainAll(srcTopicSet);
@@ -63,19 +71,19 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 				publisherDevices.add(iot);
 		}
 		
-		for(String t : trgTopics)
+		for(String t : activeTopics)
 		{
-			ArrayList<MobileDevice> subscribers = I.getSubscribedDevices(t);
+			ArrayList<MobileDevice> subscribers = currInf.getSubscribedDevices(t);
 			if(subscribers != null)
 				subscriberDevices.addAll(subscribers);
 		}
 	}
 	
-	public PEFTFaaSScheduler(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> t)
+	public PEFTFaaSScheduler(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
 		super();
-		setCurrentWorkflow(t._1());
-		setInfrastructure(t._2());
+		setCurrentWorkflow(arg._1());
+		setInfrastructure(arg._2());
 		OCT = new double[this.getCurrentWorkflow().getTasks().size()][this.getInfrastructure().getAllNodes().size()];
 		
 		/*for(MobileSoftwareComponent msc : currentApp.getTasks())
@@ -85,15 +93,20 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 			System.out.println("");
 			}*/
 
-		String[] sourceTopics = this.getCurrentWorkflow().getPublisherTopics();
-		String[] trgTopics = this.getCurrentWorkflow().getSubscribersTopic();
+		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
+		ArrayList<String> activeTopics = new ArrayList<String>();
+		for(String topic : currInf.getRegistry().keySet())
+		{
+			if(!currInf.getRegistry().get(topic).isEmpty())
+				activeTopics.add(topic);
+		}
+		String[] sourceTopics = activeTopics.toArray(new String[0]);
 		publisherDevices = new ArrayList<IoTDevice>();
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
 		
-		
-		for(IoTDevice iot : this.getInfrastructure().getIotDevices().values())
+		for(IoTDevice iot : currInf.getIotDevices().values())
 		{
 			Set<String> iotTopics = new HashSet<String>(Arrays.asList(iot.getTopics()));
 			iotTopics.retainAll(srcTopicSet);
@@ -101,12 +114,12 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 				publisherDevices.add(iot);
 		}
 		
-		for(String topic : trgTopics)
+		for(String t : activeTopics)
 		{
-			ArrayList<MobileDevice> subscribers = this.getInfrastructure().getSubscribedDevices(topic);
+			ArrayList<MobileDevice> subscribers = currInf.getSubscribedDevices(t);
 			if(subscribers != null)
 				subscriberDevices.addAll(subscribers);
-		}		
+		}
 	}
 	
 	@Override
@@ -203,7 +216,9 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 				for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
 					d.updateCoordsWithMobility((double)currentTimestamp);
 				MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
-				
+				MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
+				MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
+						SimulationSetup.selectedWorkflow);
 				scheduledNodes.add(currTask);
 				if(schedulingGraph.containsVertex(currTask))
 				{

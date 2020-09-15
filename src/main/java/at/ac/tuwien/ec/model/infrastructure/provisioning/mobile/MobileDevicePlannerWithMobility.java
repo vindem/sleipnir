@@ -52,7 +52,7 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 		for(int i = 0; i < number; i++)
 		{
 			
-			MobileDevice device = new MobileDevice("vehicle_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
+			MobileDevice device = new MobileDevice("vehicle_"+i,defaultMobileDeviceHardwareCapabilities.clone());
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			SumoTraceMobility mobilityTrace = null;
@@ -62,10 +62,95 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 			inf.addMobileDevice(device);
 			
 			//depending on setup of traffic
-			for(int j = 0; j < SimulationSetup.topics.length; j++)
-				inf.subscribeDeviceToTopic(device, SimulationSetup.topics[j]);
+			switch(SimulationSetup.selectedWorkflow)
+			{
+				case "OF":
+				case "IR":
+					double minDist = Double.MAX_VALUE;
+					String topic = "";
+					for(IoTDevice iot : inf.getIotDevices().values())
+					{
+						double tmp = nodeDistance(device,iot);
+						if(tmp < minDist)
+						{
+							minDist = tmp;
+							topic = iot.getTopics()[0];
+						}
+					}
+					inf.subscribeDeviceToTopic(device, topic);
+					device.addSubscriberTopic(topic);
+					break;
+				case "IntraSafed":
+					for(IoTDevice iot : inf.getIotDevices().values())
+					{
+						double tmp = nodeDistance(device,iot);
+						if(tmp <= 1)
+						{
+							inf.subscribeDeviceToTopic(device,iot.getTopics()[0]);
+							device.addSubscriberTopic(iot.getTopics()[0]);
+						}
+					}
+					break;
+			}
 			
+						
 			
+		}
+	}
+	
+	public static void updateDeviceSubscriptions(MobileDataDistributionInfrastructure inf, String workflowType)
+	{
+		switch(workflowType)
+		{
+			case "IR":
+				for(MobileDevice device : inf.getMobileDevices().values()){
+					ArrayList<String> subscriberTopics = device.getSubscriberTopic();
+					String currTopic;
+					for(int i = 0; i < subscriberTopics.size(); i++) 
+					{
+						currTopic = subscriberTopics.get(i);
+						inf.removeDeviceFromTopic(device, currTopic);
+						device.removeSubscription(currTopic);
+					}
+					double minDist = Double.MAX_VALUE;
+					String topic = "";
+					for(IoTDevice iot : inf.getIotDevices().values())
+					{
+						double tmp = nodeDistance(device,iot);
+						if(tmp < minDist)
+						{
+							minDist = tmp;
+							topic = iot.getTopics()[0];
+						}
+					}
+					inf.subscribeDeviceToTopic(device, topic);
+					device.addSubscriberTopic(topic);
+				}
+				break;
+			case "IntraSafed":
+				for(MobileDevice device : inf.getMobileDevices().values()){
+					ArrayList<String> subscriberTopics = device.getSubscriberTopic();
+					String currTopic;
+					for(int i = 0; i < subscriberTopics.size(); i++) 
+					{
+						currTopic = subscriberTopics.get(i);
+						inf.removeDeviceFromTopic(device, currTopic);
+						device.removeSubscription(currTopic);
+					}
+					for(IoTDevice iot : inf.getIotDevices().values())
+					{
+						double tmp = nodeDistance(device,iot);
+						//System.out.println(tmp);
+						if(tmp == 0.0)
+						{
+							inf.subscribeDeviceToTopic(device,iot.getTopics()[0]);
+							device.addSubscriberTopic(iot.getTopics()[0]);
+						}
+					}
+				}
+				break;
+			default:
+				break;
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package at.ac.tuwien.ec.model.infrastructure.computationalnodes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -31,6 +32,7 @@ public class MobileDevice extends ComputationalNode {
 	private double globalRuntime = 0.0, quantileRuntime = 0.0;
 	private double quantileCost;
 	private double quantileEnergyBudget;
+	private ArrayList<String> subscriberTopic;
 	
 	public MobileDevice(String id, HardwareCapabilities capabilities)
 	{
@@ -42,6 +44,7 @@ public class MobileDevice extends ComputationalNode {
 		quantileRuntime = 0.0;
 		quantileCost = 0.0;
 		quantileEnergyBudget = 0.0;
+		subscriberTopic = new ArrayList<String>();
 	}
 	
 	public double getAverageLatency() {
@@ -52,6 +55,7 @@ public class MobileDevice extends ComputationalNode {
 	public MobileDevice(String id, HardwareCapabilities capabilities, double energyBudget) {
 		super(id, capabilities);
 		this.energyBudget = energyBudget;
+		subscriberTopic = new ArrayList<String>();
 	}
 	
 	public double getEnergyBudget() {
@@ -171,6 +175,18 @@ public class MobileDevice extends ComputationalNode {
 	public void removeFromQuantileBudget(double energy) {
 		this.quantileEnergyBudget -= energy;
 		
+	}
+
+	public void addSubscriberTopic(String topic) {
+		this.subscriberTopic.add(topic);
+	}
+	
+	public void removeSubscription(String topic) {
+		this.subscriberTopic.remove(topic);
+	}
+	
+	public ArrayList<String> getSubscriberTopic(){
+		return this.subscriberTopic;
 	}
 	
 }

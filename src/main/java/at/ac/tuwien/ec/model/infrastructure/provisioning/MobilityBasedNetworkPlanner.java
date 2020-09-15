@@ -217,6 +217,8 @@ public class MobilityBasedNetworkPlanner {
 		}
 	}
 	
+	
+	
 	private static double computeDistance(NetworkedNode u, NetworkedNode v) 
 	{
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )

@@ -121,6 +121,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	
 	public double getDataTransmissionTime(double dataSize, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{
+		if(!containsVertex(u))
+			System.out.println(u.getId());
 		if(u.equals(v))
 			return 0;
 		if(!vertexSet().contains(u))

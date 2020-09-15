@@ -61,17 +61,17 @@ public class SimulationSetup {
 	public static int chessMovesNum = 1;
 	public static double chess_mi = 10e3;
 	public static double facebookImageSize = 20e3;
-	public static double facerecImageSize = 10e7;
+	public static double facerecImageSize = 10e9;
 	public static double navigatorMapSize = 25e6;
 	//public static String[] algorithms = {"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares",
 		//	"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares"};
-	//public static String[] algorithms = {"DEAL-FW","DEAL-JSP","PEFT","FFD","COSTLESS"};
-	public static String[] algorithms = {"DEAL-JSP","DEAL-FW"};
+	public static String[] algorithms = {"DEAL-FW","DEAL-JSP","PEFT","FFD","COSTLESS"};
+	//public static String[] algorithms = {"DEAL-JSP","DEAL-FW"};
 	//public static String[] algorithms = {"triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj"};
 	//public static String[] algorithms = {"PEFT"};
 	public static boolean batch;
 	public static double batteryCapacity = mobileEnergyBudget * mobileNum;
-	public static int iterations = 100;
+	public static int iterations = 5;
 	public static int cloudNum = 6;
 	public static double EchoGamma;
 	public static double EchoAlpha;
@@ -85,7 +85,7 @@ public class SimulationSetup {
 	public static int dataEntryNum = 2592 ;
 	//public static int dataEntryNum = 259200;
 	public static String placementAlgorithm = "DEAL";
-	public static String filename = "testFile";
+	public static String filename = "./test/testFile";
 	public static String traffic ="HIGH";
 	public static String area = "HERNALS";
 	public static double dataRate = 2.0;
@@ -107,7 +107,8 @@ public class SimulationSetup {
 	public static ArrayList<Coordinates> admissibleEdgeCoordinates;
 	public static ArrayList<Coordinates> iotDevicesCoordinates;
 	public static ArrayList<Double> failureProbList;
-	public static int nCenters = 10;
-	public static double updateTime = 10e9;
+	public static int nCenters = 1;
+	public static double updateTime = 10000.0;
+	public static String selectedWorkflow = "IntraSafed";
 	
 }

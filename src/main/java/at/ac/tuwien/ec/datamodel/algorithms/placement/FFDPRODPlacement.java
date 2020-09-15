@@ -78,14 +78,20 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 		
 		FaaSWorkflow faasW = this.getCurrentWorkflow();
 		
-		String[] sourceTopics = faasW.getPublisherTopics();
-		String[] trgTopics = faasW.getSubscribersTopic();
+		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
+		ArrayList<String> activeTopics = new ArrayList<String>();
+		for(String topic : currInf.getRegistry().keySet())
+		{
+			if(!currInf.getRegistry().get(topic).isEmpty())
+				activeTopics.add(topic);
+		}
+		String[] sourceTopics = activeTopics.toArray(new String[0]);
 		ArrayList<IoTDevice> publisherDevices = new ArrayList<IoTDevice>();
 		ArrayList<MobileDevice> subscriberDevices = new ArrayList<MobileDevice>();
+		
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
 		
-		
-		for(IoTDevice iot : getInfrastructure().getIotDevices().values())
+		for(IoTDevice iot : currInf.getIotDevices().values())
 		{
 			Set<String> iotTopics = new HashSet<String>(Arrays.asList(iot.getTopics()));
 			iotTopics.retainAll(srcTopicSet);
@@ -93,9 +99,9 @@ public class FFDPRODPlacement extends FaaSPlacementAlgorithm {
 				publisherDevices.add(iot);
 		}
 		
-		for(String t : trgTopics)
+		for(String t : activeTopics)
 		{
-			ArrayList<MobileDevice> subscribers = getInfrastructure().getSubscribedDevices(t);
+			ArrayList<MobileDevice> subscribers = currInf.getSubscribedDevices(t);
 			if(subscribers != null)
 				subscriberDevices.addAll(subscribers);
 		}

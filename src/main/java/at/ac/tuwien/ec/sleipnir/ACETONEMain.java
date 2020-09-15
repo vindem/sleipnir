@@ -44,6 +44,7 @@ import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import at.ac.tuwien.ec.workflow.faas.OFWorkflow;
 import at.ac.tuwien.ec.workflow.faas.IRWorkflow;
+import at.ac.tuwien.ec.workflow.faas.IntrasafedWorkflow;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealJSPPlacement;
@@ -256,17 +257,9 @@ public class ACETONEMain {
 			Tuple3<Double,Double,Double> stdDeviations = calculateStandardDeviation(mostFrequent._1(), placements, mostFrequent._2());
 			
 			Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> confidenceIntervals = calculateCI(mostFrequent._2(), stdDeviations, 2.326);
-			//try {
-				// writer.append("\n");
-				// writer.append("VM PLACEMENT: " + SimulationSetup.placementAlgorithm+"\n");
-				 //writer.append("#\tFREQUENCY\tAVERAGE-RT\tMAX-RT\tCOST\tENTRY-NUM\n");
-				 //writer.append(" \t"+mostFrequent._2()._1()+"\t"+mostFrequent._2()._2()+"\t"
-					//	 +mostFrequent._2()._3()+"\t"+mostFrequent._2()._4() + "\t"+mostFrequent._1.values().size()+"\n");
-			//} catch (IOException e) {
-				// TODO Auto-generated catch block
-			//	e.printStackTrace();
-			//}
+			
 			System.out.println(currAlgorithm);
+			System.out.println("Most frequent:");
 			System.out.println(mostFrequent._1());
 			System.out.println(mostFrequent._2());
 			System.out.println("Standard deviations: ");
@@ -275,6 +268,49 @@ public class ACETONEMain {
 			System.out.println(confidenceIntervals._1());
 			System.out.println(confidenceIntervals._2());
 			System.out.println(confidenceIntervals._3());
+			
+			try {
+				writer.append("\n");
+				writer.append("VM PLACEMENT: " + currAlgorithm+"\n");
+				writer.append("# FREQUENCY\tAVERAGE-RT\t-\t+\tEXECUTION-TIME\t-\t+\tCOST\t-\t+\n");
+				writer.append(	 mostFrequent._2()._1()+"\t"
+								+mostFrequent._2()._2()+"\t"+confidenceIntervals._1()._1()+"\t"+confidenceIntervals._1()._2()+"\t"
+								+mostFrequent._2()._3()+"\t"+confidenceIntervals._2()._1()+"\t"+confidenceIntervals._2()._2()+"\t"
+								+mostFrequent._2()._4()+"\t"+confidenceIntervals._3()._1()+"\t"+confidenceIntervals._3()._2()+"\n"
+								);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> solutions 
+									= histogram.toLocalIterator();
+			
+			while(solutions.hasNext())
+			{
+				Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> solution = solutions.next();
+				if(solution._1().equals(mostFrequent._1()))
+					continue;
+				
+				Tuple3<Double,Double,Double> solStdDeviations = calculateStandardDeviation(solution._1(), placements, solution._2());
+				Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> solConfidenceIntervals = calculateCI(solution._2(), solStdDeviations, 2.326);
+				
+				try {
+						writer.append(	 solution._2()._1()+"\t"
+							+solution._2()._2()+"\t"+solConfidenceIntervals._1()._1()+"\t"+solConfidenceIntervals._1()._2()+"\t"
+							+solution._2()._3()+"\t"+solConfidenceIntervals._2()._1()+"\t"+solConfidenceIntervals._2()._2()+"\t"
+							+solution._2()._4()+"\t"+solConfidenceIntervals._3()._1()+"\t"+solConfidenceIntervals._3()._2()+"\n"
+							);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				System.out.println(solution._1());
+				System.out.println(solution._2());
+			}
+			
+			System.out.println("");
 			
 			System.out.println("##############");
 		}
@@ -331,14 +367,27 @@ public class ACETONEMain {
 
 	private static ArrayList<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> generateSamples(int iterations) {
 		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> samples = new ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>>();
-		DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
+		//DataDistributionGenerator ddg = new DataDistributionGenerator(SimulationSetup.dataEntryNum);
 		String[] workflowSub = {"moisture"};
 		String[] workflowPub = {"moisture"};
 		FaaSWorkflow faasWorkflow = new FaaSWorkflow(workflowPub, workflowSub);
-		System.out.println(faasWorkflow.getComponentNum());
+		//System.out.println(faasWorkflow.getComponentNum());
+		FaaSWorkflow faasWorkflowNew = null;
 		for(int i = 0; i < SimulationSetup.numberOfApps; i++)
 		{
-			FaaSWorkflow faasWorkflowNew = new IRWorkflow(i,workflowPub, workflowSub);
+			switch(SimulationSetup.selectedWorkflow)
+			{
+				case "IR":
+					faasWorkflowNew = new IRWorkflow(i,workflowPub, workflowSub);
+					break;
+				case "OF":
+					faasWorkflowNew = new OFWorkflow(i,workflowPub, workflowSub);
+					break;
+				case "IntraSafed":
+					faasWorkflowNew = new IntrasafedWorkflow(i,workflowPub, workflowSub);
+					break;
+			}
+			
 			faasWorkflow.joinSequential(faasWorkflowNew);
 		}
 		System.out.println(faasWorkflow.getComponentNum());
@@ -432,7 +481,16 @@ public class ACETONEMain {
 				String[] pars = arg.split("=");
 				SimulationSetup.dataRate = Double.parseDouble(pars[1]);
 			}
-				
+			if(arg.startsWith("-radius="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.nCenters = Integer.parseInt(pars[1]);
+			}
+			if(arg.startsWith("-updateTime="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.updateTime = Double.parseDouble(pars[1]);
+			}
 		}
 	}
 	

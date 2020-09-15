@@ -25,14 +25,7 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 	{
 		super();
 		this.workflow = faasw;
-		subscriberDevices = new ArrayList<MobileDevice>();
-		String[] trgTopics = faasw.getSubscribersTopic();
-		for(String t : trgTopics)
-		{
-			ArrayList<MobileDevice> subscribers = inf.getSubscribedDevices(t);
-			if(subscribers != null)
-				subscriberDevices.addAll(subscribers);
-		}
+		
 		
 	}
 	
@@ -40,15 +33,7 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 	{
 		super();
 		this.workflow = arg._1;
-		subscriberDevices = new ArrayList<MobileDevice>();
-		String[] trgTopics = arg._1.getSubscribersTopic();
-		for(String t : trgTopics)
-		{
-			ArrayList<MobileDevice> subscribers = arg._2.getSubscribedDevices(t);
-			if(subscribers != null)
-				subscriberDevices.addAll(subscribers);
-		}
-		
+				
 	}
 	
 	public Double getAverageLatency() {

@@ -69,17 +69,17 @@ public class FaaSWorkflow extends MobileApplication {
 		setSink(this.getComponentById("SINK"+"_"+getWorkloadId()+","+getUserId()));*/
 	}
 	
-	public String[] getPublisherTopics() {
+	/*public String[] getPublisherTopics() {
 		return publisherTopics;
-	}
+	}*/
 
 	public void setPublisherTopics(String[] publisherTopics) {
 		this.publisherTopics = publisherTopics;
 	}
 
-	public String[] getSubscribersTopic() {
+	/*public String[] getSubscribersTopic() {
 		return subscribersTopic;
-	}
+	}*/
 
 	public void setSubscribersTopic(String[] subscribersTopic) {
 		this.subscribersTopic = subscribersTopic;

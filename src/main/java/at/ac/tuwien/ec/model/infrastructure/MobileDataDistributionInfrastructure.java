@@ -83,6 +83,11 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		}
 	}
 	
+	public void removeDeviceFromTopic(MobileDevice dev, String topic) {
+		if(registry.containsKey(topic))
+			registry.get(topic).remove(dev);
+	}
+	
 	public ArrayList<MobileDevice> getSubscribedDevices(String topic)
 	{
 		if(registry.containsKey(topic))
