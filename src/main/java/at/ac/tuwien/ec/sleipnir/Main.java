@@ -32,6 +32,7 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
@@ -290,14 +291,14 @@ public class Main {
 			MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
 			for(int j = 0; j< SimulationSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.appNumber, "mobile_"+j));
+				globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.numberOfApps, "mobile_"+j));
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			DefaultNetworkPlanner.setupNetworkConnections(inf);
+			DefaultNetworkPlanner.setupNetworkConnections((MobileDataDistributionInfrastructure) inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
@@ -397,7 +398,7 @@ public class Main {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				SimulationSetup.appNumber = wlRuns[0];
+				SimulationSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
 			if(s.equals("-batch"))

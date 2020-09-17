@@ -32,6 +32,7 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
+import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
@@ -190,11 +191,11 @@ public class EdgeProvisioning {
 							break;
 						case "RANDOM":
 							RandomEdgePlanner.setupEdgeNodes(inf);
-							DefaultNetworkPlanner.setupNetworkConnections(inf);
+							DefaultNetworkPlanner.setupNetworkConnections((MobileDataDistributionInfrastructure) inf);
 							break;
 						case "ALL":
 							EdgeAllCellPlanner.setupEdgeNodes(inf);
-							DefaultNetworkPlanner.setupNetworkConnections(inf);
+							DefaultNetworkPlanner.setupNetworkConnections((MobileDataDistributionInfrastructure) inf);
 							break;
 						default:
 							MOEdgePlanning moEPlan = new MOEdgePlanning(inputValues._1(), inf);
@@ -319,7 +320,7 @@ public class EdgeProvisioning {
 			MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
 			for(int j = 0; j< SimulationSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.appNumber, "mobile_"+j));
+				globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.numberOfApps, "mobile_"+j));
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
@@ -427,7 +428,7 @@ public class EdgeProvisioning {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				SimulationSetup.appNumber = wlRuns[0];
+				SimulationSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
 			if(s.equals("-batch"))

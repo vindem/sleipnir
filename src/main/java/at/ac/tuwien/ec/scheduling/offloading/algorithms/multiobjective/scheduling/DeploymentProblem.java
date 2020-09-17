@@ -3,11 +3,7 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduli
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.uma.jmetal.problem.ConstrainedProblem;
-import org.uma.jmetal.problem.PermutationProblem;
 import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.problem.impl.AbstractIntegerPermutationProblem;
-import org.uma.jmetal.solution.PermutationSolution;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
@@ -28,7 +24,7 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
 
-public class DeploymentProblem extends OffloadScheduler implements ConstrainedProblem<DeploymentSolution>
+public class DeploymentProblem extends OffloadScheduler implements Problem<DeploymentSolution>
 {
 	/**
 	 * 
@@ -107,7 +103,6 @@ public class DeploymentProblem extends OffloadScheduler implements ConstrainedPr
 		currDep.setObjective(3, providerCost);
 	}
 
-	@Override
 	public void evaluateConstraints(DeploymentSolution arg0) {
 		int violatedConstraints = 0;
 		double overAllConstraintViolation = 0.0;

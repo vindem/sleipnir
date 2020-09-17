@@ -8,23 +8,21 @@ import java.util.Collections;
 import java.util.List;
 
 import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.algorithm.AlgorithmBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
-import org.uma.jmetal.operator.impl.selection.BinaryTournamentSelection;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
-import org.uma.jmetal.qualityindicator.impl.Hypervolume;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.PISAHypervolume;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.WFGHypervolume;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.util.WfgHypervolumeFront;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.util.WfgHypervolumeVersion;
-import org.uma.jmetal.util.AlgorithmRunner;
+import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.WFGHypervolume;
+import org.uma.jmetal.util.AbstractAlgorithmRunner;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.comparator.RankingComparator;
 import org.uma.jmetal.util.evaluator.impl.MultithreadedSolutionListEvaluator;
 import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
-import org.uma.jmetal.util.experiment.component.GenerateReferenceParetoSetAndFrontFromDoubleSolutions;
 import org.uma.jmetal.util.front.Front;
-import org.uma.jmetal.util.front.imp.ArrayFront;
 import org.uma.jmetal.util.point.Point;
 
 import at.ac.tuwien.ec.model.Coordinates;
@@ -43,12 +41,12 @@ import scala.Tuple2;
 
 public class FirstStageAresPlanner extends EdgePlanner{
 	
-	private FirstStageAresProblem problem;
+	private Problem<FirstStageAresSolution> problem;
 	private double crossoverProbability;
 	private double mutationProbability;
 	private BinaryTournamentSelection<FirstStageAresSolution> selectionMethod;
-	private FirstStageAresMutationOperator mutationOperator;
-	private FirstStageAresCrossoverOperator crossoverOperator;
+	private MutationOperator<FirstStageAresSolution> mutationOperator;
+	private CrossoverOperator<FirstStageAresSolution> crossoverOperator;
 	private SequentialSolutionListEvaluator<FirstStageAresSolution> mtSolEvaluator;
 	ArrayList<Algorithm<List<FirstStageAresSolution>>> algorithms = new ArrayList<Algorithm<List<FirstStageAresSolution>>>(); 	
 	Algorithm<List<FirstStageAresSolution>> algorithm;
@@ -75,18 +73,18 @@ public class FirstStageAresPlanner extends EdgePlanner{
 		try
 		{
 			NSGAIIBuilder<FirstStageAresSolution> nsgaBuilder = 
-					new NSGAIIBuilder<FirstStageAresSolution>(this.problem, this.crossoverOperator, this.mutationOperator);
+					new NSGAIIBuilder<FirstStageAresSolution>(this.problem, this.crossoverOperator, this.mutationOperator, 100);
 			//int[] iterations = {10,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000 };
 			int[] iterations = {300};
 			nsgaBuilder.setSelectionOperator(this.selectionMethod);
 			nsgaBuilder.setSolutionListEvaluator(this.mtSolEvaluator);
 			
 			//nsgaBuilder.setMaxEvaluations(50);
-			nsgaBuilder.setPopulationSize(100);
+			//nsgaBuilder.setPopulationSize(100);
 			
 			algorithm = nsgaBuilder.build();
 			//AlgorithmRunner nsgaRunner = new AlgorithmRunner.Executor(algorithm).execute();
-			AlgorithmRunner nsgaRunner;
+			AbstractAlgorithmRunner nsgaRunner;
 			
 			Point refPoint = new Point() {
 				double latency,energy;
@@ -132,6 +130,12 @@ public class FirstStageAresPlanner extends EdgePlanner{
 					this.latency = point[0];
 					this.energy = point[1];
 				}
+
+				@Override
+				public void set(double[] point) {
+					// TODO Auto-generated method stub
+					
+				}
 			};
 			double[] point = { 1.0 , 1.0 };
 			refPoint.update(point);
@@ -142,10 +146,11 @@ public class FirstStageAresPlanner extends EdgePlanner{
 			for(int i = 0; i < iterations.length; i++) {
 				nsgaBuilder.setMaxEvaluations(iterations[i]);
 				algorithms.add(nsgaBuilder.build());
-				nsgaRunner = new AlgorithmRunner.Executor(algorithms.get(i)).execute();
+				//nsgaRunner = new AlgorithmBuilder.Executor(algorithms.get(i)).execute();
 				population = algorithms.get(i).getResult();
 				System.out.println("Obtained solution for " + iterations[i] + " iterations, calculating hypervolume");
-				double hypervolume = HV.computeHypervolume(population, refPoint);
+				//double hypervolume = HV.computeHypervolume(population, refPoint);
+				/*double hypervolume = HV.hypervolume();
 				if(hypervolume > maxHypervolume)
 				{
 					maxHypervolume = hypervolume;
@@ -153,6 +158,7 @@ public class FirstStageAresPlanner extends EdgePlanner{
 				}
 				long executionTime = nsgaRunner.getComputingTime();
 				System.out.println("Hypervolume: " +hypervolume + " Runtime: " + executionTime + " milliseconds");
+				*/
 			}
 												
 			if(population != null)
@@ -174,18 +180,19 @@ public class FirstStageAresPlanner extends EdgePlanner{
 		try
 		{
 			NSGAIIBuilder<FirstStageAresSolution> nsgaBuilder = 
-					new NSGAIIBuilder<FirstStageAresSolution>(problem, crossoverOperator, mutationOperator);
+					new NSGAIIBuilder<FirstStageAresSolution>(problem, crossoverOperator, mutationOperator, 100);
 			
 			nsgaBuilder.setSelectionOperator(selectionMethod);
 			nsgaBuilder.setSolutionListEvaluator(mtSolEvaluator);
 			
 			nsgaBuilder.setMaxEvaluations(10);
-			nsgaBuilder.setPopulationSize(100);
+			//nsgaBuilder.setPopulationSize(100);
 			
 			algorithm = nsgaBuilder.build();
-			AlgorithmRunner nsgaRunner = new AlgorithmRunner.Executor(algorithm).execute();
+			//AlgorithmRunner nsgaRunner = new AlgorithmRunner.Executor(algorithm).execute();
+			algorithm.run();
 			
-			long executionTime = nsgaRunner.getComputingTime();
+			//long executionTime = nsgaRunner.getComputingTime();
 			
 			population = algorithm.getResult();
 			

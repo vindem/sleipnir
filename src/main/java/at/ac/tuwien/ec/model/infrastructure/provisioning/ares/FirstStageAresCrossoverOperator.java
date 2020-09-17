@@ -7,7 +7,7 @@ import java.util.Random;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.uma.jmetal.operator.CrossoverOperator;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.util.JMetalException;
 
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
@@ -115,6 +115,12 @@ public class FirstStageAresCrossoverOperator implements CrossoverOperator<FirstS
 	public int getNumberOfGeneratedChildren() {
 		// TODO Auto-generated method stub
 		return 2;
+	}
+
+	@Override
+	public double getCrossoverProbability() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

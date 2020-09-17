@@ -4,9 +4,11 @@ package at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.math3.linear.MatrixDimensionMismatchException;
-import org.uma.jmetal.solution.PermutationSolution;
+
 import org.uma.jmetal.solution.Solution;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
@@ -14,7 +16,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
-public class EdgePlanningSolution implements PermutationSolution<Boolean>{
+public class EdgePlanningSolution implements org.uma.jmetal.solution.permutationsolution.PermutationSolution<Boolean>{
 
 	/**
 	 * 
@@ -70,7 +72,6 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 		}
 	}
 
-	@Override
 	public Boolean getVariableValue(int arg0) {
 		int i,j;
 		i = arg0 / SimulationSetup.MAP_N;
@@ -78,7 +79,6 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 		return edgeNodeMap[i][j];
 	}
 
-	@Override
 	public String getVariableValueString(int arg0) {
 		int i,j;
 		i = arg0 / SimulationSetup.MAP_N;
@@ -109,7 +109,6 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 		}		
 	}
 
-	@Override
 	public void setVariableValue(int arg0, Boolean arg1) {
 		int i,j;
 		i = arg0 / SimulationSetup.MAP_N;
@@ -148,6 +147,76 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 	public double[] getObjectives() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public Map<Object, Object> getAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public double getConstraint(int arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public double[] getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public int getNumberOfConstraints() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public Boolean getVariable(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Boolean> getVariables() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean hasAttribute(Object arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public void setConstraint(int arg0, double arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setVariable(int arg0, Boolean arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public int getLength() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

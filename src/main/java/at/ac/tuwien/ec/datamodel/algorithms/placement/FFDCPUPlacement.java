@@ -71,8 +71,8 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 		
 		FaaSWorkflow faasW = this.getCurrentWorkflow();
 		
-		String[] sourceTopics = faasW.getPublisherTopics();
-		String[] trgTopics = faasW.getSubscribersTopic();
+		String[] sourceTopics = {};
+		String[] trgTopics = {};
 		ArrayList<IoTDevice> publisherDevices = new ArrayList<IoTDevice>();
 		ArrayList<MobileDevice> subscriberDevices = new ArrayList<MobileDevice>();
 		Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
@@ -127,7 +127,7 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 		addCost(placement,msc,trg);
 	}
 	
-	private void addCost(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg) {
+	protected void addCost(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc, ComputationalNode trg) {
 		double predTime = Double.MIN_VALUE;
 		ComputationalNode maxTrg = null;
 		for(MobileSoftwareComponent pred : getCurrentWorkflow().getPredecessors(msc))
@@ -143,7 +143,7 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 		placement.addCost(msc, trg, getInfrastructure());
 	}
 
-	private void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
+	protected void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
 			ComputationalNode trg, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) {
 		if(isSource(msc))
 		{
@@ -196,7 +196,7 @@ public class FFDCPUPlacement extends FaaSPlacementAlgorithm {
 		}
 		
 	}
-	private double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
+	protected double computeTransmissionTime(NetworkedNode src, ComputationalNode trg) {
 		ConnectionMap connections = getInfrastructure().getConnectionMap();
 		return connections.getDataTransmissionTime(src.getOutData(), src, trg);
 	}

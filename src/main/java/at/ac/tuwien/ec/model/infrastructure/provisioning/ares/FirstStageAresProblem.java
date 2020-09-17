@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang.math.RandomUtils;
-import org.uma.jmetal.problem.BinaryProblem;
-import org.uma.jmetal.problem.ConstrainedProblem;
-import org.uma.jmetal.problem.PermutationProblem;
-import org.uma.jmetal.solution.BinarySolution;
+import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
@@ -31,7 +28,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.sleipnir.ListBasedIoTPlanner;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
-public class FirstStageAresProblem implements ConstrainedProblem<FirstStageAresSolution> {
+public class FirstStageAresProblem implements Problem<FirstStageAresSolution> {
 	
 	protected static int MAP_M = SimulationSetup.MAP_M;
 	protected static int MAP_N = SimulationSetup.MAP_N;

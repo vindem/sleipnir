@@ -3,6 +3,8 @@ package at.ac.tuwien.ec.model.infrastructure.provisioning.triobj;
 import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.uma.jmetal.solution.Solution;
 
@@ -107,7 +109,6 @@ public class TriobjSolution implements Solution<Boolean>{
 		return objectives;
 	}
 
-	@Override
 	public Boolean getVariableValue(int index) {
 		return edgeNodeMap.get(index);
 	}
@@ -169,7 +170,6 @@ public class TriobjSolution implements Solution<Boolean>{
 		return solution;
 	}
 
-	@Override
 	public String getVariableValueString(int index) {
 		return ""+edgeNodeMap.get(index);
 	}
@@ -184,6 +184,60 @@ public class TriobjSolution implements Solution<Boolean>{
 				return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Boolean getVariable(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Boolean> getVariables() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setVariable(int index, Boolean variable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double[] getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getConstraint(int index) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setConstraint(int index, double value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getNumberOfConstraints() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean hasAttribute(Object id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Map<Object, Object> getAttributes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

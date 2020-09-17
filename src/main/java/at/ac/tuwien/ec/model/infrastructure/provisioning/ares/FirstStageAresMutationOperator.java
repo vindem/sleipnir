@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.model.infrastructure.provisioning.ares;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.uma.jmetal.operator.MutationOperator;
+import org.uma.jmetal.operator.mutation.MutationOperator;
 
 import at.ac.tuwien.ec.model.infrastructure.provisioning.DefaultNetworkPlanner;
 
@@ -32,6 +32,12 @@ public class FirstStageAresMutationOperator implements MutationOperator<FirstSta
 		}
 		
 		return solution;
+	}
+
+	@Override
+	public double getMutationProbability() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

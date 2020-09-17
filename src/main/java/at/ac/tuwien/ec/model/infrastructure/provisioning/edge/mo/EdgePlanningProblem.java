@@ -4,7 +4,7 @@ package at.ac.tuwien.ec.model.infrastructure.provisioning.edge.mo;
 
 import java.util.ArrayList;
 
-import org.uma.jmetal.problem.ConstrainedProblem;
+import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
@@ -19,7 +19,7 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
 
-public class EdgePlanningProblem implements ConstrainedProblem<EdgePlanningSolution>{
+public class EdgePlanningProblem implements Problem<EdgePlanningSolution>{
 
 	/**
 	 * 
@@ -92,7 +92,6 @@ public class EdgePlanningProblem implements ConstrainedProblem<EdgePlanningSolut
 		return SimulationSetup.MAP_M * SimulationSetup.MAP_N;
 	}
 
-	@Override
 	public void evaluateConstraints(EdgePlanningSolution arg0) {
 		int violatedConstraints = 0;
 		double overAllConstraintViolation = 0.0;

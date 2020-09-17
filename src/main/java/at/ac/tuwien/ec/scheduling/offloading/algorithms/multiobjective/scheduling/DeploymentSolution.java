@@ -1,9 +1,11 @@
 package at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.uma.jmetal.solution.PermutationSolution;
 import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.permutationsolution.PermutationSolution;
 
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
@@ -62,7 +64,6 @@ public class DeploymentSolution implements PermutationSolution<ComputationalNode
 		}
 	}
 	
-	@Override
 	public String getVariableValueString(int arg0) {
 		return deployment.get(deployment.keySet().toArray()[arg0]).toString();
 	}
@@ -89,12 +90,10 @@ public class DeploymentSolution implements PermutationSolution<ComputationalNode
 		}		
 	}
 	
-	@Override
 	public ComputationalNode getVariableValue(int arg0) {
 		return (ComputationalNode) deployment.get(deployment.keySet().toArray()[arg0]);
 	}
 
-	@Override
 	public void setVariableValue(int arg0, ComputationalNode arg1) {
 		MobileSoftwareComponent sc = (MobileSoftwareComponent) deployment.keySet().toArray()[arg0];
 		ComputationalNode actual = (ComputationalNode) deployment.get(sc);
@@ -234,6 +233,66 @@ public class DeploymentSolution implements PermutationSolution<ComputationalNode
 	public double[] getObjectives() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public ComputationalNode getVariable(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ComputationalNode> getVariables() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setVariable(int index, ComputationalNode variable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double[] getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getConstraint(int index) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setConstraint(int index, double value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getNumberOfConstraints() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean hasAttribute(Object id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Map<Object, Object> getAttributes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getLength() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 		

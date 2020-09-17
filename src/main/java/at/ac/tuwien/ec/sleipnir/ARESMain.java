@@ -588,7 +588,7 @@ public class ARESMain {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				SimulationSetup.appNumber = wlRuns[0];
+				SimulationSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
 			if(s.equals("-batch"))

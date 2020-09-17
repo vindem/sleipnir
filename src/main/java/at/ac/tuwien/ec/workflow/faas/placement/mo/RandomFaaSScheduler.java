@@ -45,8 +45,8 @@ public class RandomFaaSScheduler extends FaaSPlacementAlgorithm {
 		
 		FaaSWorkflow faasW = this.getCurrentWorkflow();
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
-		String[] sourceTopics = faasW.getPublisherTopics();
-		String[] trgTopics = faasW.getSubscribersTopic();
+		String[] sourceTopics = {};
+		String[] trgTopics = {};
 		publisherDevices = new ArrayList<IoTDevice>();
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
