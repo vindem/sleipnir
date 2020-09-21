@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.provisioning.edge.EdgeAllCellPlanner;
+import at.ac.tuwien.ec.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 class EdgeAllCellPlannerTest {

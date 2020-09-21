@@ -15,8 +15,8 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
-import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.utils.SumoTraceParser;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
+import at.ac.tuwien.ec.provisioning.mobile.utils.SumoTraceParser;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 class MobileDeviceTest {

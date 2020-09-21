@@ -69,25 +69,25 @@
        <dependency>
             <groupId>org.uma.jmetal</groupId>
             <artifactId>jmetal-core</artifactId>
-            <version>5.10</version>
+            <version>5.0</version>
         </dependency>
         
        	<dependency>
             <groupId>org.uma.jmetal</groupId>
             <artifactId>jmetal-algorithm</artifactId>
-            <version>5.10</version>
+            <version>5.0</version>
         </dependency>
         
        <dependency>
             <groupId>org.uma.jmetal</groupId>
             <artifactId>jmetal-exec</artifactId>
-            <version>5.9</version>
+            <version>5.0</version>
         </dependency> 
         
         <dependency>
             <groupId>org.uma.jmetal</groupId>
             <artifactId>jmetal-problem</artifactId>
-            <version>5.10</version>
+            <version>5.0</version>
         </dependency> 
                 
         <dependency>
@@ -136,7 +136,7 @@
                 	<addClasspath>true</addClasspath>
                 	<classpathPrefix>libs/</classpathPrefix>
                 	<mainClass>
-                    	at.ac.tuwien.ec.sleipnir.Main
+                    	at.ac.tuwien.ec.sleipnir.ACETONEMain
                 	</mainClass>
             	</manifest>
         		</archive>

@@ -14,8 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
-import at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.utils.SumoTraceParser;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
+import at.ac.tuwien.ec.provisioning.mobile.utils.SumoTraceParser;
 
 /**
  * @author vincenzo
@@ -24,7 +24,7 @@ import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 class SumoTraceParserTest {
 
 	/**
-	 * Test method for {@link at.ac.tuwien.ec.model.infrastructure.provisioning.mobile.utils.SumoTraceParser#parse(java.io.File, java.lang.String)}.
+	 * Test method for {@link at.ac.tuwien.ec.provisioning.mobile.utils.SumoTraceParser#parse(java.io.File, java.lang.String)}.
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 

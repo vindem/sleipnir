@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.solution.sequencesolution.SequenceSolution;
 
-public class FaaaSPlacementSolution<ComputationalNode> implements SequenceSolution<ComputationalNode> {
+public class FaaaSPlacementSolution<ComputationalNode> implements Solution<ComputationalNode> {
 
 	@Override
 	public Solution<ComputationalNode> copy() {
@@ -20,31 +19,31 @@ public class FaaaSPlacementSolution<ComputationalNode> implements SequenceSoluti
 		return null;
 	}
 
-	@Override
+	
 	public Map<Object, Object> getAttributes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	
 	public double getConstraint(int arg0) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	
 	public double[] getConstraints() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	
 	public int getNumberOfConstraints() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	
 	public int getNumberOfObjectives() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -62,25 +61,23 @@ public class FaaaSPlacementSolution<ComputationalNode> implements SequenceSoluti
 		return 0;
 	}
 
-	@Override
+	
 	public double[] getObjectives() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+	
 	public ComputationalNode getVariable(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public List<ComputationalNode> getVariables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public boolean hasAttribute(Object arg0) {
 		// TODO Auto-generated method stub
 		return false;
@@ -92,7 +89,7 @@ public class FaaaSPlacementSolution<ComputationalNode> implements SequenceSoluti
 		
 	}
 
-	@Override
+	
 	public void setConstraint(int arg0, double arg1) {
 		// TODO Auto-generated method stub
 		
@@ -104,16 +101,32 @@ public class FaaaSPlacementSolution<ComputationalNode> implements SequenceSoluti
 		
 	}
 
-	@Override
 	public void setVariable(int arg0, ComputationalNode arg1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public int getLength() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public ComputationalNode getVariableValue(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getVariableValueString(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setVariableValue(int arg0, ComputationalNode arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
