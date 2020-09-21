@@ -10,14 +10,12 @@ import java.util.List;
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
-import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.operator.CrossoverOperator;
+import org.uma.jmetal.operator.MutationOperator;
+import org.uma.jmetal.operator.impl.selection.BinaryTournamentSelection;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.qualityindicator.QualityIndicator;
-import org.uma.jmetal.qualityindicator.impl.hypervolume.impl.PISAHypervolume;
-import org.uma.jmetal.util.AbstractAlgorithmRunner;
+import org.uma.jmetal.runner.AbstractAlgorithmRunner;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.comparator.RankingComparator;
 import org.uma.jmetal.util.evaluator.impl.MultithreadedSolutionListEvaluator;
@@ -74,7 +72,7 @@ public class TriobjPlanner extends EdgePlanner{
 		try
 		{
 			NSGAIIBuilder<TriobjSolution> nsgaBuilder = 
-					new NSGAIIBuilder(this.problem, this.crossoverOperator, this.mutationOperator,30);
+					new NSGAIIBuilder(this.problem, this.crossoverOperator, this.mutationOperator);
 			//int[] iterations = {10,50,100,150,200,250,300,350,400,450,500,550,600,650,700 };
 			int[] iterations = {300};
 			nsgaBuilder.setSelectionOperator(this.selectionMethod);
@@ -91,7 +89,6 @@ public class TriobjPlanner extends EdgePlanner{
 				double latency,energy;
 				private double failureProb;
 								
-				@Override
 				public int getDimension() {
 					// TODO Auto-generated method stub
 					return 3;
@@ -107,7 +104,6 @@ public class TriobjPlanner extends EdgePlanner{
 					return values;
 				}
 
-				@Override
 				public double getValue(int index) {
 					switch(index)
 					{
@@ -118,7 +114,6 @@ public class TriobjPlanner extends EdgePlanner{
 					return 0;
 				}
 
-				@Override
 				public void setValue(int index, double value) {
 					switch(index)
 					{
@@ -131,27 +126,43 @@ public class TriobjPlanner extends EdgePlanner{
 					}
 				}
 
-				@Override
 				public void update(double[] point) {
 					this.latency = point[0];
 					this.energy = point[1];
 					this.failureProb = point[2];
 				}
 
-				@Override
 				public void set(double[] arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public double getDimensionValue(int arg0) {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public int getNumberOfDimensions() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+
+				@Override
+				public void setDimensionValue(int arg0, double arg1) {
 					// TODO Auto-generated method stub
 					
 				}
 			};
 			double[] point = { 10.0 , 1e11, 1.0 };
-			refPoint.update(point);
-			PISAHypervolume<TriobjSolution> HV = new PISAHypervolume<TriobjSolution>();
+			//refPoint.update(point);
+			//PISAHypervolume<TriobjSolution> HV = new PISAHypervolume<TriobjSolution>();
 			
 			double maxHypervolume = Double.MIN_VALUE;
 			List<TriobjSolution> bestPopulation = null;
 			for(int i = 0; i < iterations.length; i++) {
-				nsgaBuilder.setMaxEvaluations(iterations[i]);
+				nsgaBuilder.setMaxIterations(iterations[i]);
 				NSGAII<TriobjSolution> runner = nsgaBuilder.build();
 				algorithms.add(runner);
 				runner.run();
@@ -186,12 +197,12 @@ public class TriobjPlanner extends EdgePlanner{
 		try
 		{
 			NSGAIIBuilder<TriobjSolution> nsgaBuilder = 
-					new NSGAIIBuilder<TriobjSolution>(this.problem, this.crossoverOperator, this.mutationOperator,100);
+					new NSGAIIBuilder<TriobjSolution>(this.problem, this.crossoverOperator, this.mutationOperator);
 			
 			nsgaBuilder.setSelectionOperator(selectionMethod);
 			nsgaBuilder.setSolutionListEvaluator(mtSolEvaluator);
 			
-			nsgaBuilder.setMaxEvaluations(10);
+			nsgaBuilder.setMaxIterations(10);
 					
 			algorithm = nsgaBuilder.build();
 			algorithm.run();

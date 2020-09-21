@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.operator.CrossoverOperator;
 import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
-import org.uma.jmetal.util.pseudorandom.RandomGenerator;
+
 import org.uma.jmetal.util.pseudorandom.impl.JavaRandomGenerator;
 
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
@@ -63,17 +63,14 @@ public class DeploymentCrossoverOperator implements CrossoverOperator<Deployment
 		return offsprings;
 	}
 
-	@Override
 	public int getNumberOfGeneratedChildren() {
 		return 2;
 	}
 
-	@Override
 	public int getNumberOfRequiredParents() {
 		return 2;
 	}
 
-	@Override
 	public double getCrossoverProbability() {
 		// TODO Auto-generated method stub
 		return 0;

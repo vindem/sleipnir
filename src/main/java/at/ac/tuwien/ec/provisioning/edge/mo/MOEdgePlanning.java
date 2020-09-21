@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.operator.CrossoverOperator;
+import org.uma.jmetal.operator.MutationOperator;
+import org.uma.jmetal.operator.SelectionOperator;
+import org.uma.jmetal.operator.impl.selection.BinaryTournamentSelection;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.comparator.RankingComparator;
 import org.uma.jmetal.util.evaluator.impl.MultithreadedSolutionListEvaluator;
@@ -69,8 +69,8 @@ public class MOEdgePlanning extends EdgePlanner{
 		List<EdgePlanningSolution> population = new ArrayList<EdgePlanningSolution>();
 		try
 		{
-			NSGAIIBuilder<EdgePlanningSolution> nsgaBuilder = new NSGAIIBuilder<EdgePlanningSolution>(problem, crossover, mutation, populationSize);
-			nsgaBuilder.setMaxEvaluations(100);
+			NSGAIIBuilder<EdgePlanningSolution> nsgaBuilder = new NSGAIIBuilder<EdgePlanningSolution>(problem, crossover, mutation);
+			nsgaBuilder.setMaxIterations(100);
 			algorithm = nsgaBuilder.build();
 			//AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
 			

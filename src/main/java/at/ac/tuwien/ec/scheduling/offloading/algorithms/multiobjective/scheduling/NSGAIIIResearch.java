@@ -8,13 +8,12 @@ import java.util.logging.Level;
 
 import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
-import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
-import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.operator.CrossoverOperator;
+import org.uma.jmetal.operator.MutationOperator;
+import org.uma.jmetal.operator.SelectionOperator;
+import org.uma.jmetal.operator.impl.selection.BinaryTournamentSelection;
 import org.uma.jmetal.problem.Problem;
-import org.uma.jmetal.util.AbstractAlgorithmRunner;
+
 import org.uma.jmetal.runner.multiobjective.NSGAIIRunner;
 
 import org.uma.jmetal.util.JMetalException;
@@ -53,7 +52,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		mutation = new DeploymentMutationOperator(mutationProbability);
 		selection = new BinaryTournamentSelection<DeploymentSolution>(new RankingComparator<DeploymentSolution>());
 		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
-				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors());
+				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
 	}
 	
 	public NSGAIIIResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
@@ -65,7 +64,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		mutation = new DeploymentMutationOperator(mutationProbability);
 		selection = new BinaryTournamentSelection<DeploymentSolution>(new RankingComparator<DeploymentSolution>());
 		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
-				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors());
+				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
 	}
 
 	
@@ -83,8 +82,8 @@ public class NSGAIIIResearch extends OffloadScheduler{
 	            //.setPopulationSize(10)
 	            .build() ;*/
 
-			NSGAIIBuilder<DeploymentSolution> nsgaBuilder = new NSGAIIBuilder<DeploymentSolution>(problem, crossover, mutation, populationSize);
-			nsgaBuilder.setMaxEvaluations(50);
+			NSGAIIBuilder<DeploymentSolution> nsgaBuilder = new NSGAIIBuilder<DeploymentSolution>(problem, crossover, mutation);
+			nsgaBuilder.setMaxIterations(50);
 			algorithm = nsgaBuilder.build();
 			//AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm)
 				//	.execute() ;

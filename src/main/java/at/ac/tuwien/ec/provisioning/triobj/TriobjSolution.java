@@ -100,7 +100,6 @@ public class TriobjSolution implements Solution<Boolean>{
 		}
 	}
 
-	@Override
 	public double[] getObjectives() {
 		double[] objectives = new double[3];
 		objectives[0] = this.averageDistance;
@@ -186,55 +185,46 @@ public class TriobjSolution implements Solution<Boolean>{
 		return true;
 	}
 
-	@Override
 	public Boolean getVariable(int index) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public List<Boolean> getVariables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public void setVariable(int index, Boolean variable) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public double[] getConstraints() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public double getConstraint(int index) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public void setConstraint(int index, double value) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public int getNumberOfConstraints() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public boolean hasAttribute(Object id) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public Map<Object, Object> getAttributes() {
 		// TODO Auto-generated method stub
 		return null;

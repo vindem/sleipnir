@@ -5,7 +5,7 @@ import java.util.Random;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.operator.MutationOperator;
 
 
 
@@ -23,7 +23,6 @@ public class EdgePlanningMutationOperator implements MutationOperator<EdgePlanni
 		this.mutationProbability = mutationProbability;
 	}
 	
-	@Override
 	public EdgePlanningSolution execute(EdgePlanningSolution arg0) {
 		UniformRealDistribution mutationRandomGenerator = new UniformRealDistribution();
 		UniformIntegerDistribution indexGenerator = 
@@ -37,7 +36,6 @@ public class EdgePlanningMutationOperator implements MutationOperator<EdgePlanni
 		return arg0;
 	}
 
-	@Override
 	public double getMutationProbability() {
 		// TODO Auto-generated method stub
 		return 0;

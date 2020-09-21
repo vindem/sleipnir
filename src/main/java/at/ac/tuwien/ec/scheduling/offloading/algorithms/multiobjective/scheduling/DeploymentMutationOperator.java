@@ -4,8 +4,7 @@ import java.util.Random;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.util.pseudorandom.RandomGenerator;
+import org.uma.jmetal.operator.MutationOperator;
 
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -57,7 +56,6 @@ public class DeploymentMutationOperator implements MutationOperator<DeploymentSo
 		return null;
 	}
 
-	@Override
 	public double getMutationProbability() {
 		// TODO Auto-generated method stub
 		return 0;

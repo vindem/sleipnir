@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.provisioning.triobj;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.operator.MutationOperator;
 
 import at.ac.tuwien.ec.provisioning.DefaultNetworkPlanner;
 
@@ -34,7 +34,6 @@ public class TriobjMutationOperator implements MutationOperator<TriobjSolution>{
 		return solution;
 	}
 
-	@Override
 	public double getMutationProbability() {
 		// TODO Auto-generated method stub
 		return 0;
