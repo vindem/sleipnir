@@ -30,7 +30,6 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.jgrapht.Graph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.software.ComponentLink;
@@ -56,10 +55,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.MinMinResearch;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTEnergyScheduler;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTOffloadScheduler;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
+
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
 import scala.Tuple2;

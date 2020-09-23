@@ -15,8 +15,6 @@ import org.jgrapht.alg.shortestpath.GraphMeasurer;
 import org.jgrapht.alg.shortestpath.JohnsonShortestPaths;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
-import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
@@ -40,7 +38,6 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 	private ArrayList<IoTDevice> publisherDevices;
 	private ArrayList<MobileDevice> subscriberDevices;
 	private ArrayList<ComputationalNode> candidateCenters;
-	private double currentTime = 0.0;
 	TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator;
 		
 	public DealFWPPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
@@ -58,6 +55,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				activeTopics.add(topic);
 		}
 		String[] sourceTopics = activeTopics.toArray(new String[0]);
+		
 		publisherDevices = new ArrayList<IoTDevice>();
 		subscriberDevices = new ArrayList<MobileDevice>();
 		
@@ -79,8 +77,9 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				subscriberDevices.addAll(subscribers);
 		}
 		
-		ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
+		ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap();
+		infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
@@ -123,7 +122,9 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					if(!currInf.getRegistry().get(topic).isEmpty())
 						activeTopics.add(topic);
 				}
-				String[] sourceTopics = activeTopics.toArray(new String[0]);
+				String[] sourceTopics = activeTopics.toArray(new String[activeTopics.size()]);
+				publisherDevices.clear();
+				subscriberDevices.clear();
 				publisherDevices = new ArrayList<IoTDevice>();
 				subscriberDevices = new ArrayList<MobileDevice>();
 				
@@ -136,6 +137,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					iotTopics.retainAll(srcTopicSet);
 					if(!iotTopics.isEmpty())
 						publisherDevices.add(iot);
+					iotTopics.clear();
 				}
 				
 				for(String t : activeTopics)
@@ -145,8 +147,9 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 						subscriberDevices.addAll(subscribers);
 				}
 				
+				//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 				ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-				extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+				infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
 			//all of this before should be moved in the constructor
@@ -210,7 +213,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 
 	
 		
-	private void extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
+	private ConnectionMap extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
 	{
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		ArrayList<NetworkedNode> vertexList = new ArrayList<NetworkedNode>(infrastructureMap.vertexSet());
@@ -220,12 +223,16 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					&& !(currInf.getCloudNodes().containsKey(n.getId()) 
 							|| currInf.getEdgeNodes().containsKey(n.getId()) ) )
 			{
-				ArrayList<NetworkConnection> connList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
-				for(NetworkConnection nc : connList) 
+				ArrayList<NetworkConnection> outConnList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
+				for(NetworkConnection nc : outConnList) 
+					infrastructureMap.removeEdge(nc);
+				ArrayList<NetworkConnection> inConnList = new ArrayList<NetworkConnection>(infrastructureMap.incomingEdgesOf(n));
+				for(NetworkConnection nc : inConnList) 
 					infrastructureMap.removeEdge(nc);
 				infrastructureMap.removeVertex(n);
 			}	
 		}
+		return infrastructureMap;
 	}
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {

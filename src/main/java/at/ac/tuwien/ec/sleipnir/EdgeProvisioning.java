@@ -30,7 +30,6 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.jgrapht.Graph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.software.ComponentLink;

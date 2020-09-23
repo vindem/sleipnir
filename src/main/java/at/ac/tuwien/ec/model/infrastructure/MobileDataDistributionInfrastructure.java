@@ -29,14 +29,14 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 	private static final long serialVersionUID = 1870819700911396938L;
 	private HashMap<String, IoTDevice> iotDevices;
 	private HashMap<String, ArrayList<MobileDevice>> registry;
-	private HashMap<String, ContainerInstance > vmRepository;
-	private HashMap<String, ArrayList<ContainerInstance>> vmAssignment;
+	
 	
 	public MobileDataDistributionInfrastructure()
 	{
 		super();
 		iotDevices = new HashMap<String,IoTDevice>();
 		registry = new HashMap<String, ArrayList<MobileDevice>>();
+		/*
 		vmRepository = new HashMap<String, ContainerInstance>();
 		vmRepository.put("c5.large", new ContainerInstance("c5.large",new HardwareCapabilities(new Hardware(2,100,1e7), 10000),0.085));
 		vmRepository.put("c5.xlarge", new ContainerInstance("c5.xlarge",new HardwareCapabilities(new Hardware(4,100,1e7), 10000),0.17));
@@ -49,6 +49,7 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		vmRepository.put("i3.2xlarge", new ContainerInstance("i3.2xlarge",new HardwareCapabilities(new Hardware(8,100,1e8), 10000),0.624));
 		vmRepository.put("i3.4xlarge", new ContainerInstance("i3.4xlarge",new HardwareCapabilities(new Hardware(16,100,1e8), 10000),1.248));
 		vmAssignment = new HashMap<String, ArrayList<ContainerInstance>>();
+		*/
 	}
 	
 	public void addIoTDevice(IoTDevice device)
@@ -114,27 +115,6 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		if(iotDevices.containsKey(id))
 			return iotDevices.get(id);
 		return super.getNodeById(id);				
-	}
-	
-	public void addVMInstance(String id, ContainerInstance vm)
-	{
-		if(!vmRepository.containsKey(id))
-			vmRepository.put(id, vm);
-	}
-	
-	public void instantiateContainerForUser(String uid, ContainerInstance vm)
-	{
-		if(!vmAssignment.containsKey(uid))
-			vmAssignment.put(uid, new ArrayList<ContainerInstance>());
-		vmAssignment.get(uid).add(vm);
-	}
-
-	public ArrayList<ContainerInstance> getVMAssignment(String uid) {
-		return vmAssignment.get(uid);
-	}
-
-	public HashMap<String, ContainerInstance> getVMRepository() {
-		return vmRepository;
 	}
 	
 	public void setEdgeWeights()

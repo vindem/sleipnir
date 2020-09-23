@@ -87,7 +87,7 @@ public class SimulationSetup {
 	public static String placementAlgorithm = "DEAL";
 	public static String filename = "./test/testFile";
 	public static String traffic ="HIGH";
-	public static String area = "HERNALS";
+	public static String area = "SIMMERING";
 	public static double dataRate = 2.0;
 	public static String workloadType = "DATA3";
 	public static double y_max = 3224;
@@ -100,7 +100,7 @@ public class SimulationSetup {
 	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
-	public static int numberOfApps = 40;
+	public static int numberOfApps = 100;
 	public static int numberOfParallelApps = 1;
 	public static NETEnergyModel edgeNETEnergyModel = new ComputationalNodeNetEnergyModel();
 	public static int edgeNodeLimit = 900;
@@ -108,7 +108,7 @@ public class SimulationSetup {
 	public static ArrayList<Coordinates> iotDevicesCoordinates;
 	public static ArrayList<Double> failureProbList;
 	public static int nCenters = 1;
-	public static double updateTime = 10000.0;
-	public static String selectedWorkflow = "IntraSafed";
+	public static double updateTime = 10.0;
+	public static String selectedWorkflow = "IR";
 	
 }

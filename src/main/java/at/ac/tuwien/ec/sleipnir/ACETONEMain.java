@@ -16,20 +16,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
-import at.ac.tuwien.ec.datamodel.DataDistributionGenerator;
-import at.ac.tuwien.ec.datamodel.DataEntry;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.DataPlacementAlgorithm;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDCPUEdgePlacement;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDCPUPlacement;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.FFDPRODPlacement;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.L2NormPlacement;
-import at.ac.tuwien.ec.datamodel.algorithms.placement.SteinerTreeHeuristic;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.BestFitCPU;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUDecreasing;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitCPUIncreasing;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.FirstFitDecreasingSizeContainerPlanner;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
-import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.provisioning.DefaultIoTPlanner;
@@ -115,9 +101,7 @@ public class ACETONEMain {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		
-		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 				
 		BufferedWriter writer = null;
 		try {
@@ -127,13 +111,18 @@ public class ACETONEMain {
 			writer.append("MOBILE-NUM:\t" + SimulationSetup.mobileNum+"\n");
 			writer.append("DATA-RATE:\t" + SimulationSetup.dataRate+"\n");
 			writer.append("WORKLOAD:\t" + SimulationSetup.workloadType+"\n");
+			writer.close();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}			
 		
+		
+		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		for(String currAlgorithm : SimulationSetup.algorithms)
 		{
+			ArrayList<FaaSWorkflowPlacement> offloads = new ArrayList<FaaSWorkflowPlacement>();
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
 					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double ,Double>>() {
@@ -159,9 +148,10 @@ public class ACETONEMain {
 						case "DEAL-FW":
 							search = new DealFWPPlacement(inputValues);
 							break;
-						case "FFD":
+						/*case "FFD":
 							search = new FFDPRODPlacement(inputValues);
 							break;
+							*/
 						case "COSTLESS":
 							search = new FaaSCostlessPlacement(inputValues);
 							break;
@@ -170,7 +160,7 @@ public class ACETONEMain {
 					}
 					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
 					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-					ArrayList<FaaSWorkflowPlacement> offloads = (ArrayList<FaaSWorkflowPlacement>) search.findScheduling();
+					offloads.addAll((ArrayList<FaaSWorkflowPlacement>) search.findScheduling());
 					if(offloads != null)
 						for(FaaSWorkflowPlacement dp : offloads) 
 						{
@@ -220,6 +210,8 @@ public class ACETONEMain {
 
 			//System.out.println(aggregation.first());
 
+			
+			
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
 					aggregation.mapToPair(
 							new PairFunction<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer, Double, Double, Double>>,
@@ -270,6 +262,7 @@ public class ACETONEMain {
 			System.out.println(confidenceIntervals._3());
 			
 			try {
+				writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
 				writer.append("\n");
 				writer.append("VM PLACEMENT: " + currAlgorithm+"\n");
 				writer.append("# FREQUENCY\tAVERAGE-RT\t-\t+\tEXECUTION-TIME\t-\t+\tCOST\t-\t+\n");
@@ -278,6 +271,7 @@ public class ACETONEMain {
 								+mostFrequent._2()._3()+"\t"+confidenceIntervals._2()._1()+"\t"+confidenceIntervals._2()._2()+"\t"
 								+mostFrequent._2()._4()+"\t"+confidenceIntervals._3()._1()+"\t"+confidenceIntervals._3()._2()+"\n"
 								);
+				writer.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -296,11 +290,13 @@ public class ACETONEMain {
 				Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> solConfidenceIntervals = calculateCI(solution._2(), solStdDeviations, 2.326);
 				
 				try {
-						writer.append(	 solution._2()._1()+"\t"
+					writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
+					writer.append(	 solution._2()._1()+"\t"
 							+solution._2()._2()+"\t"+solConfidenceIntervals._1()._1()+"\t"+solConfidenceIntervals._1()._2()+"\t"
 							+solution._2()._3()+"\t"+solConfidenceIntervals._2()._1()+"\t"+solConfidenceIntervals._2()._2()+"\t"
 							+solution._2()._4()+"\t"+solConfidenceIntervals._3()._1()+"\t"+solConfidenceIntervals._3()._2()+"\n"
 							);
+					writer.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -316,12 +312,7 @@ public class ACETONEMain {
 		}
 			//System.out.println(mostFrequent._1.values().size());
 		
-		try {
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		jscontext.close();
 	}
 
@@ -419,7 +410,7 @@ public class ACETONEMain {
 			if(arg.startsWith("-placement="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.placementAlgorithm = pars[1];
+				SimulationSetup.algorithms = pars[1].split(",");
 			}
 			if(arg.startsWith("-filename="))
 			{
@@ -490,6 +481,16 @@ public class ACETONEMain {
 			{
 				String[] pars = arg.split("=");
 				SimulationSetup.updateTime = Double.parseDouble(pars[1]);
+			}
+			if(arg.startsWith("-workflow="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.selectedWorkflow = pars[1];
+			}
+			if(arg.startsWith("-nApps="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.numberOfApps = Integer.parseInt(pars[1]);
 			}
 		}
 	}

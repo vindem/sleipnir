@@ -93,7 +93,7 @@ public class RandomFaaSScheduler extends FaaSPlacementAlgorithm {
 	@Override
 	public ArrayList<FaaSWorkflowPlacement> findScheduling() {
 		ArrayList<MobileSoftwareComponent> taskList = new ArrayList<MobileSoftwareComponent>();
-		DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> deps = this.getMobileApplication().getTaskDependencies();
+		DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> deps = this.getCurrentWorkflow().getTaskDependencies();
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(), this.getInfrastructure());
 		

@@ -12,8 +12,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
-import at.ac.tuwien.ec.datamodel.placement.DataPlacement;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;

@@ -2,8 +2,6 @@ package at.ac.tuwien.ec.workflow.faas.placement;
 
 import java.util.ArrayList;
 
-import at.ac.tuwien.ec.datamodel.algorithms.placement.DataPlacementAlgorithm;
-import at.ac.tuwien.ec.datamodel.algorithms.selection.ContainerPlanner;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
@@ -17,7 +15,7 @@ import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 
 
-public abstract class FaaSPlacementAlgorithm extends DataPlacementAlgorithm {
+public abstract class FaaSPlacementAlgorithm  {
 
 	private FaaSWorkflow currentWorkflow;
 	private MobileDataDistributionInfrastructure currentInfrastructure;

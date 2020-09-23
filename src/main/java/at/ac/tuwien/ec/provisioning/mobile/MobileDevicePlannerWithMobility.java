@@ -43,6 +43,7 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 			devIds.add(""+((double)i));
 		try {
 			SumoTraceParser.preParse(inputSumoFile, devIds);
+			
 		} catch (ParserConfigurationException | SAXException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
