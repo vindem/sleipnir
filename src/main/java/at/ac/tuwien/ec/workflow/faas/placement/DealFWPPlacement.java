@@ -46,7 +46,6 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		setCurrentWorkflow(arg._1());
 		setInfrastructure(arg._2());
 		
-		FaaSWorkflow faasW = this.getCurrentWorkflow();
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		ArrayList<String> activeTopics = new ArrayList<String>();
 		for(String topic : currInf.getRegistry().keySet())
@@ -161,12 +160,22 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : candidateCenters)
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc))
-					//if(avgCost < minAvgCost)
+					if(avgCost < minAvgCost && cn.isCompatible(msc)
+							&& connectionExists(cn,subscriberDevices)
+							)
 					{
 						minAvgCost = avgCost;
 						trg = cn;
 					}
+				}
+				if(trg == null)
+				{
+					for(ComputationalNode cn : this.getInfrastructure().getAllNodes())
+						if(cn.isCompatible(msc)) 
+						{
+							trg = cn;
+							break;
+						}
 				}
 			}
 			else
@@ -174,7 +183,8 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : this.getInfrastructure().getCloudNodes().values())
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc))
+					if(avgCost < minAvgCost && cn.isCompatible(msc)
+							&& connectionExists(cn,subscriberDevices) )
 					//if(avgCost < minAvgCost)
 					{
 						minAvgCost = avgCost;
@@ -200,13 +210,27 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		return schedulings;
 	}
 	
+	private boolean connectionExists(ComputationalNode cn, ArrayList<MobileDevice> subscriberDevices) {
+		boolean exists = false;
+		for(MobileDevice dev : subscriberDevices)
+			if(Double.isFinite(computeTransmissionTime(dev, cn)))
+			{
+				exists = true;
+				break;
+			}
+		return exists;
+	}
+
 	private double computeAverageCost(MobileSoftwareComponent msc, ComputationalNode cn,
 			ArrayList<MobileDevice> subscriberDevices) {
 		double nDevs = subscriberDevices.size();
 		double cost = 0.0;
-		for(MobileDevice dev : subscriberDevices)
+		for(MobileDevice dev : subscriberDevices) 
+		{
+			if(Double.isInfinite(computeTransmissionTime(dev,cn)))
+				return Double.POSITIVE_INFINITY;
 			cost += cn.computeCost(msc, getInfrastructure()) * computeTransmissionTime(dev, cn);
-		
+		}
 		return cost / nDevs;
 		
 	}

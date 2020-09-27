@@ -75,7 +75,7 @@ public abstract class FaaSPlacementAlgorithm  {
 		{
 			ComputationalNode prevTarget = (ComputationalNode) placement.get(pred);
 			double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-			if(currTime > predTime) 
+			if(Double.isFinite(currTime) && currTime > predTime) 
 			{
 				predTime = currTime;
 				maxTrg = prevTarget;
@@ -94,7 +94,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			for(IoTDevice publisher : publishers) 
 			{
 				double currTTime = computeTransmissionTime(publisher,trg);
-				if(currTTime > maxLatency)
+				if(Double.isFinite(currTTime) && currTTime > maxLatency)
 					maxLatency = currTTime;
 				msc.addInData(publisher.getOutData());
 			}
@@ -111,7 +111,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			for(MobileDevice subscriber : subscribers) 
 			{
 				double currTTime = computeTransmissionTime(trg,subscriber);
-				if(currTTime > maxLatency)
+				if(Double.isFinite(currTTime) && currTTime > maxLatency)
 					maxLatency = currTTime;
 			}
 			trg.setOutData(msc.getOutData());
@@ -129,7 +129,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			{
 				NetworkedNode prevTarget = placement.get(pred);
 				double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
-				if(currTime > predTime) 
+				if(Double.isFinite(currTime) && currTime > predTime) 
 				{
 					predTime = currTime;
 					maxTrg = prevTarget;

@@ -106,9 +106,9 @@ public class MobilityBasedNetworkPlanner {
 			UniformRealDistribution distr = new UniformRealDistribution(0.0,1.0);
 			double conn = distr.sample();
 			ConnectionAvailable available;
-			if(conn < 0.8)
+			if(conn < 0.6)
 				available = ConnectionAvailable.FourG;
-			else if(conn < 0.95 && conn >= 0.8 )
+			else if(conn < 0.9 && conn >= 0.6 )
 				available = ConnectionAvailable.ThreeG;
 			else
 				available = ConnectionAvailable.FiveG;
@@ -116,16 +116,34 @@ public class MobilityBasedNetworkPlanner {
 			switch(available)
 			{
 			case FourG:
-				iotEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(54.0,16.0 + exponentialGeneration(2.0)),1.0)));
-				iotCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency,2.0 + exponentialGeneration(2.0)),1.0)));
+				iotEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(109.35,8.3875),0.97)
+						,new Tuple2<QoS,Double>(new QoS(212,4.2),0.03)
+						));
+				iotCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(219.6,6.02),0.9998)
+						,new Tuple2<QoS,Double>(new QoS(326,2.625),0.0002)
+						));
 				break;
 			case ThreeG:
-				iotEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(20.0,8.0 + exponentialGeneration(2.0)),1.0)));
-				iotCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(20.0 + cloudLatency,1.0 + exponentialGeneration(2.0)),1.0)));
+				iotEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(743.16,3.0125),0.94)
+						,new Tuple2<QoS,Double>(new QoS(1038,0.13125),0.06)
+						));
+				iotCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(756.7,1.3125),0.98)
+						,new Tuple2<QoS,Double>(new QoS(1122,0.13125),0.02)
+						));
 				break;
 			case FiveG:
-				iotEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(5.0,32.0 + exponentialGeneration(2.0)),1.0)));
-				iotCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(5.0 + cloudLatency,4.0 + exponentialGeneration(2.0)),1.0)));
+				iotEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(90.95,14.5),0.91)
+						,new Tuple2<QoS,Double>(new QoS(148,2.75),0.09)
+						));
+				iotCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(172.18,6.04),0.92)
+						,new Tuple2<QoS,Double>(new QoS(211,2.625),0.08)
+						));
 				break;
 			}
 
@@ -146,8 +164,7 @@ public class MobilityBasedNetworkPlanner {
 	
 	public static void setupMobileConnections(MobileDataDistributionInfrastructure inf)
 	{
-		double cloudLatency = normalGeneration();
-		
+				
 		for(MobileDevice d: inf.getMobileDevices().values())
 		{
 			if(inf.getConnectionMap().outDegreeOf(d) > 0) {
@@ -163,46 +180,64 @@ public class MobilityBasedNetworkPlanner {
 			}
 					
 			
+			ArrayList<EdgeNode> proximity = new ArrayList<EdgeNode>();
 			
-			int distance = Integer.MAX_VALUE;
-			EdgeNode targetEdgeNode = null;
 			for(EdgeNode en : inf.getEdgeNodes().values()) 
-				if(computeDistance(d,en) < distance)
-					targetEdgeNode = en;
+				if(computeDistance(d,en) <= 1.0)
+					proximity.add(en);
 			
 			UniformRealDistribution distr = new UniformRealDistribution(0.0,1.0);
 			double conn = distr.sample();
+			
 			ConnectionAvailable available;
-			
-			QoSProfile mEdge = null,mCloud = null;
-			
-			if(conn < 0.8)
+			if(conn < 0.6)
 				available = ConnectionAvailable.FourG;
-			else if(conn < 0.95 && conn >= 0.8 )
+			else if(conn < 0.9 && conn >= 0.6 )
 				available = ConnectionAvailable.ThreeG;
 			else
 				available = ConnectionAvailable.FiveG;
 			
+			QoSProfile mEdge = null,mCloud = null;
+			
 			switch(available)
 			{
 			case FourG:
-				mEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(54.0,16.0 + exponentialGeneration(2.0)),1.0)));
-				mCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(54.0 + cloudLatency,2.0 + exponentialGeneration(2.0)),1.0)));
+				mEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(109.35,8.3875),0.97)
+						,new Tuple2<QoS,Double>(new QoS(212,4.2),0.03)
+						));
+				mCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(219.6,6.02),0.9998)
+						,new Tuple2<QoS,Double>(new QoS(326,2.625),0.0002)
+						));
 				break;
 			case ThreeG:
-				mEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(20.0,8.0 + exponentialGeneration(2.0)),1.0)));
-				mCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(20.0 + cloudLatency,1.0 + exponentialGeneration(2.0)),1.0)));
+				mEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(743.16,3.0125),0.94)
+						,new Tuple2<QoS,Double>(new QoS(1038,0.13125),0.06)
+						));
+				mCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(756.7,1.3125),0.98)
+						,new Tuple2<QoS,Double>(new QoS(1122,0.13125),0.02)
+						));
 				break;
 			case FiveG:
-				mEdge = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(5.0,32.0 + exponentialGeneration(2.0)),1.0)));
-				mCloud = new QoSProfile(asList(new Tuple2<QoS,Double>(new QoS(5.0 + cloudLatency,4.0 + exponentialGeneration(2.0)),1.0)));
+				mEdge = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(90.95,14.5),0.91)
+						,new Tuple2<QoS,Double>(new QoS(148,2.75),0.09)
+						));
+				mCloud = new QoSProfile(asList(
+						new Tuple2<QoS,Double>(new QoS(172.18,6.04),0.92)
+						,new Tuple2<QoS,Double>(new QoS(211,2.625),0.08)
+						));
 				break;
 			}
 			
-			
-			inf.addLink(d,targetEdgeNode,mEdge);
-			inf.addLink(targetEdgeNode,d,mEdge);
-			
+			for(EdgeNode en : inf.getEdgeNodes().values()) 
+			{
+				inf.addLink(d,en,mEdge);
+				inf.addLink(en,d,mEdge);
+			}
 			/* Setting up latency and bandwidth profile between mobile devices and Cloud nodes.
 			 * In this planner, there is a link between each mobile device and each Cloud node.
 			 */ 

@@ -80,7 +80,7 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 		}
 		
 		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
-		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
@@ -167,11 +167,22 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : candidateCenters)
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc))
+					if(avgCost < minAvgCost && cn.isCompatible(msc)
+							&& connectionExists(cn,subscriberDevices)
+							)
 					{
 						minAvgCost = avgCost;
 						trg = cn;
 					}
+				}
+				if(trg == null)
+				{
+					for(ComputationalNode cn : this.getInfrastructure().getAllNodes())
+						if(cn.isCompatible(msc)) 
+						{
+							trg = cn;
+							break;
+						}
 				}
 			}
 			else
@@ -179,7 +190,9 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : this.getInfrastructure().getCloudNodes().values())
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc))
+					if(avgCost < minAvgCost && cn.isCompatible(msc)
+							&& connectionExists(cn,subscriberDevices) )
+					//if(avgCost < minAvgCost)
 					{
 						minAvgCost = avgCost;
 						trg = cn;
@@ -222,6 +235,16 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 		
 	}
 
+	private boolean connectionExists(ComputationalNode cn, ArrayList<MobileDevice> subscriberDevices) {
+		boolean exists = false;
+		for(MobileDevice dev : subscriberDevices)
+			if(Double.isFinite(computeTransmissionTime(dev, cn)))
+			{
+				exists = true;
+				break;
+			}
+		return exists;
+	}
 		
 
 	private ConnectionMap extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 

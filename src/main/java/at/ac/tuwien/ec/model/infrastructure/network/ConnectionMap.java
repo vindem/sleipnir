@@ -54,8 +54,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			double mips0,mips1;
 			mips0 = nwConn.getSource().getCapabilities().getMipsPerCore();
 			mips1 = nwConn.getTarget().getCapabilities().getMipsPerCore();
-			mips0 = (mips0 == 0)? Double.MAX_VALUE : mips0;
-			mips1 = (mips1 == 0)? Double.MAX_VALUE : mips1;		
+			mips0 = (mips0 == 0)? Double.POSITIVE_INFINITY : mips0;
+			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;
+			if(nwConn.getBandwidth() == 0.0)
+				setEdgeWeight(nwConn,Double.POSITIVE_INFINITY);
 			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + 
 					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) + 
 					1.0/Math.min(mips0,mips1));
@@ -84,8 +86,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			double mips0,mips1;
 			mips0 = nwConn.getSource().getCapabilities().getMipsPerCore();
 			mips1 = nwConn.getTarget().getCapabilities().getMipsPerCore();
-			mips0 = (mips0 == 0)? Double.MAX_VALUE : mips0;
-			mips1 = (mips1 == 0)? Double.MAX_VALUE : mips1;		
+			mips0 = (mips0 == 0)? Double.POSITIVE_INFINITY : mips0;
+			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;		
 			setEdgeWeight(nwConn, 
 					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) / minLatency 
 					+ computeCost(((nwConn.getSource() instanceof ComputationalNode)? nwConn.getSource() : nwConn.getTarget()) ,I)
@@ -107,13 +109,13 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
 		NetworkConnection link = getEdge(u,v);
 		if(link == null)
-			return Double.MAX_VALUE;
+			return Double.POSITIVE_INFINITY;
 		QoSProfile profile = getEdge(u,v).qosProfile;
 		if(profile == null)
-			return Double.MAX_VALUE;
+			return Double.POSITIVE_INFINITY;
 		
-		if(profile.getLatency()==Integer.MAX_VALUE)
-			return Double.MAX_VALUE;
+		if(!Double.isFinite(profile.getLatency()))
+			return Double.POSITIVE_INFINITY;
 		//System.out.println("("+u.getId()+","+v.getId()+")"+" latency: " + profile.getLatency() + " bandwidth: " + profile.getBandwidth() );
 		return getDesiredTransmissionTime(msc,u,v,profile);
 
@@ -147,11 +149,12 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				}
 			}
 			else
-				return Double.MAX_VALUE;
+				return Double.POSITIVE_INFINITY;
 		}
 		else	
 			profile = getEdge(u,v).qosProfile;
-		
+		if(profile == null)
+			System.out.println(u +"," + v);
 		profile.sampleQoS();
 		
 				
@@ -173,10 +176,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
 		QoSProfile profile = getEdge(u,v).qosProfile;
 		if(profile == null)
-			return Double.MAX_VALUE;
+			return Double.POSITIVE_INFINITY;
 		
-		if(profile.getLatency()==Integer.MAX_VALUE)
-			return Double.MAX_VALUE;
+		if(Double.isFinite(profile.getLatency()))
+			return Double.POSITIVE_INFINITY;
 		
 		return getInDataTransmissionTime(msc,u,v,profile);
 
@@ -195,10 +198,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			throw new IllegalArgumentException("No connection between " + u.getId() + " and " + v.getId() + ".");
 		QoSProfile profile = getEdge(u,v).qosProfile;
 		if(profile == null)
-			return Double.MAX_VALUE;
+			return Double.POSITIVE_INFINITY;
 		
-		if(profile.getLatency()==Integer.MAX_VALUE)
-			return Double.MAX_VALUE;
+		if(!Double.isFinite(profile.getLatency()))
+			return Double.POSITIVE_INFINITY;
 		
 		return getOutDataTransmissionTime(msc,u,v,profile);
 
@@ -301,7 +304,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 						1, "user0", 1.0, 1.0);
 		if(n instanceof ComputationalNode)
 			return ((ComputationalNode) n).computeCost(msc, I);
-		return Double.MAX_VALUE;
+		return Double.POSITIVE_INFINITY;
 	}
 	
 	private static final long serialVersionUID = 1L;

@@ -19,8 +19,10 @@ public class SumoTraceMobility implements Serializable{
 	} 
 
 	public Coordinates getCoordinatesForTimestep(double timestep) {
-		int index = (int) Math.ceil(timestep);
-		index = index % trace.size();
+		int index = (int) Math.round(timestep);
+		index = (index + 1) % trace.size();
+		if(index >= trace.size() || index < 0)
+			System.out.println(index);
 		return trace.get(index);
 	}
 

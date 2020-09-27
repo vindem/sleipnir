@@ -100,7 +100,7 @@ public class SimulationSetup {
 	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
-	public static int numberOfApps = 100;
+	public static int numberOfApps = 2;
 	public static int numberOfParallelApps = 1;
 	public static NETEnergyModel edgeNETEnergyModel = new ComputationalNodeNetEnergyModel();
 	public static int edgeNodeLimit = 900;

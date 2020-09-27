@@ -101,8 +101,9 @@ public class ACETONEMain {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
+		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
+		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
 		
-				
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
@@ -116,13 +117,10 @@ public class ACETONEMain {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}			
-		
-		
-		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
-		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
+			
 		for(String currAlgorithm : SimulationSetup.algorithms)
 		{
-			ArrayList<FaaSWorkflowPlacement> offloads = new ArrayList<FaaSWorkflowPlacement>();
+			
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
 					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double ,Double>>() {
@@ -158,9 +156,8 @@ public class ACETONEMain {
 						default:
 							search = new PEFTFaaSScheduler(inputValues);
 					}
-					//RandomDataPlacementAlgorithm search = new RandomDataPlacementAlgorithm(new FirstFitDecreasingSizeVMPlanner(),inputValues);
-					//SteinerTreeHeuristic search = new SteinerTreeHeuristic(currentPlanner, inputValues);
-					offloads.addAll((ArrayList<FaaSWorkflowPlacement>) search.findScheduling());
+					
+					ArrayList<FaaSWorkflowPlacement> offloads = (ArrayList<FaaSWorkflowPlacement>) search.findScheduling();
 					if(offloads != null)
 						for(FaaSWorkflowPlacement dp : offloads) 
 						{
@@ -179,7 +176,7 @@ public class ACETONEMain {
 					
 			});
 
-			//System.out.println(results.first());
+			
 
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
 					results.reduceByKey(
@@ -244,16 +241,18 @@ public class ACETONEMain {
 			
 			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
 			
+			System.out.println(currAlgorithm);
+			System.out.println("Most frequent:");
+			System.out.println(mostFrequent._1());
+			System.out.println(mostFrequent._2());
+			
 			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> placements = results.toLocalIterator();
 			
 			Tuple3<Double,Double,Double> stdDeviations = calculateStandardDeviation(mostFrequent._1(), placements, mostFrequent._2());
 			
 			Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> confidenceIntervals = calculateCI(mostFrequent._2(), stdDeviations, 2.326);
 			
-			System.out.println(currAlgorithm);
-			System.out.println("Most frequent:");
-			System.out.println(mostFrequent._1());
-			System.out.println(mostFrequent._2());
+			
 			System.out.println("Standard deviations: ");
 			System.out.println(stdDeviations);
 			System.out.println("Confidence Intervals: ");
