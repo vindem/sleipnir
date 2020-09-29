@@ -29,16 +29,16 @@ public class OFWorkflow extends FaaSWorkflow {
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,8.0e3*SimulationSetup.task_multiplier
-				,1e9*SimulationSetup.task_multiplier
-        		,1e9*SimulationSetup.task_multiplier
+				,1e6*SimulationSetup.task_multiplier
+        		,1e6*SimulationSetup.task_multiplier
         		);
 		addComponent("SERVICE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,1.0e3*SimulationSetup.task_multiplier
-				,1e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,1e6*SimulationSetup.task_multiplier
+        		,1e6*SimulationSetup.task_multiplier
         		,false
         		);
 		addComponent("CREATE_ORDER"+"_"+getWorkloadId()+","+getUserId(),

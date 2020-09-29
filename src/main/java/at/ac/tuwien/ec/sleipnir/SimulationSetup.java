@@ -61,7 +61,7 @@ public class SimulationSetup {
 	public static int chessMovesNum = 1;
 	public static double chess_mi = 10e3;
 	public static double facebookImageSize = 20e3;
-	public static double facerecImageSize = 10e9;
+	public static double facerecImageSize = 10e6;
 	public static double navigatorMapSize = 25e6;
 	//public static String[] algorithms = {"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares",
 		//	"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares"};

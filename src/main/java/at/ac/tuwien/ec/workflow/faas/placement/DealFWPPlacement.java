@@ -107,7 +107,8 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
 		
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
-				
+		
+		this.workflowIterator = new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
 				
 		while(workflowIterator.hasNext())
 		{
@@ -128,7 +129,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				subscriberDevices = new ArrayList<MobileDevice>();
 				
 				Set<String> srcTopicSet = new HashSet<String>(Arrays.asList(sourceTopics));
-				this.workflowIterator = new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
+				
 				
 				for(IoTDevice iot : currInf.getIotDevices().values())
 				{
@@ -160,9 +161,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : candidateCenters)
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc)
-							&& connectionExists(cn,subscriberDevices)
-							)
+					if(avgCost < minAvgCost && cn.isCompatible(msc)	)
 					{
 						minAvgCost = avgCost;
 						trg = cn;
@@ -183,8 +182,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				for(ComputationalNode cn : this.getInfrastructure().getCloudNodes().values())
 				{
 					double avgCost = computeAverageCost(msc, cn, subscriberDevices);
-					if(avgCost < minAvgCost && cn.isCompatible(msc)
-							&& connectionExists(cn,subscriberDevices) )
+					if(avgCost < minAvgCost && cn.isCompatible(msc) )
 					//if(avgCost < minAvgCost)
 					{
 						minAvgCost = avgCost;
