@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -16,6 +18,8 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.api.java.function.VoidFunction;
+
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.provisioning.DefaultIoTPlanner;
@@ -34,6 +38,7 @@ import at.ac.tuwien.ec.workflow.faas.IntrasafedWorkflow;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealJSPPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
 import at.ac.tuwien.ec.workflow.faas.placement.PEFTFaaSScheduler;
 import scala.Tuple2;
@@ -42,12 +47,12 @@ import scala.Tuple4;
 
 
 public class ACETONEMain {
-	
-	public static void main(String[] arg)
+
+	public static void main(String[] arg) throws IOException
 	{
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
-		
+
 		class FrequencyComparator implements Comparator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer,Double,Double,Double>>>, Serializable
 		{
 
@@ -62,9 +67,9 @@ public class ACETONEMain {
 				// TODO Auto-generated method stub
 				return o1._2()._1() - o2._2()._1();
 			}
-			
+
 		}
-				
+
 		processArgs(arg);
 		switch(SimulationSetup.area)
 		{
@@ -103,10 +108,10 @@ public class ACETONEMain {
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
 		ArrayList<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>> test = generateSamples(SimulationSetup.iterations);
 		JavaRDD<Tuple2<FaaSWorkflow, MobileDataDistributionInfrastructure>> input = jscontext.parallelize(test);
-		
-		BufferedWriter writer = null;
+		/*
+		BufferedWriter writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
 		try {
-			writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
+
 			writer.append("AREA:\t" + SimulationSetup.area+"\n");
 			writer.append("IoT-NUM:\t" + SimulationSetup.iotDevicesNum+"\n");
 			writer.append("MOBILE-NUM:\t" + SimulationSetup.mobileNum+"\n");
@@ -116,11 +121,11 @@ public class ACETONEMain {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}			
-			
+		}*/			
+
 		for(String currAlgorithm : SimulationSetup.algorithms)
 		{
-			
+
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
 					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double ,Double>>() {
@@ -132,31 +137,30 @@ public class ACETONEMain {
 					ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>> output = 
 							new ArrayList<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>>>();
 					//HEFTResearch search = new HEFTResearch(inputValues);
-					
+
 					FaaSPlacementAlgorithm search = null;
 					//switch(SimulationSetup.placementAlgorithm)
 					switch(currAlgorithm)
 					{
-						case "PEFT":
-							search = new PEFTFaaSScheduler(inputValues);
-							break;
-						case "DEAL-JSP":
-							search = new DealJSPPlacement(inputValues);
-							break;
-						case "DEAL-FW":
-							search = new DealFWPPlacement(inputValues);
-							break;
-						/*case "FFD":
-							search = new FFDPRODPlacement(inputValues);
-							break;
-							*/
-						case "COSTLESS":
-							search = new FaaSCostlessPlacement(inputValues);
-							break;
-						default:
-							search = new PEFTFaaSScheduler(inputValues);
+					case "PEFT":
+						search = new PEFTFaaSScheduler(inputValues);
+						break;
+					case "DEAL-JSP":
+						search = new DealJSPPlacement(inputValues);
+						break;
+					case "DEAL-FW":
+						search = new DealFWPPlacement(inputValues);
+						break;
+					case "FFD":
+						search = new FFDPRODPlacement(inputValues);
+						break;
+					case "COSTLESS":
+						search = new FaaSCostlessPlacement(inputValues);
+						break;
+					default:
+						search = new PEFTFaaSScheduler(inputValues);
 					}
-					
+
 					ArrayList<FaaSWorkflowPlacement> offloads = (ArrayList<FaaSWorkflowPlacement>) search.findScheduling();
 					if(offloads != null)
 						for(FaaSWorkflowPlacement dp : offloads) 
@@ -173,11 +177,11 @@ public class ACETONEMain {
 						}
 					return output.iterator();
 				}
-					
+
 			});
 
 			
-
+			
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> aggregation = 
 					results.reduceByKey(
 							new Function2<Tuple4<Integer,Double, Double,Double>,
@@ -207,8 +211,8 @@ public class ACETONEMain {
 
 			//System.out.println(aggregation.first());
 
-			
-			
+
+
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double, Double>> histogram = 
 					aggregation.mapToPair(
 							new PairFunction<Tuple2<FaaSWorkflowPlacement,Tuple4<Integer, Double, Double, Double>>,
@@ -238,80 +242,70 @@ public class ACETONEMain {
 							}
 
 							);
+
+						
 			
-			Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			//Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+			//System.out.println("Most frequent:");
+			//System.out.println(mostFrequent._1());
+			//System.out.println(mostFrequent._2());
 			
-			System.out.println(currAlgorithm);
-			System.out.println("Most frequent:");
-			System.out.println(mostFrequent._1());
-			System.out.println(mostFrequent._2());
-			
-			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> placements = results.toLocalIterator();
-			
-			Tuple3<Double,Double,Double> stdDeviations = calculateStandardDeviation(mostFrequent._1(), placements, mostFrequent._2());
-			
-			Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> confidenceIntervals = calculateCI(mostFrequent._2(), stdDeviations, 2.326);
-			
-			
-			System.out.println("Standard deviations: ");
-			System.out.println(stdDeviations);
-			System.out.println("Confidence Intervals: ");
-			System.out.println(confidenceIntervals._1());
-			System.out.println(confidenceIntervals._2());
-			System.out.println(confidenceIntervals._3());
-			
+			/*
 			try {
-				writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
-				writer.append("\n");
-				writer.append("VM PLACEMENT: " + currAlgorithm+"\n");
-				writer.append("# FREQUENCY\tAVERAGE-RT\t-\t+\tEXECUTION-TIME\t-\t+\tCOST\t-\t+\n");
-				writer.append(	 mostFrequent._2()._1()+"\t"
-								+mostFrequent._2()._2()+"\t"+confidenceIntervals._1()._1()+"\t"+confidenceIntervals._1()._2()+"\t"
-								+mostFrequent._2()._3()+"\t"+confidenceIntervals._2()._1()+"\t"+confidenceIntervals._2()._2()+"\t"
-								+mostFrequent._2()._4()+"\t"+confidenceIntervals._3()._1()+"\t"+confidenceIntervals._3()._2()+"\n"
-								);
-				writer.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				writer.append("Most frequent:");
+				writer.append(mostFrequent._1() + "\n" +
+						mostFrequent._2()._1() + "\t \t \t" + mostFrequent._2()._2() + "\t \t \t" + mostFrequent._2()._3() + "\t \t \t" + mostFrequent._2()._4() + "\n" );
+				writer.append("Results:\n");
+			}
+			catch(IOException e){
 				e.printStackTrace();
-			}
+			}*/
+
 			
-			Iterator<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>> solutions 
-									= histogram.toLocalIterator();
+			/*
+			histogram.foreach((VoidFunction<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>>) tuple ->
+			writer.append(
+					tuple._1()+"\n"
+					+tuple._2()._1()+"\t"
+					+tuple._2()._2()+"\t \t \t"
+					+tuple._2()._3()+"\t \t \t"
+					+tuple._2()._4()+"\t \t \n"));
+			*/
 			
-			while(solutions.hasNext())
-			{
-				Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> solution = solutions.next();
-				if(solution._1().equals(mostFrequent._1()))
-					continue;
-				
-				Tuple3<Double,Double,Double> solStdDeviations = calculateStandardDeviation(solution._1(), placements, solution._2());
-				Tuple3<Tuple2<Double,Double>,Tuple2<Double,Double>,Tuple2<Double,Double>> solConfidenceIntervals = calculateCI(solution._2(), solStdDeviations, 2.326);
-				
-				try {
-					writer = new BufferedWriter(new FileWriter(SimulationSetup.filename, true));
-					writer.append(	 solution._2()._1()+"\t"
-							+solution._2()._2()+"\t"+solConfidenceIntervals._1()._1()+"\t"+solConfidenceIntervals._1()._2()+"\t"
-							+solution._2()._3()+"\t"+solConfidenceIntervals._2()._1()+"\t"+solConfidenceIntervals._2()._2()+"\t"
-							+solution._2()._4()+"\t"+solConfidenceIntervals._3()._1()+"\t"+solConfidenceIntervals._3()._2()+"\n"
-							);
-					writer.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			histogram.saveAsTextFile(SimulationSetup.filename);;
+			//histogram.foreach((VoidFunction<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>>) tuple ->
+			//placements.add(tuple));
+
+			/*
+			if(!solutions.isEmpty()) {
+				for(String solution : solutions)
+				{
+					//Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>> solution = solutions.next();
+					System.out.println("AAAAAAAAAAAA!");					
+					try {
+						writer.append(solution);
+					}
+					catch(IOException e)
+					{
+						e.printStackTrace();
+					}
 				}
-				
-				System.out.println(solution._1());
-				System.out.println(solution._2());
 			}
-			
 			System.out.println("");
-			
+
 			System.out.println("##############");
+			try {
+				writer.append("");
+				writer.append("##################\n");
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}*/
 		}
-			//System.out.println(mostFrequent._1.values().size());
-		
-		
+		//System.out.println(mostFrequent._1.values().size());
+
+		//writer.close();
 		jscontext.close();
 	}
 

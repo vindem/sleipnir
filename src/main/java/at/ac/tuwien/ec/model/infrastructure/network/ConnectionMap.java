@@ -1,8 +1,13 @@
 package at.ac.tuwien.ec.model.infrastructure.network;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 import at.ac.tuwien.ec.model.Coordinates;
@@ -27,6 +32,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	NormalDistribution nDistr = new NormalDistribution(SimulationSetup.MAP_M, 0.5);
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
+	
 	//final double BYTES_PER_MEGABIT = 1e6;
 	
 	public ConnectionMap(Class<? extends NetworkConnection> edgeClass) {
@@ -58,8 +64,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;
 			if(nwConn.getBandwidth() == 0.0)
 				setEdgeWeight(nwConn,Double.POSITIVE_INFINITY);
-			setEdgeWeight(nwConn, 1.0/nwConn.getBandwidth() + 
-					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) + 
+			setEdgeWeight(nwConn, getDataTransmissionTime(1.0, nwConn.getSource(), nwConn.getTarget()) + 
 					1.0/Math.min(mips0,mips1));
 		}
 	}
@@ -132,10 +137,35 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(!vertexSet().contains(v))
 			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
 		NetworkConnection link = getEdge(u,v);
-		QoSProfile profile = null;
-		if(link == null)
+		//QoSProfile profile = null;
+		
+		if(link == null) {
+			GraphPath<NetworkedNode,NetworkConnection> path = DijkstraShortestPath.findPathBetween(this, u, v);
+
+			ArrayList<NetworkedNode> verticesOnPath = (ArrayList<NetworkedNode>) path.getVertexList();
+
+
+			NetworkedNode n0 = verticesOnPath.get(0);
+			double time = 0.0;
+			for(int i = 1; i < verticesOnPath.size(); i++)
+			{
+				NetworkedNode n1 = verticesOnPath.get(i);
+				QoSProfile tmpProfile = getEdge(n0,n1).qosProfile;
+				time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
+						(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
+				n0 = n1;
+			}
+			return time;
+		}
+		else
 		{
-			if(u instanceof MobileDevice || v instanceof MobileDevice) 
+			QoSProfile profile = link.getQoSProfile();
+			//if(u instanceof MobileDevice || v instanceof MobileDevice)
+				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));
+			return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+					((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
+			
+		}	/*if(u instanceof MobileDevice || v instanceof MobileDevice) 
 			{
 				NetworkedNode src = (u instanceof MobileDevice) ? u : v;
 				for(NetworkConnection conn : outgoingEdgesOf(src))
@@ -149,8 +179,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				}
 			}
 			else
-				return Double.POSITIVE_INFINITY;
-		}
+				return Double.POSITIVE_INFINITY;*/
+		/*
 		else	
 			profile = getEdge(u,v).qosProfile;
 		if(profile == null)
@@ -160,6 +190,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				
 		return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
+				*/
 
 	}
 	
@@ -308,5 +339,5 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	}
 	
 	private static final long serialVersionUID = 1L;
-
+	
 }

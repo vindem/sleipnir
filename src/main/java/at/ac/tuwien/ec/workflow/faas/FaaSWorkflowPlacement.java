@@ -87,7 +87,9 @@ public class FaaSWorkflowPlacement extends OffloadScheduling {
 		this.cost += cost;
 	}
 	
-	
-	
-	
+		
+	public String toString()
+	{
+		return super.toString() + "\t" + getAverageLatency()+"\t"+getExecutionTime()+"\t"+getCost() + "\n";
+	}
 }

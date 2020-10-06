@@ -78,7 +78,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		
 		//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 		ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap();
-		infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
@@ -122,9 +122,8 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					if(!currInf.getRegistry().get(topic).isEmpty())
 						activeTopics.add(topic);
 				}
-				String[] sourceTopics = activeTopics.toArray(new String[activeTopics.size()]);
-				publisherDevices.clear();
-				subscriberDevices.clear();
+				String[] sourceTopics = activeTopics.toArray(new String[0]);
+				
 				publisherDevices = new ArrayList<IoTDevice>();
 				subscriberDevices = new ArrayList<MobileDevice>();
 				
@@ -137,7 +136,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					iotTopics.retainAll(srcTopicSet);
 					if(!iotTopics.isEmpty())
 						publisherDevices.add(iot);
-					iotTopics.clear();
+					
 				}
 				
 				for(String t : activeTopics)
@@ -149,7 +148,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				
 				//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 				ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-				infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+				//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
 			//all of this before should be moved in the constructor
@@ -195,8 +194,12 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			
 			currentTimestamp = (int) Math.round(getCurrentTime());
-			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
+			//System.out.println("TIMESTAMP: "+currentTimestamp);
+			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
+			{
 				d.updateCoordsWithMobility((double)currentTimestamp);
+				//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+			}
 			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 			MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
 					SimulationSetup.selectedWorkflow);			
@@ -204,7 +207,8 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;
 		scheduling.setExecutionTime(time);
-		schedulings.add(scheduling);		
+		schedulings.add(scheduling);
+		//System.out.println("Sim Time: " + getCurrentTime() + " Update intervals: " + updateIntervals);
 		return schedulings;
 	}
 	
@@ -266,7 +270,6 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		
 		//JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
 			//	new JohnsonShortestPaths<>(infrastructureMap);
-		
 		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
 		vertices.addAll(infrastructureMap.vertexSet());
 				

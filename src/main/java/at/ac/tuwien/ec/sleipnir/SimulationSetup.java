@@ -65,8 +65,8 @@ public class SimulationSetup {
 	public static double navigatorMapSize = 25e6;
 	//public static String[] algorithms = {"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares",
 		//	"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares"};
-	public static String[] algorithms = {"DEAL-FW","DEAL-JSP","PEFT","FFD","COSTLESS"};
-	//public static String[] algorithms = {"DEAL-JSP","DEAL-FW"};
+	//public static String[] algorithms = {"DEAL-FW","DEAL-JSP","PEFT","FFD","COSTLESS"};
+	public static String[] algorithms = {"DEAL-FW"};
 	//public static String[] algorithms = {"triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj"};
 	//public static String[] algorithms = {"PEFT"};
 	public static boolean batch;
@@ -85,7 +85,7 @@ public class SimulationSetup {
 	public static int dataEntryNum = 2592 ;
 	//public static int dataEntryNum = 259200;
 	public static String placementAlgorithm = "DEAL";
-	public static String filename = "./test/testFile";
+	public static String filename = "./test/testFile.sp";
 	public static String traffic ="HIGH";
 	public static String area = "SIMMERING";
 	public static double dataRate = 2.0;
@@ -100,7 +100,7 @@ public class SimulationSetup {
 	public static String outfile = "../output/";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
-	public static int numberOfApps = 2;
+	public static int numberOfApps = 10;
 	public static int numberOfParallelApps = 1;
 	public static NETEnergyModel edgeNETEnergyModel = new ComputationalNodeNetEnergyModel();
 	public static int edgeNodeLimit = 900;

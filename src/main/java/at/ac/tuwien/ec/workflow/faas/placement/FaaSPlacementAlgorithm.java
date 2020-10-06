@@ -20,6 +20,8 @@ public abstract class FaaSPlacementAlgorithm  {
 	private FaaSWorkflow currentWorkflow;
 	private MobileDataDistributionInfrastructure currentInfrastructure;
 	protected double currentTime = 0.0;
+	double updateCounter = 0.0;
+	int updateIntervals = 0;
 	
 	protected double getCurrentTime() {
 		return currentTime;
@@ -31,7 +33,14 @@ public abstract class FaaSPlacementAlgorithm  {
 	
 	protected boolean updateCondition()
 	{
-		return ((int)Math.round(getCurrentTime())) % SimulationSetup.updateTime == 0;
+		updateCounter = getCurrentTime() - (updateIntervals * SimulationSetup.updateTime);
+		if(updateCounter >= SimulationSetup.updateTime)
+		{
+			updateIntervals++;
+			updateCounter = 0.0;
+			return true;
+		}
+		return false;
 	}
 
 	public MobileDataDistributionInfrastructure getInfrastructure() {

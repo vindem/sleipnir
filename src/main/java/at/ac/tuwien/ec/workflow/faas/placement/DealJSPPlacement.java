@@ -80,7 +80,7 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 		}
 		
 		ConnectionMap infrastructureMap = getInfrastructure().getConnectionMap();
-		infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
@@ -110,7 +110,7 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 		
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
 				
-		int i = 0;
+		
 		//Extract subgraph
 		/*if(updateCondition()) 
 		{
@@ -154,7 +154,7 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 				}
 				
 				ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-				infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+				//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
 			
@@ -302,7 +302,7 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 		
 		Collections.sort(centers, new MaxDistanceComparator());
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, Math.min(centers.size(), SimulationSetup.nCenters)));
+		toReturn.addAll(centers.subList(0, Math.min(centers.size(),nCenters)));
 		return toReturn;				
 	}
 
