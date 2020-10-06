@@ -110,5 +110,6 @@ public class SimulationSetup {
 	public static int nCenters = 1;
 	public static double updateTime = 10.0;
 	public static String selectedWorkflow = "IR";
+	public static double dataMultiplier = 1e6;
 	
 }

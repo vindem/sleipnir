@@ -29,16 +29,16 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,8.0e3*SimulationSetup.task_multiplier
-				,1e6*SimulationSetup.task_multiplier
-        		,1e6*SimulationSetup.task_multiplier
+				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);
 		addComponent("AGGREGATE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,1.0e3*SimulationSetup.task_multiplier
-				,1e6*SimulationSetup.task_multiplier
-        		,1e6*SimulationSetup.task_multiplier
+				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		,false
         		);
 		addComponent("ANALYZE"+"_"+getWorkloadId()+","+getUserId(),
@@ -46,16 +46,16 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
         		,1.0e3*SimulationSetup.task_multiplier
-				,1e6*SimulationSetup.task_multiplier
-        		,1e6*SimulationSetup.task_multiplier
+				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);
 		addComponent("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,1.0e3*SimulationSetup.task_multiplier
-				,1e6*SimulationSetup.task_multiplier
-        		,1e6*SimulationSetup.task_multiplier
+				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);
 		setSource(this.getComponentById("IOT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId()));

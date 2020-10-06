@@ -400,6 +400,11 @@ public class ACETONEMain {
 	{
 		for(String arg: args)
 		{
+			if(arg.startsWith("-dataSize="))
+			{
+				String[] pars = arg.split("=");
+				SimulationSetup.dataMultiplier = Double.parseDouble(pars[1]);
+			}
 			if(arg.startsWith("-placement="))
 			{
 				String[] pars = arg.split("=");

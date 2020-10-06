@@ -15,7 +15,7 @@ public class IRWorkflow extends FaaSWorkflow {
 	}
 
 	public void setupTasks() {
-		double img_size = SimulationSetup.facerecImageSize;
+		double img_size = SimulationSetup.dataMultiplier;
 		addComponent("EXTRACT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
