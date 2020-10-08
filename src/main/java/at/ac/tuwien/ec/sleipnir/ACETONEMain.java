@@ -434,7 +434,7 @@ public class ACETONEMain {
 					SimulationSetup.MAP_M = 10;
 					SimulationSetup.MAP_N = 10;
 					SimulationSetup.iotDevicesNum = 100;
-					SimulationSetup.mobileNum = 40;
+					SimulationSetup.mobileNum = 1000;
 					SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
 					SimulationSetup.x_max = 11098;
 					SimulationSetup.y_max = 9099;
@@ -443,7 +443,7 @@ public class ACETONEMain {
 					SimulationSetup.MAP_M = 12;
 					SimulationSetup.MAP_N = 12;
 					SimulationSetup.iotDevicesNum = 144;
-					SimulationSetup.mobileNum = 48;
+					SimulationSetup.mobileNum = 1440;
 					SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
 					SimulationSetup.x_max = 6720;
 					SimulationSetup.y_max = 5623;
