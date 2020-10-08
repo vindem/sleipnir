@@ -25,15 +25,15 @@ public class SimulationSetup {
 	
 	public static int MAP_M = 207;
 	public static int MAP_N = MAP_M * 2;
-	public static double cloudMaxHops = 15.0;
+	public static double cloudMaxHops = 17.0;
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 1024.0;
 	public static double cloudStorage = Double.MAX_VALUE;
-	public static double cloudMipsPerCore = 32.0e2;
+	public static double cloudMipsPerCore = 22.0e4;
 	public static int edgeCoreNum = 4;
 	public static double edgeRam = 128.0;
 	public static double edgeStorage = 5e9;
-	public static double edgeMipsPerCore = 16.0e2;
+	public static double edgeMipsPerCore = 20.0e4;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
 	public static int mobileNum = 1;

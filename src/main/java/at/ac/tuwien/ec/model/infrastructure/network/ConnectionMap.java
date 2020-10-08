@@ -27,6 +27,7 @@ import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, NetworkConnection> implements Serializable{
 
 	
+	private static final double BYTES_TO_MEGABYTES = 1e6;
 	final double maxHops = SimulationSetup.cloudMaxHops;
 	//int cloudHops = SimulationSetup.cloudMaxHops;
 	NormalDistribution nDistr = new NormalDistribution(SimulationSetup.MAP_M, 0.5);
@@ -151,8 +152,11 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			{
 				NetworkedNode n1 = verticesOnPath.get(i);
 				QoSProfile tmpProfile = getEdge(n0,n1).qosProfile;
-				time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
-						(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
+				tmpProfile.sampleQoS();
+				//time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
+					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
+				time += ((dataSize/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()) +
+						(tmpProfile.getLatency()))*computeDistance(n0,n1);
 				n0 = n1;
 			}
 			return time;
@@ -160,10 +164,13 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		else
 		{
 			QoSProfile profile = link.getQoSProfile();
+			profile.sampleQoS();
+			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()) +
+					(profile.getLatency()))*computeDistance(u,v);
 			//if(u instanceof MobileDevice || v instanceof MobileDevice)
 				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));
-			return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
-					((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
+			/*return (((dataSize)/(profile.getBandwidth()) + 
+					((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );*/
 			
 		}	/*if(u instanceof MobileDevice || v instanceof MobileDevice) 
 			{

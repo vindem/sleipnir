@@ -15,20 +15,19 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 	}
 
 	public void setupTasks() {
-		double img_size = SimulationSetup.facerecImageSize;
 		addComponent("IOT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
 				,1.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);
 		addComponent("LOAD_MODEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
+        		,1.0e2*SimulationSetup.task_multiplier
 				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);
@@ -45,7 +44,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,1.0e3*SimulationSetup.task_multiplier
+        		,8.0e3*SimulationSetup.task_multiplier
 				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
         		);

@@ -77,7 +77,7 @@ public class ACETONEMain {
 			SimulationSetup.MAP_M = 6;
 			SimulationSetup.MAP_N = 6;
 			SimulationSetup.iotDevicesNum = 36;
-			SimulationSetup.mobileNum = 24;
+			SimulationSetup.mobileNum = 40;
 			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
 			SimulationSetup.x_max = 3119;
 			SimulationSetup.y_max = 3224;
@@ -425,7 +425,7 @@ public class ACETONEMain {
 					SimulationSetup.MAP_M = 6;
 					SimulationSetup.MAP_N = 6;
 					SimulationSetup.iotDevicesNum = 36;
-					SimulationSetup.mobileNum = 24;
+					SimulationSetup.mobileNum = 360;
 					SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
 					SimulationSetup.x_max = 3119;
 					SimulationSetup.y_max = 3224;

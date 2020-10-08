@@ -65,8 +65,8 @@ public class MobilityBasedNetworkPlanner {
 		{
 			QoSProfile qosCloudUL;//,qosCloudDL
 			qosCloudUL = new QoSProfile(asList(
-					new Tuple2<QoS,Double>(new QoS(cloudLatency, CloudWiFiHQBandwidth), 0.9),
-					new Tuple2<QoS,Double>(new QoS(cloudLatency , CloudWiFiLQBandwidth), 0.1)
+					new Tuple2<QoS,Double>(new QoS(756.7, 3.0125), 0.9),
+					new Tuple2<QoS,Double>(new QoS(1038 , 0.13125), 0.1)
 					//,new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					)); 
 
@@ -78,13 +78,12 @@ public class MobilityBasedNetworkPlanner {
 		}
 		for(EdgeNode en0 : inf.getEdgeNodes().values())
 		{
-			double firstHopWiFiHQBandwidth = 32.0 + exponentialGeneration(2.0); 
-			double firstHopWiFiLQBandwidth = 4.0 + exponentialGeneration(1.0);
+			
 			
 			QoSProfile qosUL;//,qosDL;
 			qosUL = new QoSProfile(asList(
-					new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiHQBandwidth), 0.9),
-					new Tuple2<QoS,Double>(new QoS(15.0, firstHopWiFiLQBandwidth), 0.1)
+					new Tuple2<QoS,Double>(new QoS(109.35, 8.3875), 0.9),
+					new Tuple2<QoS,Double>(new QoS(212, 4.2), 0.1)
 					//,new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					));
 					

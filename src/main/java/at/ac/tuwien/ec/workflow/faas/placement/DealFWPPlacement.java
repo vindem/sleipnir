@@ -196,10 +196,9 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 			currentTimestamp = (int) Math.round(getCurrentTime());
 			//System.out.println("TIMESTAMP: "+currentTimestamp);
 			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
-			{
 				d.updateCoordsWithMobility((double)currentTimestamp);
-				//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
-			}
+			//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+			
 			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 			MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
 					SimulationSetup.selectedWorkflow);			
