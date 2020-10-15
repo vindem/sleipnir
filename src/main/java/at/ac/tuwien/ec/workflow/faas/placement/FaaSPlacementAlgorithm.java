@@ -22,7 +22,7 @@ public abstract class FaaSPlacementAlgorithm  {
 	protected double currentTime = 0.0;
 	double updateCounter = 0.0;
 	int updateIntervals = 0;
-	
+		
 	protected double getCurrentTime() {
 		return currentTime;
 	}
@@ -33,6 +33,8 @@ public abstract class FaaSPlacementAlgorithm  {
 	
 	protected boolean updateCondition()
 	{
+		if(SimulationSetup.updateTime == 0.0)
+			return false;
 		updateCounter = getCurrentTime() - (updateIntervals * SimulationSetup.updateTime);
 		if(updateCounter >= SimulationSetup.updateTime)
 		{
@@ -41,6 +43,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			return true;
 		}
 		return false;
+		//return Math.floor(getCurrentTime()) % SimulationSetup.updateTime == 0.0;
 	}
 
 	public MobileDataDistributionInfrastructure getInfrastructure() {
@@ -64,8 +67,8 @@ public abstract class FaaSPlacementAlgorithm  {
 	{
 		//trg.deploy(msc);
 		placement.put(msc,trg);
-		placement.addAverageLatency(msc, trg, currentInfrastructure);
-		placement.addCost(msc, trg, currentInfrastructure);
+		//placement.addAverageLatency(msc, trg, currentInfrastructure);
+		//placement.addCost(msc, trg, currentInfrastructure);
 		//placement.addEnergyConsumption(msc, trg, currentInfrastructure);
 	}
 	
@@ -95,11 +98,12 @@ public abstract class FaaSPlacementAlgorithm  {
 
 	protected void addAverageLatency(FaaSWorkflowPlacement placement, MobileSoftwareComponent msc,
 			ComputationalNode trg, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) {
-		double currentExecutionLatency = 0.0; 
+		double currentExecutionLatency = 0.0;
 		if(isSource(msc))
 		{
 			currentExecutionLatency = 0.0;
 			double maxLatency = Double.MIN_VALUE;
+			double maxData = Double.MIN_VALUE;
 			for(IoTDevice publisher : publishers) 
 			{
 				double currTTime = computeTransmissionTime(publisher,trg);
@@ -128,7 +132,6 @@ public abstract class FaaSPlacementAlgorithm  {
 			setCurrentTime(currentExecutionLatency);
 			msc.setRunTime(getCurrentTime());
 			placement.addAverageLatency(currentExecutionLatency / SimulationSetup.numberOfApps);
-			currentExecutionLatency = 0.0;			
 		}
 		else
 		{

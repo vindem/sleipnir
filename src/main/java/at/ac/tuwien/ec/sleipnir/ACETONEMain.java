@@ -38,6 +38,7 @@ import at.ac.tuwien.ec.workflow.faas.IntrasafedWorkflow;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealJSPPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.DealRandomPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
 import at.ac.tuwien.ec.workflow.faas.placement.PEFTFaaSScheduler;
@@ -77,7 +78,7 @@ public class ACETONEMain {
 			SimulationSetup.MAP_M = 6;
 			SimulationSetup.MAP_N = 6;
 			SimulationSetup.iotDevicesNum = 36;
-			SimulationSetup.mobileNum = 40;
+			SimulationSetup.mobileNum = 360;
 			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
 			SimulationSetup.x_max = 3119;
 			SimulationSetup.y_max = 3224;
@@ -86,7 +87,7 @@ public class ACETONEMain {
 			SimulationSetup.MAP_M = 10;
 			SimulationSetup.MAP_N = 10;
 			SimulationSetup.iotDevicesNum = 100;
-			SimulationSetup.mobileNum = 40;
+			SimulationSetup.mobileNum = 1000;
 			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
 			SimulationSetup.x_max = 11098;
 			SimulationSetup.y_max = 9099;
@@ -95,7 +96,7 @@ public class ACETONEMain {
 			SimulationSetup.MAP_M = 12;
 			SimulationSetup.MAP_N = 12;
 			SimulationSetup.iotDevicesNum = 144;
-			SimulationSetup.mobileNum = 48;
+			SimulationSetup.mobileNum = 1440;
 			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
 			SimulationSetup.x_max = 6720;
 			SimulationSetup.y_max = 5623;
@@ -150,6 +151,9 @@ public class ACETONEMain {
 						break;
 					case "DEAL-FW":
 						search = new DealFWPPlacement(inputValues);
+						break;
+					case "DEAL-RND":
+						search = new DealRandomPlacement(inputValues);
 						break;
 					case "FFD":
 						search = new FFDPRODPlacement(inputValues);
@@ -403,7 +407,7 @@ public class ACETONEMain {
 			if(arg.startsWith("-dataSize="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.dataMultiplier = Double.parseDouble(pars[1]);
+				SimulationSetup.dataMultiplier = Double.valueOf(pars[1]);
 			}
 			if(arg.startsWith("-placement="))
 			{
@@ -475,7 +479,7 @@ public class ACETONEMain {
 				String[] pars = arg.split("=");
 				SimulationSetup.nCenters = Integer.parseInt(pars[1]);
 			}
-			if(arg.startsWith("-updateTime="))
+			if(arg.startsWith("-updateTime=") || arg.startsWith("-uT"))
 			{
 				String[] pars = arg.split("=");
 				SimulationSetup.updateTime = Double.parseDouble(pars[1]);

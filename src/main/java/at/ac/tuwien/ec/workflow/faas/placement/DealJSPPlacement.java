@@ -31,6 +31,7 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement.MaxDistanceComparator;
 import scala.Tuple2;
 
 public class DealJSPPlacement extends FaaSPlacementAlgorithm {
@@ -266,43 +267,52 @@ public class DealJSPPlacement extends FaaSPlacementAlgorithm {
 	}
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
-		ArrayList<ComputationalNode> centers = new ArrayList<ComputationalNode>();
-		infrastructureMap.setEdgeWeights();
-		
-		//FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
-			//= new FloydWarshallShortestPaths<>(infrastructureMap);
+		ConnectionMap subgraph = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		subgraph.setEdgeWeights();
 		
 		JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
-				new JohnsonShortestPaths<>(infrastructureMap);
+				new JohnsonShortestPaths<>(subgraph);
+		ArrayList<ComputationalNode> compNodes = getInfrastructure().getAllNodes();
 		
-		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
-		vertices.addAll(infrastructureMap.vertexSet());
-				
-		for(int i = 0; i < vertices.size(); i++)
+		double minMaxDist = Double.MAX_VALUE;
+		ComputationalNode center = null;
+		for(int i = 0; i < compNodes.size(); i++)
 		{
-			NetworkedNode currNode = vertices.get(i);
-			if(
-					getInfrastructure().getCloudNodes().containsKey(currNode.getId())
-					||
-					getInfrastructure().getEdgeNodes().containsKey(currNode.getId())
-					)
-			{	
-				double maxDistance = Double.MIN_VALUE;
-				for(int j = 0; j < vertices.size(); j++)
+			ComputationalNode currNode = compNodes.get(i);
+			double maxDistance = Double.MIN_VALUE;
+			for(int j = 0; j < publisherDevices.size(); j++)
+			{
+				double dist = paths.getPathWeight(currNode, publisherDevices.get(j));
+				if(dist > maxDistance)
 				{
-					if(i == j)
-						continue;
-					double dist = paths.getPathWeight(currNode, vertices.get(j));
-					if(dist > maxDistance)
-						currNode.setMaxDistance(dist);
+					maxDistance = dist;
+					currNode.setMaxDistance(dist);
 				}
-				centers.add((ComputationalNode) currNode);
 			}
-		}
+			for(int j = 0; j < subscriberDevices.size(); j++)
+			{
+				double dist = paths.getPathWeight(currNode, subscriberDevices.get(j));
+				if(dist > maxDistance) 
+				{
+					maxDistance = dist;
+					currNode.setMaxDistance(dist);
+				}
+			}
+			if(maxDistance < minMaxDist) 
+			{
+				center = currNode;
+				minMaxDist = maxDistance;
+			}
+				
 		
-		Collections.sort(centers, new MaxDistanceComparator());
+		}
+				
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, Math.min(centers.size(),nCenters)));
+				
+		for(ComputationalNode c : getInfrastructure().getAllNodes())
+			if(subgraph.computeDistance(center, c) <= nCenters)
+				toReturn.add(c);
+		
 		return toReturn;				
 	}
 

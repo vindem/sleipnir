@@ -19,42 +19,42 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+				,0
+				,SimulationSetup.dataMultiplier
+        		,SimulationSetup.dataMultiplier
         		);
 		addComponent("LOAD_MODEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e2*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,250
+				,SimulationSetup.dataMultiplier
+        		,SimulationSetup.dataMultiplier
         		);
 		addComponent("AGGREGATE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,250
+				,SimulationSetup.dataMultiplier
+        		,SimulationSetup.dataMultiplier
         		,false
         		);
 		addComponent("ANALYZE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,500
+				,SimulationSetup.dataMultiplier
+        		,SimulationSetup.dataMultiplier
         		);
 		addComponent("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,0
+				,SimulationSetup.dataMultiplier
+        		,SimulationSetup.dataMultiplier
         		);
 		setSource(this.getComponentById("IOT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId()));

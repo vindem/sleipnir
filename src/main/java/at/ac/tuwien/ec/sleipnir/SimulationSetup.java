@@ -29,7 +29,7 @@ public class SimulationSetup {
 	public static int cloudCoreNum = 128;
 	public static double cloudRam = 1024.0;
 	public static double cloudStorage = Double.MAX_VALUE;
-	public static double cloudMipsPerCore = 22.0e4;
+	public static double cloudMipsPerCore = 25.0e4;
 	public static int edgeCoreNum = 4;
 	public static double edgeRam = 128.0;
 	public static double edgeStorage = 5e9;
@@ -110,6 +110,6 @@ public class SimulationSetup {
 	public static int nCenters = 1;
 	public static double updateTime = 10.0;
 	public static String selectedWorkflow = "IR";
-	public static double dataMultiplier = 1e6;
+	public static double dataMultiplier = 1;
 	
 }

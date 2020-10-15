@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
@@ -21,6 +22,8 @@ import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -42,7 +45,6 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		setCurrentWorkflow(arg._1());
 		setInfrastructure(arg._2());
 		
-		FaaSWorkflow faasW = this.getCurrentWorkflow();
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		ArrayList<String> activeTopics = new ArrayList<String>();
 		for(String topic : currInf.getRegistry().keySet())
@@ -73,7 +75,6 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		}
 		
 		ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-		extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 	}
 	
@@ -144,7 +145,6 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 				}
 				
 				ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
-				extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
 			
@@ -176,14 +176,15 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 				}
 			}
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
-			updateTime = scheduling.getAverageLatency();
-			int tmp = (int) (updateTime / 1000);
-			if(tmp > currentTimestamp)
-			{
-				currentTimestamp = tmp;
-				for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
-					d.updateCoordsWithMobility((double)currentTimestamp);
-			}
+			currentTimestamp = (int) Math.floor(getCurrentTime());
+			//System.out.println("TIMESTAMP: "+currentTimestamp);
+			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
+				d.updateCoordsWithMobility((double)currentTimestamp);
+			//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+			
+			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
+			MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
+					SimulationSetup.selectedWorkflow);		
 		}
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;
@@ -210,7 +211,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 		addCost(placement,msc,trg);
 	}
 	
-	private void extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
+	private ConnectionMap extractSubgraph(ConnectionMap infrastructureMap, ArrayList<IoTDevice> publishers, ArrayList<MobileDevice> subscribers) 
 	{
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		ArrayList<NetworkedNode> vertexList = new ArrayList<NetworkedNode>(infrastructureMap.vertexSet());
@@ -220,50 +221,45 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 					&& !(currInf.getCloudNodes().containsKey(n.getId()) 
 							|| currInf.getEdgeNodes().containsKey(n.getId()) ) )
 			{
-				ArrayList<NetworkConnection> connList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
-				for(NetworkConnection nc : connList) 
+				ArrayList<NetworkConnection> outConnList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
+				for(NetworkConnection nc : outConnList) 
+					infrastructureMap.removeEdge(nc);
+				ArrayList<NetworkConnection> inConnList = new ArrayList<NetworkConnection>(infrastructureMap.incomingEdgesOf(n));
+				for(NetworkConnection nc : inConnList) 
 					infrastructureMap.removeEdge(nc);
 				infrastructureMap.removeVertex(n);
 			}	
 		}
+		return infrastructureMap;
 	}
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
-		ArrayList<ComputationalNode> centers = new ArrayList<ComputationalNode>();
+		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
 		infrastructureMap.setCostlessWeights(getInfrastructure());
-		
 		FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
 			= new FloydWarshallShortestPaths<>(infrastructureMap);
-		
-		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
-		vertices.addAll(infrastructureMap.vertexSet());
 				
-		for(int i = 0; i < vertices.size(); i++)
+		GraphPath<NetworkedNode,NetworkConnection> shortest = null;
+		double pathWeight = Double.MAX_VALUE;
+		for(int i = 0; i < publisherDevices.size(); i++)
 		{
-			NetworkedNode currNode = vertices.get(i);
-			if(
-					getInfrastructure().getCloudNodes().containsKey(currNode.getId())
-					||
-					getInfrastructure().getEdgeNodes().containsKey(currNode.getId())
-					)
-			{	
-				double maxDistance = Double.MIN_VALUE;
-				for(int j = 0; j < vertices.size(); j++)
+			for(int j = 0; j < subscriberDevices.size(); j++)
+			{
+				if(paths.getPathWeight(publisherDevices.get(i), subscriberDevices.get(j)) 
+						< pathWeight)
 				{
-					if(i == j)
-						continue;
-					double dist = paths.getPathWeight(currNode, vertices.get(j));
-					if(dist > maxDistance)
-						currNode.setMaxDistance(dist);
+					pathWeight = paths.getPathWeight(publisherDevices.get(i), subscriberDevices.get(j));
+					shortest = paths.getPath(publisherDevices.get(i), subscriberDevices.get(j));
 				}
-				if(getInfrastructure().getEdgeNodes().containsValue(currNode))
-					centers.add((ComputationalNode) currNode);
+					
 			}
 		}
 		
-		Collections.sort(centers, new MaxDistanceComparator());
-		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, Math.min(centers.size(), nCenters)));
+		for(NetworkedNode n : shortest.getVertexList())
+			if(n.getId().contains("cloud") || n.getId().contains("edge"))
+				toReturn.add((ComputationalNode) n);
+				
+		//System.out.println(toReturn.size());
 		return toReturn;				
 	}
 

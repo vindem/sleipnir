@@ -151,7 +151,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
-			//all of this before should be moved in the constructor
+			
 			MobileSoftwareComponent msc = workflowIterator.next();
 			double minAvgCost = Double.MAX_VALUE;
 			ComputationalNode trg = null;
@@ -193,7 +193,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				return schedulings;
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			
-			currentTimestamp = (int) Math.round(getCurrentTime());
+			currentTimestamp = (int) Math.floor(getCurrentTime());
 			//System.out.println("TIMESTAMP: "+currentTimestamp);
 			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
 				d.updateCoordsWithMobility((double)currentTimestamp);
@@ -207,7 +207,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 		double time = endTime - startTime;
 		scheduling.setExecutionTime(time);
 		schedulings.add(scheduling);
-		//System.out.println("Sim Time: " + getCurrentTime() + " Update intervals: " + updateIntervals);
+		System.out.println("Sim Time: " + getCurrentTime() + " Update intervals: " + updateIntervals);
 		return schedulings;
 	}
 	
@@ -261,42 +261,55 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 	}
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
-		ArrayList<ComputationalNode> centers = new ArrayList<ComputationalNode>();
-		infrastructureMap.setEdgeWeights();
+		ConnectionMap subgraph = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
+		subgraph.setEdgeWeights();
 		
 		FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
-			= new FloydWarshallShortestPaths<>(infrastructureMap);
+			= new FloydWarshallShortestPaths<>(subgraph);
 		
 		//JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
 			//	new JohnsonShortestPaths<>(infrastructureMap);
-		ArrayList<NetworkedNode> vertices = new ArrayList<NetworkedNode>();
-		vertices.addAll(infrastructureMap.vertexSet());
-				
-		for(int i = 0; i < vertices.size(); i++)
-		{
-			NetworkedNode currNode = vertices.get(i);
-			if(
-					getInfrastructure().getCloudNodes().containsKey(currNode.getId())
-					||
-					getInfrastructure().getEdgeNodes().containsKey(currNode.getId())
-					)
-			{	
-				double maxDistance = Double.MIN_VALUE;
-				for(int j = 0; j < vertices.size(); j++)
-				{
-					if(i == j)
-						continue;
-					double dist = paths.getPathWeight(currNode, vertices.get(j));
-					if(dist > maxDistance)
-						currNode.setMaxDistance(dist);
-				}
-				centers.add((ComputationalNode) currNode);
-			}
-		}
+		ArrayList<ComputationalNode> compNodes = getInfrastructure().getAllNodes();
 		
-		Collections.sort(centers, new MaxDistanceComparator());
+		double minMaxDist = Double.MAX_VALUE;
+		ComputationalNode center = null;
+		for(int i = 0; i < compNodes.size(); i++)
+		{
+			ComputationalNode currNode = compNodes.get(i);
+			double maxDistance = Double.MIN_VALUE;
+			for(int j = 0; j < publisherDevices.size(); j++)
+			{
+				double dist = paths.getPathWeight(currNode, publisherDevices.get(j));
+				if(dist > maxDistance)
+				{
+					maxDistance = dist;
+					currNode.setMaxDistance(dist);
+				}
+			}
+			for(int j = 0; j < subscriberDevices.size(); j++)
+			{
+				double dist = paths.getPathWeight(currNode, subscriberDevices.get(j));
+				if(dist > maxDistance) 
+				{
+					maxDistance = dist;
+					currNode.setMaxDistance(dist);
+				}
+			}
+			if(maxDistance < minMaxDist) 
+			{
+				center = currNode;
+				minMaxDist = maxDistance;
+			}
+				
+		
+		}
+				
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-		toReturn.addAll(centers.subList(0, Math.min(centers.size(), nCenters)));
+				
+		for(ComputationalNode c : getInfrastructure().getAllNodes())
+			if(subgraph.computeDistance(center, c) <= nCenters)
+				toReturn.add(c);
+		
 		return toReturn;				
 	}
 

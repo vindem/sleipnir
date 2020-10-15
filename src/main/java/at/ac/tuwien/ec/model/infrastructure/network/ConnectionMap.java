@@ -65,7 +65,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;
 			if(nwConn.getBandwidth() == 0.0)
 				setEdgeWeight(nwConn,Double.POSITIVE_INFINITY);
-			setEdgeWeight(nwConn, getDataTransmissionTime(1.0, nwConn.getSource(), nwConn.getTarget()) + 
+			setEdgeWeight(nwConn, getDataTransmissionTime(SimulationSetup.dataMultiplier, nwConn.getSource(), nwConn.getTarget()) + 
 					1.0/Math.min(mips0,mips1));
 		}
 	}
@@ -75,9 +75,9 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		double minLatency = Double.MAX_VALUE,minCost = Double.MAX_VALUE;
 		for(NetworkConnection nwConn : edgeSet())
 		{
-			if(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())
-					< minLatency)
-				minLatency = nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget());
+			double tmpDist = nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget());
+			if(Double.isFinite(tmpDist) && tmpDist	< minLatency && tmpDist > 0.0)
+				minLatency = tmpDist;
 		}
 		
 		for(NetworkedNode node : vertexSet())
@@ -89,15 +89,17 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		
 		for(NetworkConnection nwConn : edgeSet())
 		{
-			double mips0,mips1;
-			mips0 = nwConn.getSource().getCapabilities().getMipsPerCore();
-			mips1 = nwConn.getTarget().getCapabilities().getMipsPerCore();
-			mips0 = (mips0 == 0)? Double.POSITIVE_INFINITY : mips0;
-			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;		
-			setEdgeWeight(nwConn, 
-					(nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget())) / minLatency 
-					+ computeCost(((nwConn.getSource() instanceof ComputationalNode)? nwConn.getSource() : nwConn.getTarget()) ,I)
-							* computeDistance(nwConn.getSource(), nwConn.getTarget()));
+			double tmpDist = nwConn.getLatency() * computeDistance(nwConn.getSource(), nwConn.getTarget());
+			if(!Double.isFinite(tmpDist))			
+				setEdgeWeight(nwConn,Double.POSITIVE_INFINITY);
+			else 
+			{
+				double weight = (tmpDist / minLatency) 
+						+ computeCost(((nwConn.getSource() instanceof ComputationalNode)? nwConn.getSource() : nwConn.getTarget()) ,I)
+						* computeDistance(nwConn.getSource(), nwConn.getTarget());
+				
+				setEdgeWeight(nwConn, weight);
+			}
 		}
 	}
 	
@@ -155,8 +157,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				tmpProfile.sampleQoS();
 				//time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
 					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
-				time += ((dataSize/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()) +
-						(tmpProfile.getLatency()))*computeDistance(n0,n1);
+				time += ((dataSize)/BYTES_TO_MEGABYTES)/tmpProfile.getBandwidth() +
+						(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
 				n0 = n1;
 			}
 			return time;
@@ -165,8 +167,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		{
 			QoSProfile profile = link.getQoSProfile();
 			profile.sampleQoS();
-			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()) +
-					(profile.getLatency()))*computeDistance(u,v);
+			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth())) +
+					(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
 			//if(u instanceof MobileDevice || v instanceof MobileDevice)
 				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));
 			/*return (((dataSize)/(profile.getBandwidth()) + 
@@ -282,7 +284,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
-			return SimulationSetup.cloudMaxHops;
+			return SimulationSetup.MAP_M;
 		//mapping coordinates to cells
 		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
 		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);
@@ -340,8 +342,9 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				new MobileSoftwareComponent("test0",
 						new Hardware(1, 1, 1),
 						1, "user0", 1.0, 1.0);
-		if(n instanceof ComputationalNode)
+		if(n.getId().contains("cloud") || n.getId().contains("edge")) 
 			return ((ComputationalNode) n).computeCost(msc, I);
+		
 		return Double.POSITIVE_INFINITY;
 	}
 	
