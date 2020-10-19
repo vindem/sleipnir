@@ -11,6 +11,7 @@ import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.htrace.impl.MilliSpan;
 
 import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
@@ -39,6 +40,7 @@ enum ConnectionAvailable
 
 public class MobilityBasedNetworkPlanner {
 	
+	private static final double MILLISECONDS_PER_SECOND = 1000.0;
 	static double CloudWiFiHQBandwidth = 16.0 + exponentialGeneration(1.6);
 	static double CloudWiFiLQBandwidth = 2.0 + exponentialGeneration(1.0);
 		
@@ -59,14 +61,13 @@ public class MobilityBasedNetworkPlanner {
 		
 	public static void setupNetworkConnections(MobileDataDistributionInfrastructure inf)
 	{
-		double cloudLatency = normalGeneration();
-				
+		
 		for(EdgeNode en : inf.getEdgeNodes().values())
 		{
 			QoSProfile qosCloudUL;//,qosCloudDL
 			qosCloudUL = new QoSProfile(asList(
-					new Tuple2<QoS,Double>(new QoS(756.7, 3.0125), 0.9),
-					new Tuple2<QoS,Double>(new QoS(1038 , 0.13125), 0.1)
+					new Tuple2<QoS,Double>(new QoS((normalGeneration() + 756.7)/MILLISECONDS_PER_SECOND, 3.0125), 0.9),
+					new Tuple2<QoS,Double>(new QoS((normalGeneration() + 1038)/MILLISECONDS_PER_SECOND , 0.13125), 0.1)
 					//,new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					)); 
 
@@ -82,8 +83,8 @@ public class MobilityBasedNetworkPlanner {
 			
 			QoSProfile qosUL;//,qosDL;
 			qosUL = new QoSProfile(asList(
-					new Tuple2<QoS,Double>(new QoS(109.35, 8.3875), 0.9),
-					new Tuple2<QoS,Double>(new QoS(212, 4.2), 0.1)
+					new Tuple2<QoS,Double>(new QoS(109.35/MILLISECONDS_PER_SECOND, 8.3875), 0.9),
+					new Tuple2<QoS,Double>(new QoS(212/MILLISECONDS_PER_SECOND, 4.2), 0.1)
 					//,new Tuple2<QoS,Double>(new QoS(Double.MAX_VALUE, 0), 0.01)
 					));
 					
@@ -116,32 +117,32 @@ public class MobilityBasedNetworkPlanner {
 			{
 			case FourG:
 				iotEdge = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(109.35,8.3875),0.97)
-						,new Tuple2<QoS,Double>(new QoS(212,4.2),0.03)
+						new Tuple2<QoS,Double>(new QoS(109.35/MILLISECONDS_PER_SECOND,8.3875),0.97)
+						,new Tuple2<QoS,Double>(new QoS(212/MILLISECONDS_PER_SECOND,4.2),0.03)
 						));
 				iotCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(219.6,6.02),0.9998)
-						,new Tuple2<QoS,Double>(new QoS(326,2.625),0.0002)
+						new Tuple2<QoS,Double>(new QoS(219.6/MILLISECONDS_PER_SECOND,6.02),0.9998)
+						,new Tuple2<QoS,Double>(new QoS(326/MILLISECONDS_PER_SECOND,2.625),0.0002)
 						));
 				break;
 			case ThreeG:
 				iotEdge = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(743.16,3.0125),0.94)
-						,new Tuple2<QoS,Double>(new QoS(1038,0.13125),0.06)
+						new Tuple2<QoS,Double>(new QoS(743.16/MILLISECONDS_PER_SECOND,3.0125),0.94)
+						,new Tuple2<QoS,Double>(new QoS(1038/MILLISECONDS_PER_SECOND,0.13125),0.06)
 						));
 				iotCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(756.7,1.3125),0.98)
-						,new Tuple2<QoS,Double>(new QoS(1122,0.13125),0.02)
+						new Tuple2<QoS,Double>(new QoS(756.7/MILLISECONDS_PER_SECOND,1.3125),0.98)
+						,new Tuple2<QoS,Double>(new QoS(1122/MILLISECONDS_PER_SECOND,0.13125),0.02)
 						));
 				break;
 			case FiveG:
 				iotEdge = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(90.95,14.5),0.91)
-						,new Tuple2<QoS,Double>(new QoS(148,2.75),0.09)
+						new Tuple2<QoS,Double>(new QoS(90.95/MILLISECONDS_PER_SECOND,14.5),0.91)
+						,new Tuple2<QoS,Double>(new QoS(148/MILLISECONDS_PER_SECOND,2.75),0.09)
 						));
 				iotCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(172.18,6.04),0.92)
-						,new Tuple2<QoS,Double>(new QoS(211,2.625),0.08)
+						new Tuple2<QoS,Double>(new QoS(172.18/MILLISECONDS_PER_SECOND,6.04),0.92)
+						,new Tuple2<QoS,Double>(new QoS(211/MILLISECONDS_PER_SECOND,2.625),0.08)
 						));
 				break;
 			}
@@ -202,12 +203,12 @@ public class MobilityBasedNetworkPlanner {
 			{
 			case FourG:
 				mEdge = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(109.35,8.3875),0.97)
-						,new Tuple2<QoS,Double>(new QoS(212,4.2),0.03)
+						new Tuple2<QoS,Double>(new QoS(109.35/MILLISECONDS_PER_SECOND,8.3875),0.97)
+						,new Tuple2<QoS,Double>(new QoS(212/MILLISECONDS_PER_SECOND,4.2),0.03)
 						));
 				mCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(219.6,6.02),0.9998)
-						,new Tuple2<QoS,Double>(new QoS(326,2.625),0.0002)
+						new Tuple2<QoS,Double>(new QoS((normalGeneration()+219.6)/MILLISECONDS_PER_SECOND,6.02),0.9998)
+						,new Tuple2<QoS,Double>(new QoS((normalGeneration()+326)/MILLISECONDS_PER_SECOND,2.625),0.0002)
 						));
 				break;
 			case ThreeG:
@@ -216,8 +217,8 @@ public class MobilityBasedNetworkPlanner {
 						,new Tuple2<QoS,Double>(new QoS(1038,0.13125),0.06)
 						));
 				mCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(756.7,1.3125),0.98)
-						,new Tuple2<QoS,Double>(new QoS(1122,0.13125),0.02)
+						new Tuple2<QoS,Double>(new QoS((normalGeneration() + 756.7)/MILLISECONDS_PER_SECOND,1.3125),0.98)
+						,new Tuple2<QoS,Double>(new QoS((normalGeneration() + 1122)/MILLISECONDS_PER_SECOND,0.13125),0.02)
 						));
 				break;
 			case FiveG:
@@ -226,12 +227,17 @@ public class MobilityBasedNetworkPlanner {
 						,new Tuple2<QoS,Double>(new QoS(148,2.75),0.09)
 						));
 				mCloud = new QoSProfile(asList(
-						new Tuple2<QoS,Double>(new QoS(172.18,6.04),0.92)
-						,new Tuple2<QoS,Double>(new QoS(211,2.625),0.08)
+						new Tuple2<QoS,Double>(new QoS((normalGeneration() + 172.18)/MILLISECONDS_PER_SECOND,6.04),0.92)
+						,new Tuple2<QoS,Double>(new QoS((normalGeneration() + 211)/MILLISECONDS_PER_SECOND,2.625),0.08)
 						));
 				break;
 			}
 			
+			/*for(EdgeNode en : proximity)
+			{
+				inf.addLink(d,en,mEdge);
+				inf.addLink(en,d,mEdge);
+			}*/
 			for(EdgeNode en : inf.getEdgeNodes().values()) 
 			{
 				inf.addLink(d,en,mEdge);

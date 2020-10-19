@@ -38,6 +38,7 @@ import at.ac.tuwien.ec.workflow.faas.IntrasafedWorkflow;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSCostlessPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealFWPPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealJSPPlacement;
+import at.ac.tuwien.ec.workflow.faas.placement.DealPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealRandomPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
@@ -154,6 +155,9 @@ public class ACETONEMain {
 						break;
 					case "DEAL-RND":
 						search = new DealRandomPlacement(inputValues);
+						break;
+					case "DEAL":
+						search = new DealPlacement(inputValues);
 						break;
 					case "FFD":
 						search = new FFDPRODPlacement(inputValues);

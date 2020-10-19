@@ -33,7 +33,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 	NormalDistribution nDistr = new NormalDistribution(SimulationSetup.MAP_M, 0.5);
 	final double MILLISECONDS_PER_SECONDS = 1000.0;
 	final double BYTES_PER_MEGABIT = 125000.0;
-	
+	private FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> networkMap;
+
 	//final double BYTES_PER_MEGABIT = 1e6;
 	
 	public ConnectionMap(Class<? extends NetworkConnection> edgeClass) {
@@ -143,8 +144,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		//QoSProfile profile = null;
 		
 		if(link == null) {
-			GraphPath<NetworkedNode,NetworkConnection> path = DijkstraShortestPath.findPathBetween(this, u, v);
-
+			if(networkMap == null)
+				this.networkMap = new FloydWarshallShortestPaths<NetworkedNode, NetworkConnection>(this);
+			
+			GraphPath<NetworkedNode, NetworkConnection> path = this.networkMap.getPath(u, v);
 			ArrayList<NetworkedNode> verticesOnPath = (ArrayList<NetworkedNode>) path.getVertexList();
 
 
@@ -284,7 +287,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(u.equals(v))
 			return 0.0;
 		if( u instanceof CloudDataCenter || v instanceof CloudDataCenter )
-			return SimulationSetup.MAP_M;
+			return SimulationSetup.MAP_M + 1;
 		//mapping coordinates to cells
 		double size_x = SimulationSetup.x_max/SimulationSetup.MAP_M;;
 		double size_y = SimulationSetup.y_max/(SimulationSetup.MAP_N*2);

@@ -42,6 +42,7 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 	{
 		super(id,capabilities);
 		setPricingModel(new DefaultPriceModel());
+		this.setMaxDistance(-1);
 	}
 		
 	private void setPricingModel(DefaultPriceModel pricingModel) {

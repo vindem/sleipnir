@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.FloydWarshallShortestPaths;
@@ -33,14 +34,14 @@ import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import scala.Tuple2;
 
-public class DealFWPPlacement extends FaaSPlacementAlgorithm {
+public class DealPlacement extends FaaSPlacementAlgorithm {
 	
 	private ArrayList<IoTDevice> publisherDevices;
 	private ArrayList<MobileDevice> subscriberDevices;
 	private ArrayList<ComputationalNode> candidateCenters;
 	TopologicalOrderIterator<MobileSoftwareComponent, ComponentLink> workflowIterator;
 		
-	public DealFWPPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
+	public DealPlacement(Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> arg)
 	{
 		super();
 		setCurrentWorkflow(arg._1());
@@ -151,7 +152,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
 				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
 			}
-			
+			//all of this before should be moved in the constructor
 			MobileSoftwareComponent msc = workflowIterator.next();
 			double minAvgCost = Double.MAX_VALUE;
 			ComputationalNode trg = null;
@@ -193,7 +194,7 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 				return schedulings;
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			
-			currentTimestamp = (int) Math.floor(getCurrentTime());
+			currentTimestamp = (int) Math.round(getCurrentTime());
 			//System.out.println("TIMESTAMP: "+currentTimestamp);
 			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
 				d.updateCoordsWithMobility((double)currentTimestamp);
@@ -248,12 +249,12 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 					&& !(currInf.getCloudNodes().containsKey(n.getId()) 
 							|| currInf.getEdgeNodes().containsKey(n.getId()) ) )
 			{
-				ArrayList<NetworkConnection> outConnList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
+				/*ArrayList<NetworkConnection> outConnList = new ArrayList<NetworkConnection>(infrastructureMap.outgoingEdgesOf(n));
 				for(NetworkConnection nc : outConnList) 
 					infrastructureMap.removeEdge(nc);
 				ArrayList<NetworkConnection> inConnList = new ArrayList<NetworkConnection>(infrastructureMap.incomingEdgesOf(n));
 				for(NetworkConnection nc : inConnList) 
-					infrastructureMap.removeEdge(nc);
+					infrastructureMap.removeEdge(nc);*/
 				infrastructureMap.removeVertex(n);
 			}	
 		}
@@ -261,56 +262,53 @@ public class DealFWPPlacement extends FaaSPlacementAlgorithm {
 	}
 
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
-		ConnectionMap subgraph = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		infrastructureMap.setEdgeWeights();
-		
-		FloydWarshallShortestPaths<NetworkedNode, NetworkConnection> paths 
-			= new FloydWarshallShortestPaths<>(infrastructureMap);
-		
-		//JohnsonShortestPaths<NetworkedNode, NetworkConnection> paths =
-			//	new JohnsonShortestPaths<>(infrastructureMap);
-		ArrayList<ComputationalNode> compNodes = getInfrastructure().getAllNodes();
-		
-		double minMaxDist = Double.MAX_VALUE;
-		ComputationalNode center = null;
-		for(int i = 0; i < compNodes.size(); i++)
-		{
-			ComputationalNode currNode = compNodes.get(i);
-			double maxDistance = Double.MIN_VALUE;
-			for(int j = 0; j < publisherDevices.size(); j++)
-			{
-				double dist = paths.getPathWeight(currNode, publisherDevices.get(j));
-				if(dist > maxDistance)
-				{
-					maxDistance = dist;
-					currNode.setMaxDistance(dist);
-				}
-			}
-			for(int j = 0; j < subscriberDevices.size(); j++)
-			{
-				double dist = paths.getPathWeight(currNode, subscriberDevices.get(j));
-				if(dist > maxDistance) 
-				{
-					maxDistance = dist;
-					currNode.setMaxDistance(dist);
-				}
-			}
-			if(maxDistance < minMaxDist) 
-			{
-				center = currNode;
-				minMaxDist = maxDistance;
-			}
-				
-		
-		}
-				
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
-				
+		ConnectionMap subGraph = extractSubgraph(infrastructureMap, publisherDevices, subscriberDevices);
+		
+		ComputationalNode center = null;
+		Double minMaxDist = Double.MAX_VALUE;
+		for(ComputationalNode c : getInfrastructure().getAllNodes()) 
+		{
+			if(c.getMaxDistance() < 0)
+			{
+				double maxDistance = Double.MIN_VALUE;
+				for(IoTDevice i : getInfrastructure().getIotDevices().values())
+				{
+					double dist = subGraph.computeDistance(c,i);
+					if(dist > maxDistance)
+						maxDistance = dist;
+				}
+				c.setMaxDistance(maxDistance);
+			}
+			double tmp = computeMaxDistance(subGraph,c,publisherDevices,subscriberDevices);
+			double nDist = (tmp > c.getMaxDistance())? tmp : c.getMaxDistance();
+			if(nDist < minMaxDist) 
+			{
+				minMaxDist = tmp;
+				center = c;
+			}
+		}
+			
+		
 		for(ComputationalNode c : getInfrastructure().getAllNodes())
-			if(subgraph.computeDistance(center, c) <= nCenters)
+			if(infrastructureMap.computeDistance(center, c) <= nCenters)
 				toReturn.add(c);
 		
 		return toReturn;				
+	}
+
+	private double computeMaxDistance(ConnectionMap infrastructureMap, ComputationalNode computationalNode, ArrayList<IoTDevice> publisherDevices2,
+			ArrayList<MobileDevice> subscriberDevices2) {
+		double maxDist = Double.MIN_VALUE;
+		double tmp;
+		
+		for(NetworkedNode n : infrastructureMap.vertexSet())
+			if(subscriberDevices.contains(n))
+				if((tmp = infrastructureMap.computeDistance(computationalNode,n)) > maxDist)
+					maxDist = tmp;
+		
+		
+		return maxDist;
 	}
 
 	

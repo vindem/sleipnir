@@ -20,33 +20,33 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,5.0e3*SimulationSetup.task_multiplier
-				,5e6*SimulationSetup.task_multiplier
-        		,5e6*SimulationSetup.task_multiplier
+				,100
+				,img_size
+        		,img_size
         		);
 		addComponent("PROCESS"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,5e6*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+        		,400
+				,img_size
+        		,img_size
         		);
 		addComponent("RECOGNIZE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,5e6*SimulationSetup.task_multiplier
-        		,5e6*SimulationSetup.task_multiplier
+        		,800
+				,img_size
+        		,img_size
         		);
 		addComponent("RESIZE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,16.0e3*SimulationSetup.task_multiplier
-				,img_size*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+        		,600
+				,img_size
+        		,img_size
         		);
 		setSource(this.getComponentById("EXTRACT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("RESIZE"+"_"+getWorkloadId()+","+getUserId()));
