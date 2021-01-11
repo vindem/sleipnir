@@ -33,7 +33,8 @@ public abstract class FaaSPlacementAlgorithm  {
 	
 	protected boolean updateCondition()
 	{
-		if(SimulationSetup.updateTime == 0.0)
+		return true;
+		/*if(SimulationSetup.updateTime == 0.0)
 			return false;
 		updateCounter = getCurrentTime() - (updateIntervals * SimulationSetup.updateTime);
 		if(updateCounter >= SimulationSetup.updateTime)
@@ -42,7 +43,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			updateCounter = 0.0;
 			return true;
 		}
-		return false;
+		return false;*/
 		//return Math.floor(getCurrentTime()) % SimulationSetup.updateTime == 0.0;
 	}
 

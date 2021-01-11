@@ -20,7 +20,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,100
+				,94
 				,img_size
         		,img_size
         		);
@@ -28,7 +28,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,400
+        		,96
 				,img_size
         		,img_size
         		);
@@ -36,7 +36,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,800
+        		,475
 				,img_size
         		,img_size
         		);
@@ -44,7 +44,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,600
+        		,174
 				,img_size
         		,img_size
         		);

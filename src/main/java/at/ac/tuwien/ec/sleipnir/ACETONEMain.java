@@ -127,7 +127,7 @@ public class ACETONEMain {
 
 		for(String currAlgorithm : SimulationSetup.algorithms)
 		{
-
+			
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
 					PairFlatMapFunction<Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure>, 
 					FaaSWorkflowPlacement, Tuple4<Integer,Double, Double ,Double>>() {

@@ -46,7 +46,20 @@ public class DealPlacement extends FaaSPlacementAlgorithm {
 		super();
 		setCurrentWorkflow(arg._1());
 		setInfrastructure(arg._2());
-		
+		for(ComputationalNode c : getInfrastructure().getAllNodes()) 
+		{
+			if(c.getMaxDistance() < 0)
+			{
+				double maxDistance = Double.MIN_VALUE;
+				for(IoTDevice i : getInfrastructure().getIotDevices().values())
+				{
+					double dist = getInfrastructure().getConnectionMap().computeDistance(c,i);
+					if(dist > maxDistance)
+						maxDistance = dist;
+				}
+				c.setMaxDistance(maxDistance);
+			}
+		}
 		MobileDataDistributionInfrastructure currInf = this.getInfrastructure();
 		ArrayList<String> activeTopics = new ArrayList<String>();
 		for(String topic : currInf.getRegistry().keySet())
@@ -264,31 +277,22 @@ public class DealPlacement extends FaaSPlacementAlgorithm {
 	private ArrayList<ComputationalNode> findCenters(ConnectionMap infrastructureMap, int nCenters) {
 		ArrayList<ComputationalNode> toReturn = new ArrayList<ComputationalNode>();
 		ConnectionMap subGraph = extractSubgraph(infrastructureMap, publisherDevices, subscriberDevices);
+		//ConnectionMap subGraph = infrastructureMap;
 		
 		ComputationalNode center = null;
 		Double minMaxDist = Double.MAX_VALUE;
-		for(ComputationalNode c : getInfrastructure().getAllNodes()) 
-		{
-			if(c.getMaxDistance() < 0)
-			{
-				double maxDistance = Double.MIN_VALUE;
-				for(IoTDevice i : getInfrastructure().getIotDevices().values())
-				{
-					double dist = subGraph.computeDistance(c,i);
-					if(dist > maxDistance)
-						maxDistance = dist;
-				}
-				c.setMaxDistance(maxDistance);
-			}
+
+		for(ComputationalNode c : getInfrastructure().getAllNodes()) {
 			double tmp = computeMaxDistance(subGraph,c,publisherDevices,subscriberDevices);
+
 			double nDist = (tmp > c.getMaxDistance())? tmp : c.getMaxDistance();
 			if(nDist < minMaxDist) 
 			{
 				minMaxDist = tmp;
 				center = c;
 			}
-		}
-			
+		
+		}	
 		
 		for(ComputationalNode c : getInfrastructure().getAllNodes())
 			if(infrastructureMap.computeDistance(center, c) <= nCenters)
@@ -302,9 +306,8 @@ public class DealPlacement extends FaaSPlacementAlgorithm {
 		double maxDist = Double.MIN_VALUE;
 		double tmp;
 		
-		for(NetworkedNode n : infrastructureMap.vertexSet())
-			if(subscriberDevices.contains(n))
-				if((tmp = infrastructureMap.computeDistance(computationalNode,n)) > maxDist)
+		for(NetworkedNode n : subscriberDevices2)
+			if((tmp = infrastructureMap.computeDistance(computationalNode,n)) > maxDist)
 					maxDist = tmp;
 		
 		

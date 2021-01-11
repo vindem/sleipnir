@@ -19,7 +19,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,0
+				,95
 				,SimulationSetup.dataMultiplier
         		,SimulationSetup.dataMultiplier
         		);
@@ -27,7 +27,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,250
+        		,108
 				,SimulationSetup.dataMultiplier
         		,SimulationSetup.dataMultiplier
         		);
@@ -35,7 +35,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,250
+        		,320
 				,SimulationSetup.dataMultiplier
         		,SimulationSetup.dataMultiplier
         		,false
@@ -44,7 +44,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,500
+        		,497
 				,SimulationSetup.dataMultiplier
         		,SimulationSetup.dataMultiplier
         		);
@@ -52,7 +52,7 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,0
+        		,85
 				,SimulationSetup.dataMultiplier
         		,SimulationSetup.dataMultiplier
         		);

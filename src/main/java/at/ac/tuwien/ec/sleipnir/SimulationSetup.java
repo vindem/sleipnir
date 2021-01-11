@@ -66,7 +66,7 @@ public class SimulationSetup {
 	//public static String[] algorithms = {"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares",
 		//	"ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares","ares"};
 	//public static String[] algorithms = {"DEAL-FW","DEAL-JSP","PEFT","FFD","COSTLESS"};
-	public static String[] algorithms = {"DEAL-FW"};
+	public static String[] algorithms = {"DEAL-FW","DEAL-JSP","DEAL-RND","DEAL"};
 	//public static String[] algorithms = {"triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj","triobj"};
 	//public static String[] algorithms = {"PEFT"};
 	public static boolean batch;
