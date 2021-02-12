@@ -7,15 +7,16 @@ import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.lang.math.RandomUtils;
+//import javax.xml.parsers.ParserConfigurationException;
+
+//import javax.xml.parsers.ParserConfigurationException;
+
+//import org.xml.sax.SAXException;
 import org.xml.sax.SAXException;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
-import at.ac.tuwien.ec.model.infrastructure.MobileBlockchainInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
-import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
@@ -27,6 +28,11 @@ import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class MobileDevicePlannerWithMobility implements Serializable{
 	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4303079692763732917L;
 	static int mobileNum = SimulationSetup.mobileNum;
 	static double mobileEnergyBudget = SimulationSetup.mobileEnergyBudget;
 	static HardwareCapabilities defaultMobileDeviceHardwareCapabilities 
