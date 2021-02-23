@@ -61,6 +61,7 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.PEFTOffloadSc
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
+import at.ac.tuwien.ec.sleipnir.utils.MontecarloStatisticsPrinter;
 import scala.Tuple2;
 import scala.Tuple4;
 import scala.Tuple5;

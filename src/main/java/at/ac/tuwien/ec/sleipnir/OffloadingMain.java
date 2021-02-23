@@ -56,10 +56,12 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
 
+import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
+
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
+import at.ac.tuwien.ec.sleipnir.utils.MontecarloStatisticsPrinter;
 import scala.Tuple2;
-import scala.Tuple4;
 import scala.Tuple5;
 
 public class OffloadingMain {
@@ -94,6 +96,9 @@ public class OffloadingMain {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		
+		ConfigFileParser.parseFile("./config/simulation.json");
+		
+		setupAreaParameters();
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(SimulationSetup.iterations);
 		PrintWriter[] writers = new PrintWriter[SimulationSetup.algorithms.length];
@@ -101,28 +106,7 @@ public class OffloadingMain {
 		
 		for(String algoName : SimulationSetup.algorithms)
 		{
-			String filename = SimulationSetup.outfile
-					+ algoName +"/"
-					+ dateFormat.format(date)
-					+ "-" + SimulationSetup.MAP_M
-					+ "X"
-					+ SimulationSetup.MAP_N
-					+ "-edge-planning="
-					+ SimulationSetup.edgePlanningAlgorithm
-					+ "-" + SimulationSetup.mobileApplication
-					+ "-lambdaLatency=" + SimulationSetup.lambdaLatency
-					+ "-CLOUD=" + SimulationSetup.cloudNum
-					+ "-EDGE=" + SimulationSetup.edgeNodes
-					+ "-" + selectAppArguments(SimulationSetup.mobileApplication)
-					+ "-" + algoName
-							+ ((algoName.equals("weighted"))? 
-									"-alpha="+SimulationSetup.EchoAlpha
-									+"-beta="+SimulationSetup.EchoBeta
-									+"-gamma="+SimulationSetup.EchoGamma
-									: "") 
-							+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
-								"-eta-" + SimulationSetup.Eta)
-							+ ".data";
+			String filename = setupOutputFileName(dateFormat, date, algoName);
 			File outFile = new File(filename);
 			
 			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
@@ -157,6 +141,31 @@ public class OffloadingMain {
 			writer.flush();
 		}		
 		jscontext.close();
+	}
+
+	private static String setupOutputFileName(DateFormat dateFormat, Date date, String algoName) {
+		return SimulationSetup.outfile
+				+ algoName +"/"
+				+ dateFormat.format(date)
+				+ "-" + SimulationSetup.MAP_M
+				+ "X"
+				+ SimulationSetup.MAP_N
+				+ "-edge-planning="
+				+ SimulationSetup.edgePlanningAlgorithm
+				+ "-" + SimulationSetup.mobileApplication
+				+ "-lambdaLatency=" + SimulationSetup.lambdaLatency
+				+ "-CLOUD=" + SimulationSetup.cloudNum
+				+ "-EDGE=" + SimulationSetup.edgeNodes
+				+ "-" + selectAppArguments(SimulationSetup.mobileApplication)
+				+ "-" + algoName
+						+ ((algoName.equals("weighted"))? 
+								"-alpha="+SimulationSetup.EchoAlpha
+								+"-beta="+SimulationSetup.EchoBeta
+								+"-gamma="+SimulationSetup.EchoGamma
+								: "") 
+						+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
+							"-eta-" + SimulationSetup.Eta)
+						+ ".data";
 	}
 
 	private static JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> runSparkSimulation(
@@ -324,7 +333,41 @@ public class OffloadingMain {
 		return tmp;
 	}
 
-
+	private static void setupAreaParameters()
+	{
+		switch(SimulationSetup.area)
+		{
+		case "HERNALS":
+			SimulationSetup.MAP_M = 6;
+			SimulationSetup.MAP_N = 6;
+			SimulationSetup.iotDevicesNum = 36;
+			//SimulationSetup.mobileNum = 360;
+			//SimulationSetup.mobileNum = 1;
+			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
+			SimulationSetup.x_max = 3119;
+			SimulationSetup.y_max = 3224;
+			break;
+		case "LEOPOLDSTADT":
+			SimulationSetup.MAP_M = 10;
+			SimulationSetup.MAP_N = 10;
+			SimulationSetup.iotDevicesNum = 100;
+			SimulationSetup.mobileNum = 1000;
+			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
+			SimulationSetup.x_max = 11098;
+			SimulationSetup.y_max = 9099;
+			break;
+		case "SIMMERING":
+			SimulationSetup.MAP_M = 12;
+			SimulationSetup.MAP_N = 12;
+			SimulationSetup.iotDevicesNum = 144;
+			SimulationSetup.mobileNum = 1440;
+			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
+			SimulationSetup.x_max = 6720;
+			SimulationSetup.y_max = 5623;
+			break;
+		}
+	}
+	
 	private static void processArgs(String[] args) {
 		for(String s : args)
 		{

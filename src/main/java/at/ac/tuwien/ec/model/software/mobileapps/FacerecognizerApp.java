@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.model.software.mobileapps;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 
 public class FacerecognizerApp extends MobileApplication {
 
@@ -38,47 +38,47 @@ public class FacerecognizerApp extends MobileApplication {
 
 	@Override
 	public void setupTasks() {
-		double img_size = SimulationSetup.facerecImageSize;
+		double img_size = OffloadingSetup.facerecImageSize;
 		addComponent("FACERECOGNIZER_UI"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,5.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,5e3*SimulationSetup.task_multiplier
+				,5.0e3
+				,5e3
+        		,5e3
         		,false
         		);
 		addComponent("FIND_MATCH"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+        		,8.0e3
+				,5e3
+        		,img_size
         		);
 		addComponent("FIND_MATCH_INIT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,5e3*SimulationSetup.task_multiplier
+        		,8.0e3
+				,5e3
+        		,5e3
         		);
 		addComponent("DETECT_FACE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,16.0e3*SimulationSetup.task_multiplier
-				,img_size*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+        		,16.0e3
+				,img_size
+        		,img_size
         		);
 		addComponent("FACERECOGNIZER_OUTPUT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,img_size*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+        		,8.0e3
+				,img_size
+        		,img_size
         		,false
         		);		
 	}

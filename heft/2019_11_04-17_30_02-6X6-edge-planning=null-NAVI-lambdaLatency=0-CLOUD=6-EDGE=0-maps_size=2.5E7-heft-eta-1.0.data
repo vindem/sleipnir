@@ -1,0 +1,3 @@
+# Runs	Deployment	Montecarlo-frequency	Runtime	User-cost	Battery-budget	Provider-cost	Fog-nodes	Runtime-l	Runtime-h	Cost-l	Cost-h	Battery-l	Battery-h
+Algorithm: heft
+([CONF_PANEL_0,mobile_0->mobile_0][GPS_0,mobile_0->mobile_0][CONTROL_0,mobile_0->edge(0,6)][MAPS_0,mobile_0->edge(0,6)][TRAFFIC_0,mobile_0->mobile_0][PATH_CALC_0,mobile_0->mobile_0][SPEED_TRAP_0,mobile_0->mobile_0][GUI_0,mobile_0->mobile_0][VOICE_SYNTH_0,mobile_0->mobile_0][CONF_PANEL_1,mobile_0->mobile_0][GPS_1,mobile_0->mobile_0][CONTROL_1,mobile_0->edge(0,6)][TRAFFIC_1,mobile_0->edge(0,6)][MAPS_1,mobile_0->edge(0,6)][PATH_CALC_1,mobile_0->mobile_0][SPEED_TRAP_1,mobile_0->mobile_0][VOICE_SYNTH_1,mobile_0->mobile_0][GUI_1,mobile_0->mobile_0],(1,2.5,1.6886697357461353,26638.95642504443,Infinity))

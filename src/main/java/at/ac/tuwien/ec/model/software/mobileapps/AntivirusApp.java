@@ -35,41 +35,41 @@ public class AntivirusApp extends MobileApplication {
 		addComponent("ANTIVIRUS_UI"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1, 1, 1)
 				,getUserId()
-				,4.0e3*SimulationSetup.task_multiplier
-				,5e+3*SimulationSetup.task_multiplier
-        		,5e+3*SimulationSetup.task_multiplier
+				,4.0e3
+				,5e+3
+        		,5e+3
         		,false);
 		addComponent("LOAD_DEFINITIONS"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1, 1, 1)
 				,getUserId()
 				//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+2.0)
-				,2e3*SimulationSetup.task_multiplier
-				,5e+3*SimulationSetup.task_multiplier
-				,10e+3*SimulationSetup.task_multiplier
+				,2e3
+				,5e+3
+				,10e+3
 				);
 		addComponent("SCAN_FILE"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1,2,1)
 				,getUserId()
 				//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+2.0)
-				,2.0e3*SimulationSetup.task_multiplier
-				,fileDistr.sample()*SimulationSetup.task_multiplier
-				,5e+3*SimulationSetup.task_multiplier
+				,2.0e3
+				,fileDistr.sample()
+				,5e+3
 				);
 		addComponent("COMPARE"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1,1,1)
 				,getUserId()
 				//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+2.0)
-				,2.0e3*SimulationSetup.task_multiplier
-				,fileDistr.sample()*SimulationSetup.task_multiplier
-				,5e+3*SimulationSetup.task_multiplier
+				,2.0e3
+				,fileDistr.sample()
+				,5e+3
 				);
 		addComponent("ANTIVIRUS_OUTPUT"+"_"+getWorkloadId()+","+getUserId()
 				,new Hardware(1, 1, 1)
 				,getUserId()
 				//,ExponentialDistributionGenerator.getNext(1.0/2.0) + 2.0
-				,2e3*SimulationSetup.task_multiplier
-				,1e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
+				,2e3
+				,1e3
+				,5e3
 				,false
 				);
 	}

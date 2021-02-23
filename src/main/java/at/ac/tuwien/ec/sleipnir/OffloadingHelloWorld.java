@@ -56,14 +56,15 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
 
+import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
+
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
 import at.ac.tuwien.ec.sleipnir.utils.MontecarloStatisticsPrinter;
 import scala.Tuple2;
-import scala.Tuple4;
 import scala.Tuple5;
 
-public class Main {
+public class OffloadingHelloWorld {
 	
 	public static void main(String[] arg)
 	{
@@ -94,70 +95,56 @@ public class Main {
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
-		JavaSparkContext jscontext = new JavaSparkContext(configuration);
-		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(SimulationSetup.iterations);
-		PrintWriter[] writers = new PrintWriter[SimulationSetup.algorithms.length];
-		int writerIndex = 0;
 		
-		for(String algoName : SimulationSetup.algorithms)
-		{
-			String filename = SimulationSetup.outfile
-					+ algoName +"/"
-					+ dateFormat.format(date)
-					+ "-" + SimulationSetup.MAP_M
-					+ "X"
-					+ SimulationSetup.MAP_N
-					+ "-edge-planning="
-					+ SimulationSetup.edgePlanningAlgorithm
-					+ "-" + SimulationSetup.mobileApplication
-					+ "-lambdaLatency=" + SimulationSetup.lambdaLatency
-					+ "-CLOUD=" + SimulationSetup.cloudNum
-					+ "-EDGE=" + SimulationSetup.edgeNodes
-					+ "-" + selectAppArguments(SimulationSetup.mobileApplication)
-					+ "-" + algoName
-							+ ((algoName.equals("weighted"))? 
-									"-alpha="+SimulationSetup.EchoAlpha
-									+"-beta="+SimulationSetup.EchoBeta
-									+"-gamma="+SimulationSetup.EchoGamma
-									: "") 
-							+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
-								"-eta-" + SimulationSetup.Eta)
-							+ ".data";
-			File outFile = new File(filename);
-			
-			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
-					jscontext, inputSamples, algoName);
+		ConfigFileParser.parseFile("./config/simulation.json");
+		
+		setupAreaParameters();
+		JavaSparkContext jscontext = new JavaSparkContext(configuration);
+		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
+		
+		String filename = setupOutputFileName(dateFormat, date, OffloadingSetup.algoName);
+		File outFile = new File(filename);
+		PrintWriter writer;
+		
+		JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
+				jscontext, inputSamples, OffloadingSetup.algoName);
 			if(!outFile.exists())
 			{
 				outFile.getParentFile().mkdirs();
-				try {
+				try 
+				{
 					outFile.createNewFile();
-					writers[writerIndex] = new PrintWriter(outFile,"UTF-8");
-					writers[writerIndex].println(MontecarloStatisticsPrinter.getHeader());
-					writers[writerIndex].println("Algorithm: " + algoName);
+					writer  = new PrintWriter(outFile,"UTF-8");
+					writer.println(MontecarloStatisticsPrinter.getHeader());
+					writer.println("Algorithm: " + OffloadingSetup.algoName);
 					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
-					writers[writerIndex].println(mostFrequent._1().toString() + "\t" + mostFrequent._2()._1() + "\t" + mostFrequent._2()._2() 
+					writer.println(mostFrequent._1().toString() + "\t" + mostFrequent._2()._1() + "\t" + mostFrequent._2()._2() 
 						+ "\t" + mostFrequent._2()._3() + "\t" + mostFrequent._2()._4() + "\t" + mostFrequent._2()._5() );
-				} catch (IOException e) {
+					writer.flush();	
+					writer.close();
+				} 
+				catch (IOException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			
-			//histogram.saveAsTextFile(filename+"_001");
-			//writers[writerIndex].println("a");
-			//System.out.println(histogram.first());
-			//histogram.saveAsTextFile("filedimerda");
-			writerIndex++;
-			
-			//System.out.println(histogram.first()._1());
-		}
-		for(PrintWriter writer : writers)
-		{
-			writer.close();
-			writer.flush();
-		}		
+						
 		jscontext.close();
+	}
+
+	private static String setupOutputFileName(DateFormat dateFormat, Date date, String algoName) {
+		return OffloadingSetup.outfile
+				+ algoName +"/"
+				+ dateFormat.format(date)
+				+ "-" + OffloadingSetup.MAP_M
+				+ "X"
+				+ OffloadingSetup.MAP_N
+				+ "-CLOUD=" + OffloadingSetup.cloudNum
+				+ "-EDGE=" + OffloadingSetup.edgeNodes
+				+ "-" + algoName
+				+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + SimulationSetup.Eta)
+				+ ".data";
 	}
 
 	private static JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> runSparkSimulation(
@@ -175,28 +162,8 @@ public class Main {
 						ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>> output = 
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
 						OffloadScheduler singleSearch;
-						switch(algoritmName){
-						case "weighted":
-							singleSearch = new HeftEchoResearch(inputValues);
-							break;
-						case "heft":
-							singleSearch = new HEFTResearch(inputValues);
-							break;
-						case "hbatt":
-							singleSearch = new HEFTBattery(inputValues);
-							break;
-						case "hcost":
-							singleSearch = new HEFTCostResearch(inputValues);
-							break;
-						case "bforce-rt":
-							singleSearch = new BruteForceRuntimeOffloader(inputValues);
-							break;
-						case "nsgaIII":
-							singleSearch = new NSGAIIIResearch(inputValues);
-							break;
-						default:
-							singleSearch =  new HEFTResearch(inputValues);
-						}
+						
+						singleSearch = new HEFTResearch(inputValues);
 						
 						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) singleSearch.findScheduling();
 						if(offloads != null)
@@ -268,7 +235,7 @@ public class Main {
 										val._2()/val._1(),
 										val._3()/val._1(),
 										val._4()/val._1(),
-										(val._5()/SimulationSetup.iterations)/1e6
+										(val._5()/OffloadingSetup.iterations)
 										);
 
 								return new Tuple2<OffloadScheduling,Tuple5<Integer, Double, Double, Double, Double>>(arg0._1,tNew);
@@ -287,15 +254,15 @@ public class Main {
 		{
 			MobileWorkload globalWorkload = new MobileWorkload();
 			WorkloadGenerator generator = new WorkloadGenerator();
-			for(int j = 0; j< SimulationSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.numberOfApps, "mobile_"+j));
+			for(int j = 0; j< OffloadingSetup.mobileNum; j++)
+				globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
 			//globalWorkload = generator.setupWorkload(2, "mobile_0");
 			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
-			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
+			DefaultCloudPlanner.setupCloudNodes(inf, OffloadingSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
-			DefaultNetworkPlanner.setupNetworkConnections((MobileDataDistributionInfrastructure) inf);
+			DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
 		}
@@ -307,86 +274,107 @@ public class Main {
 		String tmp = "";
 		switch(targetApp){
 		case "NAVI": 
-			tmp+="maps_size="+SimulationSetup.navigatorMapSize;
+			tmp+="maps_size="+OffloadingSetup.navigatorMapSize;
 			break;
 		case "ANTIVIRUS":
-			tmp+="file_size="+SimulationSetup.antivirusFileSize;
+			tmp+="file_size="+OffloadingSetup.antivirusFileSize;
 			break;
 		case "FACEREC":
-			tmp+="image_size="+SimulationSetup.facerecImageSize;
+			tmp+="image_size="+OffloadingSetup.facerecImageSize;
 			break;
 		case "CHESS":
-			tmp+="chess_mi="+SimulationSetup.chess_mi;
+			tmp+="chess_mi="+OffloadingSetup.chessMI;
 			break;
 		case "FACEBOOK":
-			tmp+="image_size="+SimulationSetup.facebookImageSize;
+			tmp+="image_size="+OffloadingSetup.facebookImageSize;
 			break;
 		}
 		return tmp;
 	}
 
-
+	private static void setupAreaParameters()
+	{
+		switch(OffloadingSetup.area)
+		{
+		case "HERNALS":
+			OffloadingSetup.MAP_M = 6;
+			OffloadingSetup.MAP_N = 6;
+			OffloadingSetup.mobilityTraceFile = "traces/hernals.coords";
+			OffloadingSetup.x_max = 3119;
+			OffloadingSetup.y_max = 3224;
+			break;
+		case "LEOPOLDSTADT":
+			OffloadingSetup.MAP_M = 10;
+			OffloadingSetup.MAP_N = 10;
+			OffloadingSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
+			OffloadingSetup.x_max = 11098;
+			OffloadingSetup.y_max = 9099;
+			break;
+		case "SIMMERING":
+			OffloadingSetup.MAP_M = 12;
+			OffloadingSetup.MAP_N = 12;
+			OffloadingSetup.mobilityTraceFile = "traces/simmering.coords";
+			OffloadingSetup.x_max = 6720;
+			OffloadingSetup.y_max = 5623;
+			break;
+		}
+	}
+	
 	private static void processArgs(String[] args) {
+		if(Arrays.asList(args).contains("-h") || Arrays.asList(args).contains("-?"))
+		{
+			printUsageInfo();
+			return;
+		}
 		for(String s : args)
 		{
 			if(s.startsWith("-mapM="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.MAP_M = Integer.parseInt(tmp[1]);
+				OffloadingSetup.MAP_M = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-mapN="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.MAP_N = Integer.parseInt(tmp[1]);
+				OffloadingSetup.MAP_N = Integer.parseInt(tmp[1]);
 				continue;
 			}
-			if(s.startsWith("-edgePlanning="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.edgePlanningAlgorithm = tmp[1];
-				continue;
-			}
+			
 			if(s.startsWith("-mobile="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.mobileNum = Integer.parseInt(tmp[1]);
-				continue;
-			}
-			if(s.startsWith("-traceIn="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.electricityTraceFile = tmp[1];
+				OffloadingSetup.mobileNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-outfile="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.outfile = tmp[1];
+				OffloadingSetup.outfile = tmp[1];
 				continue;
 			}
 			if(s.startsWith("-iter="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.iterations = Integer.parseInt(tmp[1]);
+				OffloadingSetup.iterations = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-battery="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.batteryCapacity = Double.parseDouble(tmp[1]);
+				OffloadingSetup.batteryCapacity = Double.parseDouble(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-cloud="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.cloudNum = Integer.parseInt(tmp[1]);
+				OffloadingSetup.cloudNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-edge="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.edgeNodes = Integer.parseInt(tmp[1]);
+				OffloadingSetup.edgeNodes = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-wl-runs=")){
@@ -395,81 +383,67 @@ public class Main {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				SimulationSetup.numberOfApps = wlRuns[0];
+				OffloadingSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
 			if(s.equals("-batch"))
 			{
-				SimulationSetup.batch = true;
+				OffloadingSetup.batch = true;
 				continue;
 			}
-			if(s.startsWith("-map-size="))
+			if(s.startsWith("-navigatorMapSize="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
-			if(s.startsWith("-file-size="))
+			if(s.startsWith("-antivirusFileSize="))
 			{
 				String[] tmp = s.split("=");
 				// 1/input, to be used for lambda of exponential distribution
-				SimulationSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
-			if(s.startsWith("-image-size="))
+			if(s.startsWith("-facerecImageSize="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-latency="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
+				OffloadingSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
 				continue;
 			}
-			if(s.startsWith("-chess-mi="))
+			if(s.startsWith("-chessMi="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.chess_mi = (1.0/Double.parseDouble(tmp[1]));
+				OffloadingSetup.chessMI = (Double.parseDouble(tmp[1]));
 				continue;
 			}
-			if(s.startsWith("-alpha="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.EchoAlpha = Double.parseDouble(tmp[1]);
-			}
-			if(s.startsWith("-beta="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.EchoBeta = Double.parseDouble(tmp[1]);
-			}
-			if(s.startsWith("-gamma="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.EchoGamma = Double.parseDouble(tmp[1]);
-			}
+			
 			if(s.startsWith("-eta="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.Eta = Double.parseDouble(tmp[1]);
+				OffloadingSetup.Eta = Double.parseDouble(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-app="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.mobileApplication = tmp[1];
+				OffloadingSetup.mobileApplication = tmp[1];
 				continue;
 			}
-			if(s.startsWith("-algo="))
-			{
-				String[] tmp = s.split("=");
-				SimulationSetup.algorithms = tmp[1].split(",");
-				continue;
-			}
+			
 			if(s.equals("-cloudonly"))
-				SimulationSetup.cloudOnly = true;
+				OffloadingSetup.cloudOnly = true;
 		}
+	}
+
+	private static void printUsageInfo() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 
 public class FacebookApp extends MobileApplication implements Serializable{
 
@@ -41,56 +41,57 @@ public class FacebookApp extends MobileApplication implements Serializable{
 
 	@Override
 	public void setupTasks() {
-		double img_size = SimulationSetup.facebookImageSize;
+		double img_size = OffloadingSetup.facebookImageSize;
 		addComponent("FACEBOOK_GUI"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,2.0e3*SimulationSetup.task_multiplier
-        		,5e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,2.0e3
+        		,5e3
+        		,1e3
         		,false
 				);
 		addComponent("GET_TOKEN"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,3.0e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,3.0e3
+        		,1e3
+        		,1e3
 				);
 		addComponent("POST_REQUEST"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3*SimulationSetup.task_multiplier 
-        		,1e3//*SimulationSetup.task_multiplier
-        		,5e3//*SimulationSetup.task_multiplier
+				,2.0e3 
+        		,1e3
+        		,5e3
         		);
 		addComponent("PROCESS_RESPONSE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,2.0e3
+        		,1e3
+        		,1e3
         		);
 		addComponent("FILE_UPLOAD"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,5.0e3 *SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
+				,5.0e3 
+        		,img_size
+        		,img_size
         		,false
         		);
 		addComponent("APPLY_FILTER"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,8.0e3 *SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier);
+				,8.0e3
+        		,img_size
+        		,img_size
+        		);
 		addComponent("FACEBOOK_POST"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3 *SimulationSetup.task_multiplier
-        		,img_size*SimulationSetup.task_multiplier
-        		,5e3*SimulationSetup.task_multiplier
+				,2.0e3
+        		,img_size
+        		,5e3
         		,false
         		);
 	}

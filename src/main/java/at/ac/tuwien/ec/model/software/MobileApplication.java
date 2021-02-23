@@ -17,6 +17,7 @@ import org.jgrapht.graph.DirectedAcyclicGraph;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.QoSProfile;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public abstract class MobileApplication implements Serializable, Cloneable{
@@ -169,7 +170,7 @@ public abstract class MobileApplication implements Serializable, Cloneable{
 	}
 	
 	public double sampleLatency(){
-		return ((SimulationSetup.lambdaLatency == 0)?
+		return ((OffloadingSetup.lambdaLatency == 0)?
 				Double.MAX_VALUE : 
 					SimulationSetup.lambdaLatency 
 					+ new ExponentialDistribution(SimulationSetup.lambdaLatency).sample()) ;

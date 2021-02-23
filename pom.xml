@@ -12,7 +12,7 @@
   </properties>
   
   
-	<dependencies>
+  <dependencies>
 		<dependency>
 		<groupId>org.apache.spark</groupId>
 		<artifactId>spark-core_2.12</artifactId>
@@ -24,6 +24,12 @@
 			<groupId>org.jgrapht</groupId>
   			<artifactId>jgrapht-core</artifactId>
  			<version>1.2.0</version>
+		</dependency>
+	
+		<dependency>
+    		<groupId>com.googlecode.json-simple</groupId>
+    		<artifactId>json-simple</artifactId>
+    		<version>1.1.1</version>
 		</dependency>
 	
 		<dependency>

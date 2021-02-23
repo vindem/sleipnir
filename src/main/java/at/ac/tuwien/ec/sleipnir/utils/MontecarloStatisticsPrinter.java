@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.sleipnir;
+package at.ac.tuwien.ec.sleipnir.utils;
 
 
 public class MontecarloStatisticsPrinter {
