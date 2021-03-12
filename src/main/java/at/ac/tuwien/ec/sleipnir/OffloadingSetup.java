@@ -87,5 +87,10 @@ public class OffloadingSetup {
 	
 	public static String algoName;
 	public static int lambdaLatency = 0;
+	public static double antivirusDistr = 0.0;
+	public static double facerecDistr = 0.0;
+	public static double navigatorDistr = 0.0;
+	public static double chessDistr = 0.5;
+	public static double facebookDistr = 0.5;
 	
 }

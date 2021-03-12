@@ -68,6 +68,23 @@ public class OffloadingHelloWorld {
 	
 	public static void main(String[] arg)
 	{
+		ConfigFileParser.parseFile("./config/simulation.json");
+		if(OffloadingSetup.antivirusDistr + OffloadingSetup.chessDistr+ OffloadingSetup.facebookDistr 
+				+ OffloadingSetup.facerecDistr + OffloadingSetup.navigatorDistr != 1.0)
+		{
+			System.out.println("ERROR: App frequency must sum to 1!");
+			return;
+		}
+		if(OffloadingSetup.antivirusDistr < 0.0 || OffloadingSetup.chessDistr < 0.0 || OffloadingSetup.facebookDistr 
+				< 0.0 || OffloadingSetup.facerecDistr < 0.0 || OffloadingSetup.navigatorDistr < 0.0)
+		{
+			System.out.println("ERROR: App frequencies must be positive!");
+			return;
+		}
+		if(Arrays.asList(arg).contains("-h") || Arrays.asList(arg).contains("-?")) {
+			printUsageInfo();
+			return;
+		}
 		processArgs(arg);
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
@@ -96,7 +113,7 @@ public class OffloadingHelloWorld {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		
-		ConfigFileParser.parseFile("./config/simulation.json");
+		
 		
 		setupAreaParameters();
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
@@ -129,7 +146,7 @@ public class OffloadingHelloWorld {
 					e.printStackTrace();
 				}
 			}
-						
+		System.out.println(histogram.first());			
 		jscontext.close();
 	}
 
@@ -143,7 +160,7 @@ public class OffloadingHelloWorld {
 				+ "-CLOUD=" + OffloadingSetup.cloudNum
 				+ "-EDGE=" + OffloadingSetup.edgeNodes
 				+ "-" + algoName
-				+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + SimulationSetup.Eta)
+				+ ((OffloadingSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + OffloadingSetup.Eta)
 				+ ".data";
 	}
 
@@ -321,26 +338,9 @@ public class OffloadingHelloWorld {
 	}
 	
 	private static void processArgs(String[] args) {
-		if(Arrays.asList(args).contains("-h") || Arrays.asList(args).contains("-?"))
-		{
-			printUsageInfo();
-			return;
-		}
+		
 		for(String s : args)
 		{
-			if(s.startsWith("-mapM="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.MAP_M = Integer.parseInt(tmp[1]);
-				continue;
-			}
-			if(s.startsWith("-mapN="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.MAP_N = Integer.parseInt(tmp[1]);
-				continue;
-			}
-			
 			if(s.startsWith("-mobile="))
 			{
 				String[] tmp = s.split("=");
@@ -359,24 +359,14 @@ public class OffloadingHelloWorld {
 				OffloadingSetup.iterations = Integer.parseInt(tmp[1]);
 				continue;
 			}
-			if(s.startsWith("-battery="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.batteryCapacity = Double.parseDouble(tmp[1]);
-				continue;
-			}
+			
 			if(s.startsWith("-cloud="))
 			{
 				String[] tmp = s.split("=");
 				OffloadingSetup.cloudNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
-			if(s.startsWith("-edge="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.edgeNodes = Integer.parseInt(tmp[1]);
-				continue;
-			}
+			
 			if(s.startsWith("-wl-runs=")){
 				String[] tmp = s.split("=");
 				String[] input = tmp[1].split(",");
@@ -386,11 +376,7 @@ public class OffloadingHelloWorld {
 				OffloadingSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
-			if(s.equals("-batch"))
-			{
-				OffloadingSetup.batch = true;
-				continue;
-			}
+			
 			if(s.startsWith("-navigatorMapSize="))
 			{
 				String[] tmp = s.split("=");
@@ -410,12 +396,6 @@ public class OffloadingHelloWorld {
 				OffloadingSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
-			if(s.startsWith("-latency="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
-				continue;
-			}
 			if(s.startsWith("-chessMi="))
 			{
 				String[] tmp = s.split("=");
@@ -429,13 +409,7 @@ public class OffloadingHelloWorld {
 				OffloadingSetup.Eta = Double.parseDouble(tmp[1]);
 				continue;
 			}
-			if(s.startsWith("-app="))
-			{
-				String[] tmp = s.split("=");
-				OffloadingSetup.mobileApplication = tmp[1];
-				continue;
-			}
-			
+						
 			if(s.equals("-cloudonly"))
 				OffloadingSetup.cloudOnly = true;
 		}
@@ -443,7 +417,45 @@ public class OffloadingHelloWorld {
 
 	private static void printUsageInfo() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("\n"
+				+ "-h, -?\t"
+				+ "Prints usage information\n"
+				+ "-mobile=n\t"
+				+ "Instantiates n mobile devices\n"
+				+ "-cloud=n\t"
+				+ "Instantiates n cloud nodes\n"
+				+ "-wlRuns=n\t"
+				+ "Each workflows has n applications\n"
+				+ "-cloudonly\t"
+				+ "Simulation uses only Cloud nodes\n"
+				+ "-area=name\t"
+				+ "Urban area where the offloading is performed (possible choices: HERNALS, LEOPOLDSTADT, SIMMERING)\n"
+				+ "-eta=n\t"
+				+ "Sets the eta parameter, which is necessary to set offloading cost (the higher the eta, the lower the cost).\n"
+				+ "-outfile=string\t"
+				+ "Saves output in file filename\n"
+				+ "-iter=n\t"
+				+ "Executes simulation for n iterations\n"
+				+ "-navigatorMapSize=#\t"
+				+ "Lambda parameter for size of navigator MAP (in kb)\n"
+				+ "-antivirusFileSize=#\t"
+				+ "Lambda parameter for size of antivirus file (in kb)\n"
+				+ "-facerecImageSize=#\t"
+				+ "Lambda parameter for size of image file (in kb) for Facerec app\n"
+				+ "-chessMi=#\t"
+				+ "Lambda parameter for computational size of Chess app \n"
+				+ "-navigatorDistr=#\t"
+				+ "Probability of NAVIGATOR app in workflow (must be between 0 and 1).\n"
+				+ "-antivirusDistr=#\t"
+				+ "Probability of ANTIVIRUS app in workflow (must be between 0 and 1).\n"
+				+ "-facerecDistr=#\t"
+				+ "Probability of FACEREC app in workflow (must be between 0 and 1).\n"
+				+ "-chessDistr=#\t"
+				+ "Probability of CHESS app in workflow (must be between 0 and 1).\n"
+				+ "-facebookDistr=#\t"
+				+ "Probability of FACEBOOK app in workflow (must be between 0 and 1).\n"
+				+ "\n"
+				+ "");
 	}
 	
 

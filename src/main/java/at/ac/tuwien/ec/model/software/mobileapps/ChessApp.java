@@ -40,7 +40,7 @@ public class ChessApp extends MobileApplication {
 
 	@Override
 	public void setupTasks() {
-		for(int i = 0; i < SimulationSetup.chessMovesNum; i++)
+		for(int i = 0; i < OffloadingSetup.chessMovesNum; i++)
 		{
 			addComponent("CHESS_UI_"+i+"_"+getWorkloadId()+","+getUserId()
 					,new Hardware(1, 1, 1)
@@ -81,7 +81,7 @@ public class ChessApp extends MobileApplication {
 
 	@Override
 	public void setupLinks() {
-		for(int i = 0; i < SimulationSetup.chessMovesNum - 1; i++)
+		for(int i = 0; i < OffloadingSetup.chessMovesNum - 1; i++)
 		{
 			addLink("CHESS_UI_"+i+"_"+getWorkloadId()+","+getUserId()
 					, "UPDATE_CHESS_"+i+"_"+getWorkloadId()+","+getUserId(),
