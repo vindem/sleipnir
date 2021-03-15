@@ -1,11 +1,51 @@
-# sleipnir
-Spark-enabled mobiLe Edge offloadIng Platform moNte-carlo sImulatoR
+# Prerequisites #
+SLEIPNIR is written in Java, therefore the latest version of JDK is required. 
+Dependencies are resolved using Apache Maven, which is available at: https://maven.apache.org/download.cgi
+Also, SLEIPNIR uses Apache Spark to distribute load on multiple cores.  Apache Spark can be downloaded at: https://spark.apache.org/downloads.html
 
-# BUILD
-run build.sh
+# Download and install SLEIPNIR #
+The simulator is available from github (https://github.com/vindem/sleipnir)
+To download the latest version, you need to clone the repository running 
+git clone https://github.com/vindem/sleipnir
+To install the simulator, you need to run
+mvn clean package -Dmaven.test.skip
+Which generates the jar archive needed by Apache Spark. In alternative, you can also use the available build.sh script
 
-# EXECUTION
-$SPARK_HOME/spark-submit sleipnir.jar
+./build.sh
 
-## PARAMETERS
--filename=<file> : save output in file file_name. If file exist, data will be appended
+This command will generate the jar sleipnir.jar in the subfolder target/.
+
+# Running simulation with SLEIPNIR #
+## “HelloWorld” example ##
+In the HelloWorld example, we simulate offloading of a workflow composed of 5 sequential FACEBOOK DAGs, executed by 1000 mobile devices. Computational infrastructure is composed of 6 cloud nodes. We simulate mobility over the area of HERNALS, divided in hexagonal cells of 2 km radius with an edge node in each cell. For offloading, HEFT list-based algorithm is used. The “HelloWorld” example is described in the source file OffloadingHelloWorld.java.
+
+## Running HelloWorld example ##
+To run SLEIPNIR, just run
+
+spark-submit target/sleipnir.jar
+
+## Simulation Setup ##
+Simulation can be configured either by using command lines arguments or the configuration file simulation.json. The arguments that can be used are the following:
+
+
+-h, -? Prints usage information
+-mobile=n Instantiates n mobile devices
+-cloud=n Instantiates n cloud nodes
+-wlRuns=n Each workflows has n applications
+-cloudonly Simulation uses only Cloud nodes
+-area=name Urban area where the offloading is performed (possible choices: HERNALS, LEOPOLDSTADT, SIMMERING)
+-eta=n Sets the eta parameter, which is necessary to set offloading cost (the higher the eta, the lower the cost).
+-outfile=string Saves output in file filename
+-iter=n Executes simulation for n iterations
+-navigatorMapSize=# Lambda parameter for size of navigator MAP (in kb)
+-antivirusFileSize=# Lambda parameter for size of antivirus file (in kb)
+-facerecImageSize=# Lambda parameter for size of image file (in kb) for Facerec app
+-chessMi=# Lambda parameter for computational size of Chess app 
+-navigatorDistr=# Probability of NAVIGATOR app in workflow (must be between 0 and 1).
+-antivirusDistr=# Probability of ANTIVIRUS app in workflow (must be between 0 and 1).
+-facerecDistr=# Probability of FACEREC app in workflow (must be between 0 and 1).
+-chessDistr=# Probability of CHESS app in workflow (must be between 0 and 1).
+-facebookDistr=# Probability of FACEBOOK app in workflow (must be between 0 and 1).
+
+
+
