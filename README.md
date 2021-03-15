@@ -74,6 +74,6 @@ Simulation can be configured either by using command lines arguments or the conf
 * -facerecDistr=# Probability of FACEREC app in workflow (must be between 0 and 1).
 * -chessDistr=# Probability of CHESS app in workflow (must be between 0 and 1).
 * -facebookDistr=# Probability of FACEBOOK app in workflow (must be between 0 and 1).
-* -mobility=true/false If true, SLEIPNIR simulates mobility of users using sumo trace files. Example files for the areas of HERNALS, LEOPOLDSTADT and SIMMERING are available [here(https://www.dropbox.com/s/flox79qk2h24oqi/sleipnir-mobility-traces.zip?dl=0)
+* -mobility=true/false If true, SLEIPNIR simulates mobility of users using sumo trace files. Example files for the areas of HERNALS, LEOPOLDSTADT and SIMMERING are available [here](https://www.dropbox.com/s/flox79qk2h24oqi/sleipnir-mobility-traces.zip?dl=0)
 
 
