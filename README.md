@@ -1,3 +1,31 @@
+# Information #
+SLEIPNIR is a DAG scheduling simulator focused on mobile cloud/edge/iot infrastructures released under MIT license. If you use it in your papers, please cite my work using the following bibtex entry:
+
+```
+@inproceedings{DBLP:conf/ccgrid/MaioB18,
+  author    = {Vincenzo De Maio and
+               Ivona Brandic},
+  editor    = {Esam El{-}Araby and
+               Dhabaleswar K. Panda and
+               Sandra Gesing and
+               Amy W. Apon and
+               Volodymyr V. Kindratenko and
+               Massimo Cafaro and
+               Alfredo Cuzzocrea},
+  title     = {First Hop Mobile Offloading of {DAG} Computations},
+  booktitle = {18th {IEEE/ACM} International Symposium on Cluster, Cloud and Grid
+               Computing, {CCGRID} 2018, Washington, DC, USA, May 1-4, 2018},
+  pages     = {83--92},
+  publisher = {{IEEE} Computer Society},
+  year      = {2018},
+  url       = {https://doi.org/10.1109/CCGRID.2018.00023},
+  doi       = {10.1109/CCGRID.2018.00023},
+  timestamp = {Wed, 16 Oct 2019 14:14:53 +0200},
+  biburl    = {https://dblp.org/rec/conf/ccgrid/MaioB18.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+```
+
 # Prerequisites #
 SLEIPNIR is written in Java, therefore the latest version of JDK is required. 
 Dependencies are resolved using Apache Maven, which is available at: https://maven.apache.org/download.cgi
@@ -46,6 +74,6 @@ Simulation can be configured either by using command lines arguments or the conf
 * -facerecDistr=# Probability of FACEREC app in workflow (must be between 0 and 1).
 * -chessDistr=# Probability of CHESS app in workflow (must be between 0 and 1).
 * -facebookDistr=# Probability of FACEBOOK app in workflow (must be between 0 and 1).
-* -mobility=true/false If true, SLEIPNIR simulates mobility of users using sumo trace files. Example files for the areas of HERNALS, LEOPOLDSTADT and SIMMERING are available [here https://www.dropbox.com/s/flox79qk2h24oqi/sleipnir-mobility-traces.zip?dl=0]
+* -mobility=true/false If true, SLEIPNIR simulates mobility of users using sumo trace files. Example files for the areas of HERNALS, LEOPOLDSTADT and SIMMERING are available [here(https://www.dropbox.com/s/flox79qk2h24oqi/sleipnir-mobility-traces.zip?dl=0)
 
 
