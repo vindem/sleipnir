@@ -32,7 +32,7 @@ Simulation can be configured either by using command lines arguments or the conf
 -mobile=n Instantiates n mobile devices
 -cloud=n Instantiates n cloud nodes
 -wlRuns=n Each workflows has n applications
--cloudonly Simulation uses only Cloud nodes
+-cloudonly=true/false If true, simulation uses only Cloud nodes
 -area=name Urban area where the offloading is performed (possible choices: HERNALS, LEOPOLDSTADT, SIMMERING)
 -eta=n Sets the eta parameter, which is necessary to set offloading cost (the higher the eta, the lower the cost).
 -outfile=string Saves output in file filename
@@ -46,6 +46,6 @@ Simulation can be configured either by using command lines arguments or the conf
 -facerecDistr=# Probability of FACEREC app in workflow (must be between 0 and 1).
 -chessDistr=# Probability of CHESS app in workflow (must be between 0 and 1).
 -facebookDistr=# Probability of FACEBOOK app in workflow (must be between 0 and 1).
-
+-mobility=true/false If true, SLEIPNIR simulates mobility of users using sumo trace files. Example files for the areas of HERNALS, LEOPOLDSTADT and SIMMERING are available at https://www.dropbox.com/s/flox79qk2h24oqi/sleipnir-mobility-traces.zip?dl=0 
 
 
