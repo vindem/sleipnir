@@ -23,7 +23,7 @@ import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
-import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
@@ -183,7 +183,7 @@ public class FaaSCostlessPlacement extends FaaSPlacementAlgorithm {
 			//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
 			
 			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
-			MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
+			MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(getInfrastructure(),
 					SimulationSetup.selectedWorkflow);		
 		}
 		double endTime = System.currentTimeMillis();

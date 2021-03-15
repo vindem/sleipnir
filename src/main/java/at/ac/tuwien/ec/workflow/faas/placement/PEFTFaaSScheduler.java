@@ -15,7 +15,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
-import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
@@ -209,7 +209,7 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 					d.updateCoordsWithMobility((double)currentTimestamp);
 				MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 				//MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
-				MobileDevicePlannerWithMobility.updateDeviceSubscriptions(getInfrastructure(),
+				MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(getInfrastructure(),
 						SimulationSetup.selectedWorkflow);
 				scheduledNodes.add(currTask);
 				if(schedulingGraph.containsVertex(currTask))

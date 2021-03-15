@@ -31,7 +31,7 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 					double x = i*size_x + size_x/2.0;
 					double y = j*size_y + size_y/2.0;
 					edgeNodeCoordinates = new Coordinates(x,y);
-					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities.clone(), defaultEdgePricingModel);
+					EdgeNode edge = new EdgeNode("edge("+i+","+j+")", defaultHardwareCapabilities, defaultEdgePricingModel);
 					edge.setCoords(edgeNodeCoordinates);
 					edge.setCPUEnergyModel(defaultCPUEnergyModel);
 					//edge.setAvailabilityModel(model);

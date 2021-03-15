@@ -28,7 +28,7 @@ import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
-import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
 import at.ac.tuwien.ec.workflow.faas.FaaSTestWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
@@ -394,7 +394,7 @@ public class ACETONEMain {
 			//RandomEdgePlanner.setupEdgeNodes(inf);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
 			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
-			MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
+			MobileDevicePlannerWithIoTMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			MobilityBasedNetworkPlanner.setupNetworkConnections(inf);
 			MobilityBasedNetworkPlanner.setupMobileConnections(inf);
 			Tuple2<FaaSWorkflow,MobileDataDistributionInfrastructure> singleSample = 

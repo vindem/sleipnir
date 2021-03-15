@@ -35,6 +35,7 @@ public class ConfigFileParser {
 			OffloadingSetup.facebookDistr = Double.parseDouble((String) obj.get("facebookDistr"));
 			OffloadingSetup.antivirusDistr = Double.parseDouble((String) obj.get("antivirusDistr"));
 			OffloadingSetup.chessDistr = Double.parseDouble((String) obj.get("chessDistr"));
+			OffloadingSetup.mobility = Boolean.parseBoolean((String)obj.get("mobility"));
 			reader.close();
 		} 
 		catch (FileNotFoundException e){

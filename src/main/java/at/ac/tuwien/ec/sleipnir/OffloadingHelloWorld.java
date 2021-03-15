@@ -48,6 +48,7 @@ import at.ac.tuwien.ec.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.provisioning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTCostResearch;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
@@ -112,9 +113,7 @@ public class OffloadingHelloWorld {
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
-		
-		
-		
+				
 		setupAreaParameters();
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
@@ -152,7 +151,7 @@ public class OffloadingHelloWorld {
 
 	private static String setupOutputFileName(DateFormat dateFormat, Date date, String algoName) {
 		return OffloadingSetup.outfile
-				+ algoName +"/"
+				+"/"
 				+ dateFormat.format(date)
 				+ "-" + OffloadingSetup.MAP_M
 				+ "X"
@@ -273,12 +272,14 @@ public class OffloadingHelloWorld {
 			WorkloadGenerator generator = new WorkloadGenerator();
 			for(int j = 0; j< OffloadingSetup.mobileNum; j++)
 				globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
-			//globalWorkload = generator.setupWorkload(2, "mobile_0");
-			//MobileApplication app = new FacerecognizerApp(0,"mobile_0");
+			
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			DefaultCloudPlanner.setupCloudNodes(inf, OffloadingSetup.cloudNum);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+			if(!OffloadingSetup.mobility)
+				DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+			else
+				MobileDevicePlannerWithMobility.setupMobileDevices(inf,OffloadingSetup.mobileNum);
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
@@ -347,6 +348,12 @@ public class OffloadingHelloWorld {
 				OffloadingSetup.mobileNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
+			if(s.startsWith("-mobility="))
+			{
+				String[] tmp = s.split("=");
+				OffloadingSetup.mobility = Boolean.parseBoolean(tmp[1]);
+				continue;
+			}
 			if(s.startsWith("-outfile="))
 			{
 				String[] tmp = s.split("=");
@@ -367,7 +374,7 @@ public class OffloadingHelloWorld {
 				continue;
 			}
 			
-			if(s.startsWith("-wl-runs=")){
+			if(s.startsWith("-nApps=")){
 				String[] tmp = s.split("=");
 				String[] input = tmp[1].split(",");
 				int[] wlRuns = new int[input.length];
@@ -424,7 +431,7 @@ public class OffloadingHelloWorld {
 				+ "Instantiates n mobile devices\n"
 				+ "-cloud=n\t"
 				+ "Instantiates n cloud nodes\n"
-				+ "-wlRuns=n\t"
+				+ "-nApps=n\t"
 				+ "Each workflows has n applications\n"
 				+ "-cloudonly\t"
 				+ "Simulation uses only Cloud nodes\n"

@@ -7,15 +7,20 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
@@ -68,6 +73,41 @@ public class SumoTraceParser {
 		}
 	}
 
+	public static void preSAXParse(File inputSumoFile, ArrayList<String> deviceIdList) throws ParserConfigurationException, SAXException, IOException
+	{
+		if(tracesList == null) {
+			tracesList = new ArrayList<ArrayList<Coordinates>>(); 
+			SAXParserFactory SAXFactory = SAXParserFactory.newInstance();
+			SAXParser saxParser = SAXFactory.newSAXParser();
+
+			for(int i = 0; i < OffloadingSetup.mobileNum; i++)
+				tracesList.add(new ArrayList<Coordinates>());
+
+			DefaultHandler handler = new DefaultHandler() {
+				public void startElement(String uri, String localName,String qName, 
+						Attributes attributes) throws SAXException {
+					switch(qName)
+					{
+					case "vehicle":
+						String currId = attributes.getValue(0);
+						currId = "" + Math.floor(Double.parseDouble(currId));
+						if(deviceIdList.contains(currId))
+						{
+							double x = Double.parseDouble(attributes.getValue("x"));
+							double y = Double.parseDouble(attributes.getValue("y"));
+							Coordinates coords = new Coordinates(x,y);
+							tracesList.get(((int)Double.parseDouble(currId))).add(coords);
+						}
+
+					}
+				}
+
+			};
+			saxParser.parse(inputSumoFile, handler);
+		}
+	}
+
+	
 	public static SumoTraceMobility getTrace(String string) {
 		ArrayList<Coordinates> currCoords = tracesList.get((int)Double.parseDouble(string));
 		return new SumoTraceMobility(currCoords);

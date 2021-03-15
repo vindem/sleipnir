@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
+import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
@@ -24,6 +25,7 @@ import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 import at.ac.tuwien.ec.provisioning.mobile.utils.SumoTraceParser;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class MobileDevicePlannerWithMobility implements Serializable{
@@ -33,33 +35,38 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -4303079692763732917L;
-	static int mobileNum = SimulationSetup.mobileNum;
-	static double mobileEnergyBudget = SimulationSetup.mobileEnergyBudget;
+	static int mobileNum = OffloadingSetup.mobileNum;
+	static double mobileEnergyBudget = OffloadingSetup.mobileEnergyBudget;
 	static HardwareCapabilities defaultMobileDeviceHardwareCapabilities 
-				= SimulationSetup.defaultMobileDeviceHardwareCapabilities;
-	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
-	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
+				= OffloadingSetup.defaultMobileDeviceHardwareCapabilities;
+	static CPUEnergyModel defaultMobileDeviceCPUModel = OffloadingSetup.defaultMobileDeviceCPUModel;
+	static NETEnergyModel defaultMobileDeviceNetModel = OffloadingSetup.defaultMobileDeviceNETModel;
 	
-	public static void setupMobileDevices(MobileDataDistributionInfrastructure inf, int number)
+	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
 	{
-		File inputSumoFile = new File(SimulationSetup.mobilityTraceFile);
+		File inputSumoFile = new File(OffloadingSetup.mobilityTraceFile);
 		System.out.println("Mobility traces parsing started...");
 		ArrayList<String> devIds = new ArrayList<String>();
-		for(int i = 0; i < SimulationSetup.mobileNum; i++)
+		for(int i = 0; i < OffloadingSetup.mobileNum; i++)
 			devIds.add(""+((double)i));
 		try {
-			SumoTraceParser.preParse(inputSumoFile, devIds);
+			SumoTraceParser.preSAXParse(inputSumoFile, devIds);
 			
-		} catch (ParserConfigurationException | SAXException | IOException e1) {
+		} 
+		catch (ParserConfigurationException | SAXException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
 		}
 		System.out.println("Mobility traces parsing completed.");
 		
 		for(int i = 0; i < number; i++)
 		{
 			
-			MobileDevice device = new MobileDevice("vehicle_"+i,defaultMobileDeviceHardwareCapabilities.clone());
+			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			SumoTraceMobility mobilityTrace = null;
@@ -67,99 +74,10 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 			device.setMobilityTrace(mobilityTrace);
 			device.setCoords(mobilityTrace.getCoordinatesForTimestep(0.0));
 			inf.addMobileDevice(device);
-			
-			//depending on setup of traffic
-			switch(SimulationSetup.selectedWorkflow)
-			{
-				case "OF":
-				case "IR":
-					double minDist = Double.MAX_VALUE;
-					String topic = "";
-					for(IoTDevice iot : inf.getIotDevices().values())
-					{
-						double tmp = nodeDistance(device,iot);
-						if(tmp < minDist)
-						{
-							minDist = tmp;
-							topic = iot.getTopics()[0];
-						}
-					}
-					inf.subscribeDeviceToTopic(device, topic);
-					device.addSubscriberTopic(topic);
-					break;
-				case "IntraSafed":
-					for(IoTDevice iot : inf.getIotDevices().values())
-					{
-						double tmp = nodeDistance(device,iot);
-						if(tmp <= 1)
-						{
-							inf.subscribeDeviceToTopic(device,iot.getTopics()[0]);
-							device.addSubscriberTopic(iot.getTopics()[0]);
-						}
-					}
-					break;
-			}
-			
 						
-			
 		}
 	}
 	
-	public static void updateDeviceSubscriptions(MobileDataDistributionInfrastructure inf, String workflowType)
-	{
-		switch(workflowType)
-		{
-			case "IR":
-				for(MobileDevice device : inf.getMobileDevices().values()){
-					ArrayList<String> subscriberTopics = device.getSubscriberTopic();
-					String currTopic;
-					for(int i = 0; i < subscriberTopics.size(); i++) 
-					{
-						currTopic = subscriberTopics.get(i);
-						inf.removeDeviceFromTopic(device, currTopic);
-						device.removeSubscription(currTopic);
-					}
-					double minDist = Double.MAX_VALUE;
-					String topic = "";
-					for(IoTDevice iot : inf.getIotDevices().values())
-					{
-						double tmp = nodeDistance(device,iot);
-						if(tmp < minDist)
-						{
-							minDist = tmp;
-							topic = iot.getTopics()[0];
-						}
-					}
-					inf.subscribeDeviceToTopic(device, topic);
-					device.addSubscriberTopic(topic);
-				}
-				break;
-			case "IntraSafed":
-				for(MobileDevice device : inf.getMobileDevices().values()){
-					ArrayList<String> subscriberTopics = device.getSubscriberTopic();
-					String currTopic;
-					for(int i = 0; i < subscriberTopics.size(); i++) 
-					{
-						currTopic = subscriberTopics.get(i);
-						inf.removeDeviceFromTopic(device, currTopic);
-						device.removeSubscription(currTopic);
-					}
-					for(IoTDevice iot : inf.getIotDevices().values())
-					{
-						double tmp = nodeDistance(device,iot);
-						//System.out.println(tmp);
-						if(tmp == 0.0)
-						{
-							inf.subscribeDeviceToTopic(device,iot.getTopics()[0]);
-							device.addSubscriberTopic(iot.getTopics()[0]);
-						}
-					}
-				}
-				break;
-			default:
-				break;
-		}
-	}
 	
 	public static double nodeDistance(NetworkedNode n1, NetworkedNode n2) {
 		Coordinates c1,c2;

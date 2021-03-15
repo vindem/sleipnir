@@ -28,6 +28,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	 * 
 	 */
 	private static final long serialVersionUID = 3536972473535149228L;
+	private double currentTime = 0.0;
 
 	public OffloadScheduler()
 	{
@@ -35,6 +36,13 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	}
 
 	public abstract ArrayList<? extends Scheduling> findScheduling();
+	
+	public void postTaskScheduling(OffloadScheduling scheduling)
+	{
+		int currentTimestamp = (int) Math.floor(scheduling.getRunTime());
+		for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
+			d.updateCoordsWithMobility((double)currentTimestamp);
+	}
 
 	protected boolean isOffloadPossibleOn(MobileSoftwareComponent s, ComputationalNode n){
 		if(s.getUserId().equals(n.getId()))
