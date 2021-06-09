@@ -66,7 +66,7 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 		for(int i = 0; i < number; i++)
 		{
 			
-			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities);
+			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone());
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
 			SumoTraceMobility mobilityTrace = null;

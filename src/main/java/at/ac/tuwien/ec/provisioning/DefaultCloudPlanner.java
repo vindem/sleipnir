@@ -28,7 +28,7 @@ public class DefaultCloudPlanner {
 		for(int i = 0; i < cloudNum; i++)
 		{
 			CloudDataCenter cdc = new CloudDataCenter("cloud_"+i, 
-					defaultCloudNodesCapabilities, 
+					defaultCloudNodesCapabilities.clone(), 
 					defaultCloudPricindModel);
 			cdc.setCoords(defaultTimezones[i%defaultTimezones.length]);
 			cdc.setCPUEnergyModel(defaultCPUEnergyModel);

@@ -15,7 +15,7 @@ public class EdgePlanner {
 	
 	protected static int MAP_M = SimulationSetup.MAP_M;
 	protected static int MAP_N = SimulationSetup.MAP_N;
-	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities.clone();
+	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities;
 	protected static EdgePricingModel defaultEdgePricingModel = SimulationSetup.edgePricingModel;
 	protected static CPUEnergyModel defaultCPUEnergyModel = SimulationSetup.edgeCPUEnergyModel;
 	protected static NETEnergyModel defaultNETEnergyModel = SimulationSetup.edgeNETEnergyModel;

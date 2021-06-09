@@ -83,7 +83,8 @@ public class SumoTraceParser {
 			for(int i = 0; i < OffloadingSetup.mobileNum; i++)
 				tracesList.add(new ArrayList<Coordinates>());
 
-			DefaultHandler handler = new DefaultHandler() {
+			DefaultHandler handler = new DefaultHandler() 
+			{
 				public void startElement(String uri, String localName,String qName, 
 						Attributes attributes) throws SAXException {
 					switch(qName)
@@ -101,9 +102,10 @@ public class SumoTraceParser {
 
 					}
 				}
-
+				 
 			};
 			saxParser.parse(inputSumoFile, handler);
+			
 		}
 	}
 
