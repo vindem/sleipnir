@@ -55,9 +55,7 @@ public class HEFTResearch extends OffloadScheduler {
 		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
 		//Collections.sort(tasks, new NodeRankComparator());
 		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
-		
-		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
-		
+				
 		double currentRuntime;
 		MobileSoftwareComponent currTask;
 		OffloadScheduling scheduling = new OffloadScheduling(); 

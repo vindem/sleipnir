@@ -145,7 +145,8 @@ public class OffloadingHelloWorld {
 					e.printStackTrace();
 				}
 			}
-		System.out.println(histogram.first());			
+		System.out.println(histogram.first());
+		
 		jscontext.close();
 	}
 

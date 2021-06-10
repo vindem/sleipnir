@@ -261,7 +261,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		//return (((msc.getInData() + msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
 			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 		//System.out.println(u.getId() + "," + v.getId() + " : " + profile.getLatency() + " , " + profile.getBandwidth() );
-		profile.sampleQoS();
+		//profile.sampleQoS();
 		return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
 				(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
 	}

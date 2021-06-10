@@ -64,7 +64,7 @@ public class OffloadingSetup {
 		
 	public static boolean batch;
 	
-	public static int iterations = 5;
+	public static int iterations = 100;
 	
 	
 	public static double Eta = 1.0;
