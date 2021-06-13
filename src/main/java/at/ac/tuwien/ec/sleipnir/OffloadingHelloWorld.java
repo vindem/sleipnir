@@ -90,18 +90,24 @@ public class OffloadingHelloWorld {
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
 		
+		/* Class used to compare deployments according to frequency, i.e., the number of times they appear in the histogram
+		 * 
+		 */
 		class FrequencyComparator implements Serializable,
 			Comparator<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>>
 		{
 
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = -2034500309733677393L;
 
 			public int compare(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double,Double, Double>> o1,
 					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double,Double, Double>> o2) {
-				// TODO Auto-generated method stub
+				/*
+				 *  Deployments are characterized by a Tuple2, whose values are a OffloadScheduling and a Tuple5
+				 *  containing all its execution parameters (frequency, runtime, cost, battery lifetime, execution time);
+				 *  since we are interested in the frequency, we select the Tuple5 ( o1._2() ) 
+				 *  and we pick its first value ( _1() )
+				 */
 				return o1._2()._1() - o2._2()._1();
 			}
 			
@@ -111,13 +117,15 @@ public class OffloadingHelloWorld {
 		Date date = new Date();		
 		
 		SparkConf configuration = new SparkConf();
+		//by default, the master node is the local node
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
-				
+		//we setup parameters relative to the target urban area (useful for mobility)	
 		setupAreaParameters();
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
+		//we generate a sample for each iteration
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
-		
+		//this method is used to define the output file name
 		String filename = setupOutputFileName(dateFormat, date, OffloadingSetup.algoName);
 		File outFile = new File(filename);
 		PrintWriter writer;
@@ -133,7 +141,17 @@ public class OffloadingHelloWorld {
 					writer  = new PrintWriter(outFile,"UTF-8");
 					writer.println(MontecarloStatisticsPrinter.getHeader());
 					writer.println("Algorithm: " + OffloadingSetup.algoName);
+					//By default, we select the deployment with the highest frequency
 					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+					/* By default, schedulings are saved in the file as a single string, where each value is separated by \t.
+					 * values are:
+					 * 1) the description of the scheduling, with t -> n indicating that task t has been scheduled to node n;
+					 * 2) the frequency of the deployment, meaning the number of times where the deployment occurs in the histrogram;
+					 * 3) the deployment runtime
+					 * 4) the user cost of the deployment
+					 * 5) the battery lifetime of the deployment
+					 * 6) the execution time of the algorithm
+					 */
 					writer.println(mostFrequent._1().toString() + "\t" + mostFrequent._2()._1() + "\t" + mostFrequent._2()._2() 
 						+ "\t" + mostFrequent._2()._3() + "\t" + mostFrequent._2()._4() + "\t" + mostFrequent._2()._5() );
 					writer.flush();	
@@ -145,6 +163,7 @@ public class OffloadingHelloWorld {
 					e.printStackTrace();
 				}
 			}
+			//We print the fist deployment appearing in the histogram
 		System.out.println(histogram.first());
 		
 		jscontext.close();
@@ -164,6 +183,13 @@ public class OffloadingHelloWorld {
 				+ ".data";
 	}
 
+	/**
+	 * Runs the simulation using Spark
+	 * @param jscontext the JavaSparkContext object
+	 * @param inputSamples the infrastructure samples used for our simulation
+	 * @param algoritmName the name of scheduling algorithm, can be used to decide at runtime which algorithm you want to call
+	 * @return
+	 */
 	private static JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> runSparkSimulation(
 			JavaSparkContext jscontext, ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> inputSamples, String algoritmName) {
 		JavaRDD<Tuple2<MobileApplication,MobileCloudInfrastructure>> input = jscontext.parallelize(inputSamples);
@@ -186,6 +212,15 @@ public class OffloadingHelloWorld {
 						if(offloads != null)
 							for(OffloadScheduling os : offloads) 
 							{
+								/* By default, schedulings are saved in a Tuple2, whose values are a OffloadScheduling object
+								 * and a Tuple5 containing values of scheduling execution. The Tuple5 values are:
+								 * 1) the frequency of the deployment, meaning the number of times where the 
+								 * deployment occurs in the histrogram. We set it to 1 and aggregate later;
+								 * 2) the deployment runtime
+								 * 3) the user cost of the deployment
+								 * 4) the battery lifetime of the deployment
+								 * 5) the execution time of the algorithm
+								 */
 								output.add(
 										new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
 												new Tuple5<Integer,Double,Double,Double,Double>(
@@ -217,7 +252,7 @@ public class OffloadingHelloWorld {
 					public Tuple5<Integer, Double, Double, Double, Double> call(
 							Tuple5<Integer, Double, Double, Double, Double> off1,
 							Tuple5<Integer, Double, Double, Double, Double> off2) throws Exception {
-						// TODO Auto-generated method stub
+						// We aggregate values of scheduling execution
 						return new Tuple5<Integer, Double, Double, Double, Double>(
 								off1._1() + off2._1(),
 								off1._2() + off2._2(),
@@ -229,8 +264,6 @@ public class OffloadingHelloWorld {
 					
 				}
 			);
-		
-		//System.out.println(aggregation.first());
 		
 		JavaPairRDD<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>> histogram = 
 				aggregation.mapToPair(
@@ -245,6 +278,11 @@ public class OffloadingHelloWorld {
 									Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> arg0)
 											throws Exception {
 								Tuple5<Integer, Double, Double, Double, Double> val = arg0._2();
+								/*
+								 * We aggregate similar scheduling according to their average, therefore each value is averaged
+								 * according to the frequency ( val._1() ). Execution time of the algorithm is instead averaged
+								 * by the number of iterations.
+								 */
 								Tuple5<Integer, Double, Double, Double, Double> tNew 
 								= new Tuple5<Integer, Double, Double, Double, Double>
 								(
@@ -269,18 +307,26 @@ public class OffloadingHelloWorld {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
 		for(int i = 0; i < iterations; i++)
 		{
+			//The workload containing all mobile applications
 			MobileWorkload globalWorkload = new MobileWorkload();
+			//The generator, used to compose workload based on the input distribution
 			WorkloadGenerator generator = new WorkloadGenerator();
+			//For each mobile, we generate a different workload, and aggregate them into a global workload
 			for(int j = 0; j< OffloadingSetup.mobileNum; j++)
 				globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
 			
+			//This object models the sampled infrastructure; from now on, it is modified according to the planners
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
+			//We set up the cloud nodes according to a CloudPlanner object
 			DefaultCloudPlanner.setupCloudNodes(inf, OffloadingSetup.cloudNum);
+			//We set up edge nodes according to EdgePlanner object (in this case, we place a edge node per cell).
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
+			//We select planner according to mobility
 			if(!OffloadingSetup.mobility)
 				DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
 			else
 				MobileDevicePlannerWithMobility.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+			//Finally, we determine network QoS and connections
 			DefaultNetworkPlanner.setupNetworkConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
 			samples.add(singleSample);
@@ -339,6 +385,10 @@ public class OffloadingHelloWorld {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param args the input arguments of the simulation
+	 */
 	private static void processArgs(String[] args) {
 		
 		for(String s : args)
@@ -424,7 +474,7 @@ public class OffloadingHelloWorld {
 	}
 
 	private static void printUsageInfo() {
-		// TODO Auto-generated method stub
+		// We print usage information
 		System.out.println("\n"
 				+ "-h, -?\t"
 				+ "Prints usage information\n"

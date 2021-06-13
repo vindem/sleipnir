@@ -67,35 +67,44 @@ public class HEFTResearch extends OffloadScheduler {
 	@Override
 	public ArrayList<? extends OffloadScheduling> findScheduling() {
 		double start = System.nanoTime();
+		/*scheduledNodes contains the nodes that have been scheduled for execution.
+		 * Once nodes are scheduled, they are taken from the PriorityQueue according to their runtime
+		 */
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
+		/*
+		 * tasks contains tasks that have to be scheduled for execution.
+		 * Tasks are selected according to their upRank (at least in HEFT)
+		 */
 		PriorityQueue<MobileSoftwareComponent> tasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
+		//To start, we add all nodes in the workflow
 		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
 		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
 				
 		MobileSoftwareComponent currTask;
+		//We initialize a new OffloadScheduling object, modelling the scheduling computer with this algorithm
 		OffloadScheduling scheduling = new OffloadScheduling(); 
+		//We check until there are nodes available for scheduling
 		while((currTask = tasks.poll())!=null)
 		{
+			//If there are nodes to be scheduled, we check the first task who terminates and free its resources
 			if(!scheduledNodes.isEmpty())
 			{
 				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
 				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 			}
-			double tMin = Double.MAX_VALUE;
+			double tMin = Double.MAX_VALUE; //Minimum execution time for next task
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
-			    // Deploy it in device?
-                // SoftwareComponent.userID is the MobileDevice?
-				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
-				{
-					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()); // Tasks was being added twice to scheduledNodes
-				}
+			    // If task is not offloadable, deploy it in the mobile device (if enough resources are available)
+                if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+                	target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()); 
+				
 			}
 			else
 			{
-				double maxP = Double.MIN_VALUE;     // max Predecessor / ¿EST?
+				double maxP = Double.MIN_VALUE;     // maxP: maximum runtime among currTask predecessors 
 				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
 					if(cmp.getRunTime()>maxP)
 						maxP = cmp.getRunTime();
@@ -107,17 +116,19 @@ public class HEFTResearch extends OffloadScheduler {
 						tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
 						target = cn;
 					}
-				// is the following check necesary? previous for loop already checks all nodes, including currTask.getUserID (which I suspect is user's mobile device)
-				/*if(maxP + currTask.getRuntimeOnNode((ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()), currentInfrastructure) < tMin
-						&& isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
-					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());*/
+				
 			}
+			//if scheduling found a target node for the task, it allocates it to the target node
 			if(target != null)
 			{
 				deploy(scheduling,currTask,target);
 				scheduledNodes.add(currTask);
 
 			}
+			/*
+			 * if simulation considers mobility, perform post-scheduling operations
+			 * (default is to update coordinates of mobile devices)
+			 */
 			if(OffloadingSetup.mobility)
 				postTaskScheduling(scheduling);					
 		}
@@ -157,8 +168,7 @@ public class HEFTResearch extends OffloadScheduler {
 			int numberOfNodes = infrastructure.getAllNodes().size() + 1;
 			for(ComputationalNode cn : infrastructure.getAllNodes())
 				w_cmp += msc.getLocalRuntimeOnNode(cn, infrastructure);
-			//w_cmp += msc.getLocalRuntimeOnNode((ComputationalNode) I.getNodeById(msc.getUserId()), I);
-			// if loop already accesses all nodes in Infrastructure, why does it add msc.UserID time again?
+			
 			w_cmp = w_cmp / numberOfNodes;
 
             double tmpWRank;
@@ -169,7 +179,8 @@ public class HEFTResearch extends OffloadScheduler {
                 // where cij is the average commmunication cost of edge (i, j)
                 tmpWRank = upRank(neigh.getTarget(),dag,infrastructure); // succesor's rank
                 double tmpCRank = 0;  // this component's average Communication rank
-                if(neigh.getTarget().isOffloadable()) // take into account only offloadable successors, otw comm cost = 0
+                //We consider only offloadable successors. If a successor is not offloadable, communication cost is 0
+                if(neigh.getTarget().isOffloadable()) 
                 {
                     for(ComputationalNode cn : infrastructure.getAllNodes())
                         tmpCRank += infrastructure.getTransmissionTime(neigh.getTarget(), infrastructure.getNodeById(msc.getUserId()), cn);

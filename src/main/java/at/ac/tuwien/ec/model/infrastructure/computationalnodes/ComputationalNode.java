@@ -21,6 +21,8 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 
 	private class DefaultPriceModel implements PricingModel,Serializable
 	{
+		private static final long serialVersionUID = 8372377992210681188L;
+
 		public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
 			return 0.0;
 		}

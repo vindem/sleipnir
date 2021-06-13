@@ -24,9 +24,7 @@ import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 public abstract class OffloadScheduler extends SimIteration implements Serializable{
 	
 		
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 3536972473535149228L;
 	private double currentTime = 0.0;
 
@@ -90,27 +88,36 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 						
 	}
 
+	/**
+	 * Adds task to the current deployment, updating its values and hardware availability
+	 * @param deployment the current OffloadScheduling
+	 * @param s the MobileSoftwareComponent
+	 * @param n the target ComputationalNode
+	 */
 	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		deployment.put(s, n);
 		deployment.addCost(s,n, currentInfrastructure);
 		deployment.addEnergyConsumption(s, n, currentInfrastructure);
 		deployment.addProviderCost(s,n,currentInfrastructure);
 		deployment.addRuntime(s, n, currentInfrastructure);
-			//System.out.println(deployment + " " + deployment.size());
-		n.deploy(s);
+		n.deploy(s); //updates hardware availability
 	}
 
+	/**
+	 * Removes task to the current deployment, updating values and hardware availability
+	 * @param deployment the current OffloadScheduling
+	 * @param s the MobileSoftwareComponent
+	 * @param n the target ComputationalNode
+	 */
 	protected void undeploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		if (deployment.containsKey(s)) {
-			n.undeploy(s);
+			n.undeploy(s); //updates hardware availability
 			deployment.removeRuntime(s, n, currentInfrastructure);
 			deployment.removeCost(s, n, currentInfrastructure);
 			deployment.removeEnergyConsumption(s, n, currentInfrastructure);
 			deployment.removeProviderCost(s,n,currentInfrastructure);
 			deployment.remove(s);
-			
 		}
-		// System.out.println("UNDEP"+deployment);
 	}
 
 	

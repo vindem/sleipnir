@@ -22,13 +22,14 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
 
 /**
  *
- * @author stefano
+ * @author vincenzo
  */
 public class OffloadScheduling extends Scheduling{
     /**
@@ -41,7 +42,7 @@ public class OffloadScheduling extends Scheduling{
     
     public OffloadScheduling(){
         super();
-        batteryLifetime = SimulationSetup.batteryCapacity;
+        batteryLifetime = OffloadingSetup.batteryCapacity;
         runTime = 0.0;
         userCost = 0.0;
         providerCost = 0.0;
@@ -70,12 +71,6 @@ public class OffloadScheduling extends Scheduling{
         boolean result = true;
         OffloadScheduling d = (OffloadScheduling) o;
         result = this.hashCode() == d.hashCode();
-        /*for (SoftwareComponent s : this.keySet()){
-            if (!this.get(s).equals(d.get(s))){
-                result = false;
-                break;
-            }
-        }*/
         return result;
     }
 
@@ -90,64 +85,125 @@ public class OffloadScheduling extends Scheduling{
         return this.hashCode;
     }
 
+    /**
+     * Adds runtime for execution of SoftwareComponent s on node n and infrastructure I
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param I the target infrastructure
+     */
     public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	double tmp = s.getRuntimeOnNode(n, I);
     	s.setRunTime(tmp);
     	this.runTime += tmp;
     }
-    
+    /**
+     * Removes runtime of execution of component s on node n and infrastructure I
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param I the target infrastructure
+     */
     public void removeRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	this.runTime -= s.getRuntimeOnNode((ComputationalNode) super.get(s), I);
     }
     
+    /**
+     * Adds cost of executing MobileSoftwareComponent s on target node n and infrastructure I
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param I the target infrastructure
+     */
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I) {
+    	//cost is computed according to node cost model
         this.userCost += n.computeCost(s, I);
     }
-    
+    /**
+     * Adds cost of executing MobileSoftwareComponent s on target node n, using m as predecessor, and infrastructure I
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param m the predecessor computational node
+     * @param I the target infrastructure
+     */
     public void addCost(MobileSoftwareComponent s, ComputationalNode n, ComputationalNode m, MobileCloudInfrastructure I) {
-        this.userCost += n.computeCost(s, m, I);
+    	//cost is computed according to node cost model
+    	this.userCost += n.computeCost(s, m, I);
     }
     
+    /**
+     * Removes cost of executing MobileSoftwareComponent s on target node n
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param I the target infrastructure
+     */
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
     	this.userCost -= n.computeCost(s, I.getMobileDevices().get(s.getUserId()), I);
     }
 
-    //TODO: consider idle power
+    /**
+     * Adds energy consumption for execution of MobileSoftwareComponent s on node n and infrastructure i
+     * @param s the MobileSoftwareComponent modelling the current task
+     * @param n the target computational node
+     * @param i the target infrastructure
+     */
 	public void addEnergyConsumption(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
+		//TODO: consider idle power
+		
+		//if target node is a mobile device, we remove energy consumption from its remaining battery lifetime
 		if(i.getMobileDevices().containsKey(n.getId()))
 		{
+			//energy is calculated according to the energy model of the node
 			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i) * s.getLocalRuntimeOnNode(n, i);
 			((MobileDevice)i.getNodeById(s.getUserId())).removeFromBudget(energy);
 			this.batteryLifetime -= energy;
 		}
 		else
 		{
+			/* since we are not executing the task on the mobile device, we need remove from its battery lifetime
+			 * the energy required to offload the task on the network
+			 */
 			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i) 
 					* i.getTransmissionTime(s, i.getNodeById(s.getUserId()), n);
 			i.getMobileDevices().get(s.getUserId()).removeFromBudget(offloadEnergy);
+			//we add consumption for task execution to the consumption of the infrastructure (useful in some scenarios)
 			this.infEnergyConsumption += n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime -= offloadEnergy;
 		}
 		
 	}
-	
+	/**
+    * Removes energy consumption for execution of MobileSoftwareComponent s on node n and infrastructure i
+    * @param s the MobileSoftwareComponent modelling the current task
+    * @param n the target computational node
+    * @param i the target infrastructure
+    */
 	public void removeEnergyConsumption(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
+		//if target node is a mobile device, we restore energy consumption to its remaining battery lifetime
 		if(i.getMobileDevices().containsKey(n.getId()))
 		{
+			//energy is calculated according to the energy model of the node
 			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			((MobileDevice)i.getNodeById(s.getUserId())).removeFromBudget(energy);
 			this.batteryLifetime += energy;
 		}
 		else
 		{
+			/* since we are not executing the task on the mobile device, we add to its battery lifetime
+			 * the energy required to offload the task on the network
+			 */
 			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i);
 			i.getMobileDevices().get(s.getUserId()).removeFromBudget(offloadEnergy);
+			//we remove consumption for task execution to the consumption of the infrastructure (useful in some scenarios)
 			this.infEnergyConsumption -= n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime += offloadEnergy;
 		}
 		
 	}
 
+	/**
+	 * Adds cost for the provider to execute the task, based on energy consumption
+	 * @param s
+	 * @param n
+	 * @param i
+	 */
 	public void addProviderCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		if(!n.equals(i.getMobileDevices().get(s.getUserId()))) 
 		{
@@ -232,7 +288,6 @@ public class OffloadScheduling extends Scheduling{
 	}
 	
 	public Double getExecutionTime() {
-		// TODO Auto-generated method stub
 		return this.executionTime;
 	}
 	
