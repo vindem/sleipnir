@@ -135,7 +135,7 @@ public class OffloadScheduling extends Scheduling{
      * @param I the target infrastructure
      */
     public void removeCost(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	this.userCost -= n.computeCost(s, I.getMobileDevices().get(s.getUserId()), I);
+        this.userCost -= n.computeCost(s, I);
     }
 
     /**
@@ -181,7 +181,7 @@ public class OffloadScheduling extends Scheduling{
 		{
 			//energy is calculated according to the energy model of the node
 			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
-			((MobileDevice)i.getNodeById(s.getUserId())).removeFromBudget(energy);
+			((MobileDevice)i.getNodeById(s.getUserId())).addToBudget(energy);
 			this.batteryLifetime += energy;
 		}
 		else
@@ -190,7 +190,7 @@ public class OffloadScheduling extends Scheduling{
 			 * the energy required to offload the task on the network
 			 */
 			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i);
-			i.getMobileDevices().get(s.getUserId()).removeFromBudget(offloadEnergy);
+			i.getMobileDevices().get(s.getUserId()).addToBudget(offloadEnergy);
 			//we remove consumption for task execution to the consumption of the infrastructure (useful in some scenarios)
 			this.infEnergyConsumption -= n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			this.batteryLifetime += offloadEnergy;

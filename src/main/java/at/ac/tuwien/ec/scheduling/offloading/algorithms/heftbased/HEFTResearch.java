@@ -103,17 +103,12 @@ public class HEFTResearch extends OffloadScheduler {
 				
 			}
 			else
-			{
-				double maxP = Double.MIN_VALUE;     // maxP: maximum runtime among currTask predecessors 
-				for(MobileSoftwareComponent cmp : currentApp.getPredecessors(currTask))
-					if(cmp.getRunTime()>maxP)
-						maxP = cmp.getRunTime();
-				
+			{		
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
+					if(currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
 							isValid(scheduling,currTask,cn))
 					{
-						tMin = maxP + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+						tMin = currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
 						target = cn;
 					}
 				
