@@ -16,6 +16,7 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
@@ -103,14 +104,28 @@ public class HEFTResearch extends OffloadScheduler {
 				
 			}
 			else
-			{		
+			{	
+				//Check for all available Cloud/Edge nodes
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
 					if(currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
 							isValid(scheduling,currTask,cn))
 					{
 						tMin = currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
 						target = cn;
+						
 					}
+				/*
+				 * We need this check, because there are cases where, even if the task is offloadable, 
+				 * local execution is the best option
+				 */
+				ComputationalNode localDevice = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+				if(currTask.getRuntimeOnNode(localDevice, currentInfrastructure) < tMin &&
+						isValid(scheduling,currTask,localDevice))
+				{
+					tMin = currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+					target = localDevice;
+					
+				}
 				
 			}
 			//if scheduling found a target node for the task, it allocates it to the target node
