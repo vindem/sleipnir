@@ -16,7 +16,7 @@ public class SamsungS2DualEnergyModel implements CPUEnergyModel,Serializable {
 	private final double BETAFREQBASE_2CORE = 597.79e-6;
 	public double computeCPUEnergy(SoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		//In this version, we assume that mobile is at maximum frequency per core, 1200MHz
-		double utilization = s.getHardwareRequirements().getCores() / n.getCapabilities().getMaxCores();
+		double utilization = (double) s.getHardwareRequirements().getCores() / (double) n.getCapabilities().getMaxCores();
 		double power = BETA_1CORE * utilization + BETAFREQBASE_1CORE;
 		double runtime = s.getRuntimeOnNode(n, i);
 		return power * runtime;
@@ -24,20 +24,20 @@ public class SamsungS2DualEnergyModel implements CPUEnergyModel,Serializable {
 	
 	public double computeCPUEnergy(SoftwareComponent s,ComputationalNode m, ComputationalNode n, MobileCloudInfrastructure i) {
 		//In this version, we assume that mobile is at maximum frequency per core, 1200MHz
-		double utilization = s.getHardwareRequirements().getCores() / n.getCapabilities().getMaxCores();
+		double utilization = (double) s.getHardwareRequirements().getCores() / (double) n.getCapabilities().getMaxCores();
 		double power = BETA_1CORE * utilization + BETAFREQBASE_1CORE;
 		double runtime = s.getRuntimeOnNode(m,n,i);
 		return power * runtime;
 	}
 	public double getIdlePower(SoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		// TODO Auto-generated method stub
-		return 0;
+		return 0.0;
 	}
 
 	@Override
 	public double computeQuantileCPUEnergy(Transaction s, ComputationalNode m, ComputationalNode n,
 			MobileCloudInfrastructure i) {
-		double utilization = s.getHardwareRequirements().getCores() / n.getCapabilities().getMaxCores();
+		double utilization = (double) s.getHardwareRequirements().getCores() / (double) n.getCapabilities().getMaxCores();
 		double power = BETA_1CORE * utilization + BETAFREQBASE_1CORE;
 		double runtime = s.getQuantileRuntimeOnNode(m,n,i);
 		return power * runtime;

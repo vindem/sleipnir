@@ -20,14 +20,18 @@ public class MobileWiFiNETEnergyModel implements NETEnergyModel,Serializable {
 	public double computeNETEnergy(SoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
 		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
-		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 
+		ComputationalNode mDevice = (ComputationalNode) i.getNodeById(s.getUserId());
+		double utilization = (cmp.getOutData())/mci.getLinkBandwidth(mDevice,n);
+		return (alpha * utilization + C) * mci.getTransmissionTime((MobileSoftwareComponent) s,mDevice,n) ; 
 	}
 
 	@Override
 	public double computeQuantileNETEnergy(Transaction s, ComputationalNode n, MobileCloudInfrastructure i) {
 		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
 		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
-		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 
+		ComputationalNode mDevice = (ComputationalNode) i.getNodeById(s.getUserId());
+		double utilization = (cmp.getOutData())/mci.getLinkBandwidth(mDevice,n);
+		return (alpha * utilization + C) * mci.getTransmissionTime((MobileSoftwareComponent) s,mDevice,n) ; 
 	}
 
 }

@@ -8,6 +8,7 @@ import at.ac.tuwien.ec.blockchain.Transaction;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 
 
@@ -24,7 +25,9 @@ public class Mobile3GNETEnergyModel implements NETEnergyModel,Serializable {
 	public double computeNETEnergy(SoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure i) {
 		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
 		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
-		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 
+		ComputationalNode mDevice = (ComputationalNode) i.getNodeById(s.getUserId());
+		double utilization = (cmp.getOutData())/mci.getLinkBandwidth(mDevice,n);
+		return (alpha * utilization + C) * mci.getTransmissionTime((MobileSoftwareComponent) s,mDevice,n) ; 
 	}
 
 
@@ -32,7 +35,9 @@ public class Mobile3GNETEnergyModel implements NETEnergyModel,Serializable {
 	public double computeQuantileNETEnergy(Transaction s, ComputationalNode n, MobileCloudInfrastructure i) {
 		MobileSoftwareComponent cmp = (MobileSoftwareComponent) s;
 		MobileCloudInfrastructure mci = (MobileCloudInfrastructure) i;
-		return alpha * (cmp.getInData() + cmp.getOutData()) + C; 
+		ComputationalNode mDevice = (ComputationalNode) i.getNodeById(s.getUserId());
+		double utilization = (cmp.getOutData())/mci.getLinkBandwidth(mDevice,n);
+		return (alpha * utilization + C) * mci.getTransmissionTime((MobileSoftwareComponent) s,mDevice,n) ; 
 	}
 
 }

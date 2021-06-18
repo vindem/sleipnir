@@ -151,7 +151,7 @@ public class OffloadScheduling extends Scheduling{
 		if(i.getMobileDevices().containsKey(n.getId()))
 		{
 			//energy is calculated according to the energy model of the node
-			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i) * s.getLocalRuntimeOnNode(n, i);
+			double energy = n.getCPUEnergyModel().computeCPUEnergy(s, n, i);
 			((MobileDevice)i.getNodeById(s.getUserId())).removeFromBudget(energy);
 			this.batteryLifetime -= energy;
 		}
@@ -160,8 +160,7 @@ public class OffloadScheduling extends Scheduling{
 			/* since we are not executing the task on the mobile device, we need remove from its battery lifetime
 			 * the energy required to offload the task on the network
 			 */
-			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i) 
-					* i.getTransmissionTime(s, i.getNodeById(s.getUserId()), n);
+			double offloadEnergy = i.getMobileDevices().get(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, i);
 			i.getMobileDevices().get(s.getUserId()).removeFromBudget(offloadEnergy);
 			//we add consumption for task execution to the consumption of the infrastructure (useful in some scenarios)
 			this.infEnergyConsumption += n.getCPUEnergyModel().computeCPUEnergy(s, n, i);

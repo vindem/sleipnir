@@ -188,6 +188,18 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	{
 		return connectionMap.getDesiredTransmissionTime(sc, networkedNode, n, profile);
 	}
+	
+	public double getLinkLatency(NetworkedNode m, NetworkedNode n)
+	{
+		NetworkConnection link = connectionMap.getEdge(m,n);
+		return link.getQoSProfile().getLatency();
+	}
+	
+	public double getLinkBandwidth(NetworkedNode m, NetworkedNode n)
+	{
+		NetworkConnection link = connectionMap.getEdge(m,n);
+		return link.getQoSProfile().getBandwidth();
+	}
 
 	public String toString(){
 		String tmp = "";

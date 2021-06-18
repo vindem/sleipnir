@@ -165,7 +165,6 @@ public class OffloadingHelloWorld {
 			}
 			//We print the fist deployment appearing in the histogram
 		System.out.println(histogram.first());
-		
 		jscontext.close();
 	}
 

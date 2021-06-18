@@ -87,7 +87,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 		//if task is not offloaded, we consider the CPU consumption of mobile device; otherwise, its network consumption
 		double consOnMobile = (currentInfrastructure.getMobileDevices().containsKey(n.getId()))? 
 				n.getCPUEnergyModel().computeCPUEnergy(s, n, currentInfrastructure) :
-					currentInfrastructure.getNodeById(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, currentInfrastructure) ;
+					currentInfrastructure.getNodeById(s.getUserId()).getNetEnergyModel().computeNETEnergy(s, n, currentInfrastructure);
 				boolean compatible = n.isCompatible(s); //checks if target node hardware capabilities match task requirements
 				boolean offloadPossible = isOffloadPossibleOn(s, n); //checks if there is connectivity between mobile device and target node
 				boolean consAcceptable = ((MobileDevice)currentInfrastructure
