@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.scheduling.offloading;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,10 +28,11 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	
 	private static final long serialVersionUID = 3536972473535149228L;
 	private double currentTime = 0.0;
-
+	
+	
 	public OffloadScheduler()
 	{
-
+		
 	}
 
 	public abstract ArrayList<? extends Scheduling> findScheduling();
@@ -82,7 +84,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	 */
 	protected boolean isValid(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
 		//tasks with no computational load are always welcome :) (dummy tasks, used for DAG balancing)
-		if(s.getMillionsOfInstruction() == 0)
+		if(s.getMillionsOfInstruction() == 0.0)
 			return true;
 		//if task is not offloaded, we consider the CPU consumption of mobile device; otherwise, its network consumption
 		double consOnMobile = (currentInfrastructure.getMobileDevices().containsKey(n.getId()))? 
@@ -104,12 +106,13 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	 * @param n the target ComputationalNode
 	 */
 	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
+		n.deploy(s); //updates hardware availability
 		deployment.put(s, n);
 		deployment.addCost(s,n, currentInfrastructure);
 		deployment.addEnergyConsumption(s, n, currentInfrastructure);
 		deployment.addProviderCost(s,n,currentInfrastructure);
 		deployment.addRuntime(s, n, currentInfrastructure);
-		n.deploy(s); //updates hardware availability
+		
 	}
 
 	/**

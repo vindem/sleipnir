@@ -39,7 +39,7 @@ public class OffloadScheduling extends Scheduling{
 	private double runTime, userCost, providerCost, batteryLifetime, infEnergyConsumption;
 	private int hashCode = Integer.MIN_VALUE;
 	private double executionTime;
-    
+	   
     public OffloadScheduling(){
         super();
         batteryLifetime = OffloadingSetup.batteryCapacity;
@@ -92,9 +92,11 @@ public class OffloadScheduling extends Scheduling{
      * @param I the target infrastructure
      */
     public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
-    	double tmp = s.getRuntimeOnNode(n, I);
-    	s.setRunTime(tmp);
-    	this.runTime += tmp;
+    	double nodeComputationTime = s.getRuntimeOnNode(n, I);
+    	double taskTermination = this.runTime + n.getESTforTask(s) + nodeComputationTime;
+    	s.setRunTime(taskTermination);
+    	if(taskTermination > this.runTime)
+    	this.runTime = taskTermination;
     }
     /**
      * Removes runtime of execution of component s on node n and infrastructure I

@@ -86,16 +86,17 @@ public class HEFTResearch extends OffloadScheduler {
 		//We initialize a new OffloadScheduling object, modelling the scheduling computer with this algorithm
 		OffloadScheduling scheduling = new OffloadScheduling(); 
 		//We check until there are nodes available for scheduling
-		while((currTask = tasks.poll())!=null)
+		while((currTask = tasks.peek()) != null)
 		{
-			//If there are nodes to be scheduled, we check the first task who terminates and free its resources
-			if(!scheduledNodes.isEmpty())
-			{
-				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
-				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
-			}
 			double tMin = Double.MAX_VALUE; //Minimum execution time for next task
 			ComputationalNode target = null;
+			
+			/*while(!currentApp.getIncomingEdgesIn(currTask).isEmpty() && !scheduledNodes.isEmpty())
+			{
+				MobileSoftwareComponent terminated = scheduledNodes.remove();
+				((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
+				this.currentApp.removeTask(terminated);
+			}*/			
 			if(!currTask.isOffloadable())
 			{
 			    // If task is not offloadable, deploy it in the mobile device (if enough resources are available)
@@ -110,7 +111,7 @@ public class HEFTResearch extends OffloadScheduler {
 					if(currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
 							isValid(scheduling,currTask,cn))
 					{
-						tMin = currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+						tMin = cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
 						target = cn;
 						
 					}
@@ -122,7 +123,7 @@ public class HEFTResearch extends OffloadScheduler {
 				if(currTask.getRuntimeOnNode(localDevice, currentInfrastructure) < tMin &&
 						isValid(scheduling,currTask,localDevice))
 				{
-					tMin = currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+					tMin = localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
 					target = localDevice;
 					
 				}
@@ -133,7 +134,12 @@ public class HEFTResearch extends OffloadScheduler {
 			{
 				deploy(scheduling,currTask,target);
 				scheduledNodes.add(currTask);
-
+				tasks.remove(currTask);
+			}
+			else if(!scheduledNodes.isEmpty());
+			{
+				MobileSoftwareComponent terminated = scheduledNodes.remove();
+				((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
 			}
 			/*
 			 * if simulation considers mobility, perform post-scheduling operations
