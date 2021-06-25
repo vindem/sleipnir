@@ -138,5 +138,13 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 	public void deployVM(ContainerInstance vm) {
 		capabilities.deploy(vm);
 	}
+
+	public ArrayList<MobileSoftwareComponent> getAllocatedTasks() {
+		return allocated;
+	}
+
+	public void setAllocatedTasks(ArrayList<MobileSoftwareComponent> allocated) {
+		this.allocated = allocated;
+	}
 	
 }
