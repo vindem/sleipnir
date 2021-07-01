@@ -108,7 +108,7 @@ public class HEFTResearch extends OffloadScheduler {
 			{	
 				//Check for all available Cloud/Edge nodes
 				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
+					if(cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
 							isValid(scheduling,currTask,cn))
 					{
 						tMin = cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
@@ -120,7 +120,7 @@ public class HEFTResearch extends OffloadScheduler {
 				 * local execution is the best option
 				 */
 				ComputationalNode localDevice = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-				if(currTask.getRuntimeOnNode(localDevice, currentInfrastructure) < tMin &&
+				if(localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure) < tMin &&
 						isValid(scheduling,currTask,localDevice))
 				{
 					tMin = localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
