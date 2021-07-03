@@ -96,6 +96,8 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 		double est = 0.0;
 		if(this.isCompatible(sc))
 			return est;
+		else if(allocated.isEmpty())
+			return Double.MAX_VALUE;
 		else
 		{
 			//we check when it will be possible to allocate sc
@@ -103,12 +105,14 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 			ArrayList<MobileSoftwareComponent> tmpAllocated = (ArrayList<MobileSoftwareComponent>) allocated.clone();
 			HardwareCapabilities futureCapabilities = capabilities.clone();
 			MobileSoftwareComponent firstTask = tmpAllocated.remove(0);
-			while(!futureCapabilities.supports(sc.getHardwareRequirements()))
+			while(!futureCapabilities.supports(sc.getHardwareRequirements()) && !tmpAllocated.isEmpty())
 			{
 				futureCapabilities.undeploy(firstTask);
 				est = firstTask.getRunTime();
 				firstTask = tmpAllocated.remove(0);
 			}
+			if(!futureCapabilities.supports(sc.getHardwareRequirements()))
+				return Double.MAX_VALUE;
 			return est;
 		}
 	}
