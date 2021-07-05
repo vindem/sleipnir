@@ -136,7 +136,7 @@ public class HEFTResearch extends OffloadScheduler {
 				scheduledNodes.add(currTask);
 				tasks.remove(currTask);
 			}
-			else if(!scheduledNodes.isEmpty());
+			else if(!scheduledNodes.isEmpty())
 			{
 				MobileSoftwareComponent terminated = scheduledNodes.remove();
 				((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
