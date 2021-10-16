@@ -2,6 +2,7 @@ package at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduli
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.PriorityQueue;
 
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
@@ -19,8 +20,11 @@ import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
+import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
+import at.ac.tuwien.ec.scheduling.algorithms.multiobjective.RandomScheduler;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import scala.Tuple2;
 
 
 
@@ -51,63 +55,47 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 		ArrayList<OffloadScheduling> deps;
 		do deps = rs.findScheduling();
 		while(deps.size()==0);
-		try {
-			return new DeploymentSolution(deps.get(0),this.currentApp,this.currentInfrastructure);
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return new DeploymentSolution(deps.get(0),this.currentApp,this.currentInfrastructure);
 	}
 
 	@Override
 	public void evaluate(DeploymentSolution currDep) {
-		double cost = 0;
-		double batteryBudget = SimulationSetup.batteryCapacity;
-		OffloadScheduling d = currDep.getDeployment();
-		double runTime = 0.0;
-		double providerCost = 0.0;
-		for(int i = 0; i < d.keySet().size(); i++){
-			MobileSoftwareComponent sc = (MobileSoftwareComponent) d.keySet().toArray()[i];
-			ComputationalNode n = currDep.getVariableValue(i);
-			ArrayList<MobileSoftwareComponent> preds = currentApp.getPredecessors(sc);
-			double mPreds = 0.0;
-			for(MobileSoftwareComponent ps:preds)
-			{
-				if(ps.getRunTime() > mPreds)
-					mPreds = ps.getRunTime();
+		OffloadScheduling d = new OffloadScheduling();
+		
+		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
+		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
+		for(int i = 0; i < currDep.getNumberOfVariables();i++)
+		{
+			//We already have the pairs (MobileSoftwareComponent,ComputationalNode)
+			Tuple2<MobileSoftwareComponent,ComputationalNode> t = currDep.getVariableValue(i);
+			ComputationalNode target = t._2();
+			MobileSoftwareComponent msc = t._1();
+			//Check capacity constraints
+			if(!isValid(d,msc,target)){
+				currDep.setObjective(0, Double.MAX_VALUE);
+				currDep.setObjective(1, Double.MAX_VALUE);
+				currDep.setObjective(2, 0.0);
+				currDep.setAttribute("feasible",false);
+				break;
 			}
-			sc.setRunTime(mPreds + sc.getRuntimeOnNode(n, currentInfrastructure));
-			runTime = sc.getRunTime();
-			cost += n.computeCost(sc, 
-					(MobileDevice) currentInfrastructure.getNodeById(sc.getUserId()) ,
-					currentInfrastructure);
-			batteryBudget -= (currentInfrastructure.getMobileDevices().containsValue(n))? 
-					((ComputationalNode) currentInfrastructure.getNodeById(sc.getUserId())).getCPUEnergyModel().computeCPUEnergy(sc, n, currentInfrastructure):
-					currentInfrastructure.getNodeById(sc.getUserId()).getNetEnergyModel().computeNETEnergy(sc, n, currentInfrastructure);	
-			if(!currentInfrastructure.getMobileDevices().containsValue(n))
-				providerCost += n.getCPUEnergyModel().computeCPUEnergy(sc, n, currentInfrastructure) * 
-					currentInfrastructure.getPriceForLocation(n.getCoords(), runTime);
-			for(CloudDataCenter c : currentInfrastructure.getCloudNodes().values() )
-				if(!c.getId().equals(n.getId()))
-					providerCost += n.getCPUEnergyModel().getIdlePower(sc, c, currentInfrastructure) * 
-						currentInfrastructure.getPriceForLocation(c.getCoords(), runTime);
-			for(EdgeNode fn : currentInfrastructure.getEdgeNodes().values())
-				if(!fn.getId().equals(n.getId()))
-					providerCost += n.getCPUEnergyModel().getIdlePower(sc, fn, currentInfrastructure) * 
-						currentInfrastructure.getPriceForLocation(fn.getCoords(), runTime);
+			deploy(d,msc,target);
+			scheduledNodes.add(msc);
+			if(OffloadingSetup.mobility)
+				postTaskScheduling(d);	
 		}
-		currDep.setObjective(0, runTime);
-		currDep.setObjective(1, cost);
-		currDep.setObjective(2, batteryBudget);
-		currDep.setObjective(3, providerCost);
+		currDep.setDeployment(d);
+		currDep.setObjective(0, d.getRunTime());
+		currDep.setObjective(1, d.getUserCost());
+		currDep.setObjective(2, d.getBatteryLifetime());
+		currDep.setAttribute("feasible",true);
+		
 	}
 
 	public void evaluateConstraints(DeploymentSolution arg0) {
 		int violatedConstraints = 0;
 		double overAllConstraintViolation = 0.0;
 
-		Object[] comps = arg0.getDeployment().keySet().toArray();
+		/*
 
 		boolean rankConstraintViolation = false;
 		for(int i = 0; i < comps.length - 1; i++)
@@ -183,6 +171,7 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 		}
 		numberOfViolatedConstraints.setAttribute(arg0, violatedConstraints);
 		overallConstraintViolationDegree.setAttribute(arg0,overAllConstraintViolation);
+		*/
 	}
 
 	@Override
@@ -192,7 +181,7 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 
 	@Override
 	public int getNumberOfObjectives() {
-		return 4;
+		return 3;
 	}
 
 	@Override
@@ -214,6 +203,11 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public ComputationalNode findTarget(OffloadScheduling d, MobileSoftwareComponent c)
+	{
 		return null;
 	}
 	

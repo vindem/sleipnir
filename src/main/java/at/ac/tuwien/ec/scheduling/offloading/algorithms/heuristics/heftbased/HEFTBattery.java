@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.algorithms.heftbased;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased;
 
 
 import java.util.ArrayList;
@@ -19,25 +19,24 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
+import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 import scala.Tuple2;
 
 
 
-public class HEFTCostResearch extends OffloadScheduler {
+public class HEFTBattery extends OffloadScheduler {
 	
-	public HEFTCostResearch(MobileApplication A, MobileCloudInfrastructure I) {
+	public HEFTBattery(MobileApplication A, MobileCloudInfrastructure I) {
 		super();
 		setMobileApplication(A);
 		setInfrastructure(I);
 		setRank(this.currentApp,this.currentInfrastructure);
 	}
 	
-	public HEFTCostResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
+	public HEFTBattery(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
 		super();
 		setMobileApplication(t._1());
 		setInfrastructure(t._2());
@@ -73,8 +72,7 @@ public class HEFTCostResearch extends OffloadScheduler {
 				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
-			double minCost = Double.MAX_VALUE;
-			double batteryThreshold = SimulationSetup.mobileEnergyBudget * 0.2;
+			double maxB = Double.MIN_VALUE;
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{
@@ -91,23 +89,33 @@ public class HEFTCostResearch extends OffloadScheduler {
 			}
 			else
 			{
-				if(currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() 
-						< batteryThreshold)
-				{				
-					for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					{
-						if(cn.computeCost(currTask, null, currentInfrastructure) < minCost)
-						{
-							minCost = cn.computeCost(currTask, null, currentInfrastructure);
-							target = cn;
-						}
-					}
-				}
-				else if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+				if(currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+						currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
+						getCPUEnergyModel().computeCPUEnergy(currTask,
+						currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure) > maxB
+						&& isValid(scheduling,currTask,currentInfrastructure.getMobileDevices().get(currTask.getUserId())))
 				{
-						target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-						minCost = 0.0;
-				}
+					maxB = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
+							getCPUEnergyModel().computeCPUEnergy(currTask,
+							currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
+					target = currentInfrastructure.getMobileDevices().get(currTask.getUserId());
+				}	
+								
+				
+				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+					if( currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
+							getCPUEnergyModel().computeCPUEnergy(currTask,
+							currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure) > maxB
+							&&	isValid(scheduling,currTask,cn))
+					{
+						maxB = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
+								getCPUEnergyModel().computeCPUEnergy(currTask,
+								currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
+						target = currentInfrastructure.getMobileDevices().get(currTask.getUserId());
+					}
 			}
 			if(target != null)
 			{
@@ -171,6 +179,12 @@ public class HEFTCostResearch extends OffloadScheduler {
 			}
 		}
 		return msc.getRank();
+	}
+
+	@Override
+	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

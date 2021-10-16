@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang.math.RandomUtils;
@@ -50,13 +52,13 @@ import at.ac.tuwien.ec.provisioning.edge.mo.MOEdgePlanning;
 import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTCostResearch;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTBattery;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HEFTResearch;
-import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.HeftEchoResearch;
-
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.WeightedFunctionResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTBattery;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTCostResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTResearch;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HeftEchoResearch;
 import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
 
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
@@ -139,10 +141,10 @@ public class OffloadingHelloWorld {
 				{
 					outFile.createNewFile();
 					writer  = new PrintWriter(outFile,"UTF-8");
-					writer.println(MontecarloStatisticsPrinter.getHeader());
 					writer.println("Algorithm: " + OffloadingSetup.algoName);
+					writer.println(MontecarloStatisticsPrinter.getHeader());
 					//By default, we select the deployment with the highest frequency
-					Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+					//Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
 					/* By default, schedulings are saved in the file as a single string, where each value is separated by \t.
 					 * values are:
 					 * 1) the description of the scheduling, with t -> n indicating that task t has been scheduled to node n;
@@ -152,8 +154,24 @@ public class OffloadingHelloWorld {
 					 * 5) the battery lifetime of the deployment
 					 * 6) the execution time of the algorithm
 					 */
-					writer.println(mostFrequent._1().toString() + "\t" + mostFrequent._2()._1() + "\t" + mostFrequent._2()._2() 
-						+ "\t" + mostFrequent._2()._3() + "\t" + mostFrequent._2()._4() + "\t" + mostFrequent._2()._5() );
+					List<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>> results = histogram.collect();
+					double avgRt = 0.0,avgCost = 0.0,avgBL = 0.0,avgET = 0.0;
+					for(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> t : results)
+					{
+						Tuple5<Integer, Double, Double, Double, Double> res = t._2();
+						avgRt += res._2();
+						avgCost += res._3();
+						avgBL += res._4();
+						avgET += res._5();
+					}
+					
+					avgRt = avgRt / results.size();
+					avgCost = avgCost / results.size();
+					avgBL = avgBL / results.size();
+					avgET = avgET / OffloadingSetup.iterations;
+					
+					writer.println(avgRt + "\t" + avgCost + "\t" + avgBL + "\t" + avgET);
+					
 					writer.flush();	
 					writer.close();
 				} 
@@ -164,7 +182,7 @@ public class OffloadingHelloWorld {
 				}
 			}
 			//We print the fist deployment appearing in the histogram
-		System.out.println(histogram.first());
+		//System.out.println(histogram.first());
 		jscontext.close();
 	}
 
@@ -205,7 +223,32 @@ public class OffloadingHelloWorld {
 								new ArrayList<Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>>();
 						OffloadScheduler singleSearch;
 						
-						singleSearch = new HEFTResearch(inputValues);
+						//singleSearch = new WeightedFunctionResearch(inputValues);
+						switch(OffloadingSetup.algoName)
+						{
+						case "HEFT":
+							singleSearch = new HEFTResearch(inputValues);
+							break;
+						case "HBATT":
+							singleSearch = new HEFTBattery(inputValues);
+							break;
+						case "HCOST":
+							singleSearch = new HEFTCostResearch(inputValues);
+							break;
+						case "ECHO":
+							singleSearch = new HeftEchoResearch(inputValues);
+							break;
+						case "MOBJ":
+							singleSearch = new NSGAIIIResearch(inputValues);
+							break;
+						case "BFORCE":
+							singleSearch = new BruteForceRuntimeOffloader(inputValues);
+							break;
+						default:
+							singleSearch = new HEFTResearch(inputValues);
+							break;							
+						}
+						
 						
 						ArrayList<OffloadScheduling> offloads = (ArrayList<OffloadScheduling>) singleSearch.findScheduling();
 						if(offloads != null)

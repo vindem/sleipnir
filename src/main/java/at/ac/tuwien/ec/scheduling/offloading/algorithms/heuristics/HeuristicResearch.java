@@ -32,9 +32,9 @@ public abstract class HeuristicResearch extends OffloadScheduler {
 			{
 				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
 				currentRuntime = firstTaskToTerminate.getRunTime();
-				currentApp.removeEdgesFrom(firstTaskToTerminate);
+				//currentApp.removeEdgesFrom(firstTaskToTerminate);
 				currentApp.removeTask(firstTaskToTerminate);
-				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);;
+				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
 				scheduledNodes.remove(firstTaskToTerminate);
 			}
 			
@@ -60,7 +60,7 @@ public abstract class HeuristicResearch extends OffloadScheduler {
 					ComputationalNode target = findTarget(scheduling,msc);
 					if(target == null)
 						continue;
-					double tmpRuntime = toSchedule.getRuntimeOnNode(bestTarget, currentInfrastructure);
+					double tmpRuntime = toSchedule.getRuntimeOnNode(target, currentInfrastructure);
 					if(tmpRuntime < minminruntime)
 					{
 						bestTarget = target;

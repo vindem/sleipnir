@@ -93,5 +93,8 @@ public class OffloadingSetup {
 	public static double chessDistr = 0.2;
 	public static double facebookDistr = 0.2;
 	public static boolean mobility = true;
+	public static double EchoGamma;
+	public static double EchoAlpha;
+	public static double EchoBeta;
 	
 }

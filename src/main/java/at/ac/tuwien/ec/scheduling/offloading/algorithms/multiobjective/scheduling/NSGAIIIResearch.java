@@ -90,6 +90,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			algorithm.run();
 			double end = System.nanoTime();
 			population = algorithm.getResult() ;
+			
 			if(population!=null){
 				Collections.sort(population, new RankingAndCrowdingDistanceComparator<>());
 				int j = 0;
@@ -102,19 +103,16 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			}
 		}
 		catch(Throwable T){
-			System.err.println("Selection Error");
-			population = algorithm.getResult() ;
-			
-			for(int i = 0; i < population.size(); i++)
-			{
-				if(!deployments.contains(population.get(i).getDeployment())
-						&& problem.numberOfViolatedConstraints.getAttribute(population.get(i)) == 0)
-					deployments.add(population.get(i).getDeployment());
-			}
-			return deployments;
+			T.printStackTrace();
 		}
 		
 		return deployments;
+	}
+
+	@Override
+	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

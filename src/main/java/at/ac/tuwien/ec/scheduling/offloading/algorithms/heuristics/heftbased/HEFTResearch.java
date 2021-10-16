@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased;
 
 
 import java.util.ArrayList;
@@ -74,72 +74,66 @@ public class HEFTResearch extends OffloadScheduler {
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
 		/*
-		 * tasks contains tasks that have to be scheduled for execution.
+		 * readyTasks contains tasks that have to be scheduled for execution.
 		 * Tasks are selected according to their upRank (at least in HEFT)
 		 */
-		PriorityQueue<MobileSoftwareComponent> tasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
+		PriorityQueue<MobileSoftwareComponent> readyTasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
 		//To start, we add all nodes in the workflow
-		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
+		ArrayList<MobileSoftwareComponent> applicationTasks = new ArrayList<MobileSoftwareComponent>(currentApp.getTaskDependencies().vertexSet());
+		
+		
 		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
 				
 		MobileSoftwareComponent currTask;
 		//We initialize a new OffloadScheduling object, modelling the scheduling computer with this algorithm
-		OffloadScheduling scheduling = new OffloadScheduling(); 
+		OffloadScheduling scheduling = new OffloadScheduling();
+		DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> tmpApp = currentApp.getTaskDependencies();
 		//We check until there are nodes available for scheduling
-		while((currTask = tasks.peek()) != null)
+		
+		while(!applicationTasks.isEmpty())
 		{
 			double tMin = Double.MAX_VALUE; //Minimum execution time for next task
 			ComputationalNode target = null;
 			
-			/*while(!currentApp.getIncomingEdgesIn(currTask).isEmpty() && !scheduledNodes.isEmpty())
+			//Adding ready tasks
+			for(MobileSoftwareComponent msc : tmpApp.vertexSet())
+				if(tmpApp.incomingEdgesOf(msc).isEmpty())
+					readyTasks.add(msc);
+			
+			while((currTask = readyTasks.peek())!=null) 
 			{
-				MobileSoftwareComponent terminated = scheduledNodes.remove();
-				((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
-				this.currentApp.removeTask(terminated);
-			}*/			
-			if(!currTask.isOffloadable())
-			{
-			    // If task is not offloadable, deploy it in the mobile device (if enough resources are available)
-                if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
-                	target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()); 
-				
-			}
-			else
-			{	
-				//Check for all available Cloud/Edge nodes
-				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if(cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
-							isValid(scheduling,currTask,cn))
-					{
-						tMin = cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
-						target = cn;
-						
-					}
-				/*
-				 * We need this check, because there are cases where, even if the task is offloadable, 
-				 * local execution is the best option
-				 */
-				ComputationalNode localDevice = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-				if(localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure) < tMin &&
-						isValid(scheduling,currTask,localDevice))
+				if(!currTask.isOffloadable())
 				{
-					tMin = localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
-					target = localDevice;
-					
+					// If task is not offloadable, deploy it in the mobile device (if enough resources are available)
+					if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
+						target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId()); 
 				}
-				
-			}
-			//if scheduling found a target node for the task, it allocates it to the target node
-			if(target != null)
-			{
-				deploy(scheduling,currTask,target);
-				scheduledNodes.add(currTask);
-				tasks.remove(currTask);
-			}
-			else if(!scheduledNodes.isEmpty())
-			{
-				MobileSoftwareComponent terminated = scheduledNodes.remove();
-				((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
+				else
+					target = findTarget(scheduling,currTask); //Check for all available Cloud/Edge nodes
+				//if scheduling found a target node for the task, it allocates it to the target node
+				if(target != null)
+				{
+					deploy(scheduling,currTask,target);
+					scheduledNodes.add(currTask);
+					applicationTasks.remove(currTask);
+					tmpApp.removeVertex(currTask);
+					readyTasks.remove(currTask);
+					if(!scheduledNodes.isEmpty())
+					{
+						MobileSoftwareComponent firstScheduled = scheduledNodes.peek();
+						while(firstScheduled != null && target.getESTforTask(currTask)>=firstScheduled.getRunTime())
+						{
+							scheduledNodes.remove(firstScheduled);
+							((ComputationalNode) scheduling.get(firstScheduled)).undeploy(firstScheduled);
+							firstScheduled = scheduledNodes.peek();
+						}
+					}
+				}
+				else if(!scheduledNodes.isEmpty())
+				{
+					MobileSoftwareComponent terminated = scheduledNodes.remove();
+					((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
+				}
 			}
 			/*
 			 * if simulation considers mobility, perform post-scheduling operations
@@ -151,9 +145,11 @@ public class HEFTResearch extends OffloadScheduler {
 		double end = System.nanoTime();
 		scheduling.setExecutionTime(end-start);
 		deployments.add(scheduling);
+		System.out.println(scheduling.getRunTime());
 		return deployments;
 	}
 
+		
 	protected void setRank(MobileApplication A, MobileCloudInfrastructure I)
 	{
 		for(MobileSoftwareComponent msc : A.getTaskDependencies().vertexSet())
@@ -210,4 +206,28 @@ public class HEFTResearch extends OffloadScheduler {
 		return msc.getRank();
 	}
 	
+	public ComputationalNode findTarget(OffloadScheduling scheduling, MobileSoftwareComponent currTask) {
+		double tMin = Double.MAX_VALUE;
+		ComputationalNode target = null;
+		for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+			if(cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure) < tMin &&
+					isValid(scheduling,currTask,cn))
+			{
+				tMin = cn.getESTforTask(currTask) + currTask.getRuntimeOnNode(cn, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+				target = cn;
+			}
+		/*
+		 * We need this check, because there are cases where, even if the task is offloadable, 
+		 * local execution is the best option
+		 */
+		ComputationalNode localDevice = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
+		if(localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure) 
+			< target.getESTforTask(currTask) + currTask.getRuntimeOnNode(target, currentInfrastructure) &&
+				isValid(scheduling,currTask,localDevice))
+		{
+			tMin = localDevice.getESTforTask(currTask) + currTask.getRuntimeOnNode(localDevice, currentInfrastructure); // Earliest Finish Time  EFT = wij + EST
+			target = localDevice;
+		}
+		return target;
+	}
 }

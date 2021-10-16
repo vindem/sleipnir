@@ -1,4 +1,4 @@
-package at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased;
+package at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased;
 
 
 import java.util.ArrayList;
@@ -171,6 +171,12 @@ public class HEFTCostResearch extends OffloadScheduler {
 			}
 		}
 		return msc.getRank();
+	}
+
+	@Override
+	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

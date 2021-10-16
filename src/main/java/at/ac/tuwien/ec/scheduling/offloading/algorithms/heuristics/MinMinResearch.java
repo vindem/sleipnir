@@ -33,7 +33,7 @@ public class MinMinResearch extends OffloadScheduler {
 		setInfrastructure(t._2);
 	}
 		
-	protected ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
+	public ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
 		ComputationalNode target = null;
 		if(!msc.isOffloadable())
 		{

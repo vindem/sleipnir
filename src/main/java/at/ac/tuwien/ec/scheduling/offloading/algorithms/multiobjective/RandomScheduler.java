@@ -41,7 +41,7 @@ public class RandomScheduler extends OffloadScheduler {
 	}
 
 
-	protected ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
+	public ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
 		ComputationalNode target = null;
 		if(!msc.isOffloadable())
 		{

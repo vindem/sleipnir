@@ -121,6 +121,12 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 			combUtil(current,root.getRightSibling(), taskList, currIndex + 1, taskList.size());
 	}
 
+	@Override
+	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 	
 }

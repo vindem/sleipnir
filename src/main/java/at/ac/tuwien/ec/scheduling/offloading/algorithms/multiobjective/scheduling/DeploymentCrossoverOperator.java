@@ -12,6 +12,7 @@ import org.uma.jmetal.util.pseudorandom.impl.JavaRandomGenerator;
 
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
+import scala.Tuple2;
 
 
 
@@ -22,7 +23,7 @@ public class DeploymentCrossoverOperator implements CrossoverOperator<Deployment
 	
 	public DeploymentCrossoverOperator(double crossoverProbability){
 		this.crossoverProbability = crossoverProbability;
-		//this.randomGenerator = SimulationSetup.rand;
+		this.randomGenerator = new Random();
 	}
 	
 	@Override
@@ -42,20 +43,22 @@ public class DeploymentCrossoverOperator implements CrossoverOperator<Deployment
 		
 		offsprings.add(parent1.copy());
 		offsprings.add(parent2.copy());
-		Object[] comps1 = parent1.getDeployment().keySet().toArray();
-		Object[] comps2 = parent2.getDeployment().keySet().toArray();
+		
 		if(randomGenerator.nextDouble() < crossoverProbability)
 		{
 			for(int i = 0; i < parent1.getNumberOfVariables(); i++)
 			{
-				if(((MobileSoftwareComponent)comps1[i]).isOffloadable()
-						&& ((MobileSoftwareComponent)comps2[i]).isOffloadable())
+				//System.out.println(parent1.getNumberOfVariables() + "," + comps1.length + "," + comps2.length);
+				//if(((MobileSoftwareComponent)parent1.getDeployment().get()).isOffloadable()
+					//	&& ((MobileSoftwareComponent)comps2[i]).isOffloadable())
 				if(randomGenerator.nextDouble() < 0.5)
 				{
-					ComputationalNode cn1 = parent1.getVariableValue(i);
-					ComputationalNode cn2 = parent2.getVariableValue(i);
-					offsprings.get(0).setVariableValue(i, cn2);
-					offsprings.get(1).setVariableValue(i, cn1);
+					Tuple2<MobileSoftwareComponent,ComputationalNode> t0 = parent1.getVariableValue(i);
+					Tuple2<MobileSoftwareComponent,ComputationalNode> t1 = parent2.getVariableValue(i);
+					if(parent1.getNumberOfVariables() != parent2.getNumberOfVariables())
+						System.out.println("OH NOOOOOOOOOOOOOOOOOO");
+					offsprings.get(0).setVariableValue(i, t1);
+					offsprings.get(1).setVariableValue(i, t0);
 				}
 			}
 		}

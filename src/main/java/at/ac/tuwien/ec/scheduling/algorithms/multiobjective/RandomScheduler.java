@@ -11,9 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
+import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
@@ -38,16 +40,10 @@ public class RandomScheduler extends OffloadScheduler {
 	}
 
 
-	protected ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
+	public ComputationalNode findTarget(OffloadScheduling deployment, MobileSoftwareComponent msc) {
 		ComputationalNode target = null;
 		if(!msc.isOffloadable())
-		{
-			if(isValid(deployment,msc,currentInfrastructure.getMobileDevices().get(msc.getUserId())))
-				return currentInfrastructure.getMobileDevices().get(msc.getUserId());
-			else
-				return null;
-		}
-		else
+			return currentInfrastructure.getMobileDevices().get(msc.getUserId());
 		{
 			int idx = RandomUtils.nextInt(currentInfrastructure.getCloudNodes().size());
 			ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
@@ -68,45 +64,27 @@ public class RandomScheduler extends OffloadScheduler {
 		
 		
 		double currentRuntime = 0;
-		int totalTaskNum = currentApp.getComponentNum();
-		boolean progress = true;
-		while(scheduling.size() < totalTaskNum && true){
+		TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink> iter 
+			= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(currentApp.taskDependencies);
+		
+		while(iter.hasNext()){
 			
 			if(!scheduledNodes.isEmpty())
 			{
 				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
 				currentRuntime = firstTaskToTerminate.getRunTime();
-				currentApp.removeEdgesFrom(firstTaskToTerminate);
-				currentApp.removeTask(firstTaskToTerminate);
 				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);;
 				scheduledNodes.remove(firstTaskToTerminate);
 			}
 			
-			/* scheduledNodes is empty and deployment is not complete
-			  implies deployment not possible*/ 
-			 ArrayList<MobileSoftwareComponent> readyTasks = currentApp.readyTasks();
-			if(readyTasks.isEmpty())
-				if(scheduledNodes.isEmpty())
-				{
-					progress = false;
-					scheduling = null;
-				}
-			else
+			MobileSoftwareComponent toSchedule = iter.next();
+			ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
+			if(bestTarget == null)
 				continue;
-			
-			for(int i = 0; i < readyTasks.size(); i++) 
-			{
-				MobileSoftwareComponent toSchedule = readyTasks.get(i);
-				ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
-				if(bestTarget == null)
-					continue;
-				deploy(scheduling,toSchedule,bestTarget);
-				partialDeploy.put(bestTarget,toSchedule);
-				scheduledNodes.add(toSchedule);
-				readyTasks.remove(toSchedule);
-			}
-
+			deploy(scheduling,toSchedule,bestTarget);
+			scheduledNodes.add(toSchedule);
 		}
+		
 		schedules.add(scheduling);
 		return schedules;
 	}

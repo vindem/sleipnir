@@ -4,7 +4,8 @@ package at.ac.tuwien.ec.sleipnir.utils;
 public class MontecarloStatisticsPrinter {
 	
 	//private static final String header = "Deployment, Montecarlo frequency, Heuristic Rank, Fog Hardware %, Runtime, Cost for user, Energy consumption, Energy cost, Mobile budget";
-	private static final String header = "# Runs\tDeployment\tMontecarlo-frequency\tRuntime\tUser-cost\tBattery-budget\tProvider-cost\tFog-nodes\tRuntime-l\tRuntime-h\tCost-l\tCost-h\tBattery-l\tBattery-h";
+	//private static final String header = "# Runs\tDeployment\tMontecarlo-frequency\tRuntime\tUser-cost\tBattery-budget\tProvider-cost\tFog-nodes\tRuntime-l\tRuntime-h\tCost-l\tCost-h\tBattery-l\tBattery-h";
+	private static final String header = "Runtime\tUser-cost\tBattery-budget\tExecution-Time\tRuntime-l\tRuntime-h\tCost-l\tCost-h\tBattery-l\tBattery-h";
 	private static final String separator = "\t";
 	
 	public static String getHeader(){

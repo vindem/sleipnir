@@ -36,6 +36,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	}
 
 	public abstract ArrayList<? extends Scheduling> findScheduling();
+	public abstract ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc);
 	
 	public void postTaskScheduling(OffloadScheduling scheduling)
 	{

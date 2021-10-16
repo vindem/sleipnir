@@ -219,5 +219,11 @@ public class PEFTOffloadScheduler extends OffloadScheduler {
 				readyTasks.add(msc);
 		return readyTasks;		
 	}
+
+	@Override
+	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

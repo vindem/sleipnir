@@ -37,6 +37,10 @@ public class ConfigFileParser {
 			OffloadingSetup.chessDistr = Double.parseDouble((String) obj.get("chessDistr"));
 			OffloadingSetup.mobility = Boolean.parseBoolean((String)obj.get("mobility"));
 			OffloadingSetup.iterations = Integer.parseInt((String) obj.get("iter"));
+			OffloadingSetup.algoName = (String) obj.get("algorithm");
+			OffloadingSetup.EchoAlpha = Double.parseDouble((String) obj.get("alpha"));
+			OffloadingSetup.EchoBeta = Double.parseDouble((String) obj.get("beta"));
+			OffloadingSetup.EchoGamma = Double.parseDouble((String) obj.get("gamma"));
 			reader.close();
 		} 
 		catch (FileNotFoundException e){

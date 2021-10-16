@@ -47,13 +47,8 @@ public class DeploymentMutationOperator implements MutationOperator<DeploymentSo
 			arg0.setVariableValue(idx1, cn2);
 			arg0.setVariableValue(idx2, cn1);
 		}
-		try {
-			return new DeploymentSolution(d,arg0.getApplication(),arg0.getInfrastructure());
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return new DeploymentSolution(d,arg0.getApplication(),arg0.getInfrastructure());
+		
 	}
 
 	public double getMutationProbability() {

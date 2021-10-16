@@ -13,8 +13,8 @@ import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.scheduling.algorithms.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 
@@ -56,7 +56,7 @@ public class EdgePlanningProblem implements Problem<EdgePlanningSolution>{
 	public void evaluate(EdgePlanningSolution arg0) {
 		HEFTResearch rs = new HEFTResearch(this.getCurrentApplication(),arg0.getInfrastructure());
 		OffloadScheduling dep = new OffloadScheduling();
-		ArrayList<OffloadScheduling> ds = rs.findScheduling();
+		ArrayList<OffloadScheduling> ds = (ArrayList<OffloadScheduling>) rs.findScheduling();
 		if(ds == null)
 		{
 			arg0.setOffloadScheduling(dep);
