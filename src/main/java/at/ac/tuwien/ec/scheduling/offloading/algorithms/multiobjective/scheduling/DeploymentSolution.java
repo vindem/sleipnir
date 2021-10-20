@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.math.RandomUtils;
+import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.uma.jmetal.solution.PermutationSolution;
 import org.uma.jmetal.solution.Solution;
 
@@ -12,6 +14,7 @@ import at.ac.tuwien.ec.model.QoSProfile;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
+import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
@@ -55,7 +58,7 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 		for(NetworkedNode n: deployment.values())
 			nodes.add(n);
 		for(int i = 0; i < components.size(); i++) 
-			setVariableValue(i,(ComputationalNode) nodes.get(i));
+			setVariableValue(i,new Tuple2<MobileSoftwareComponent,ComputationalNode>((MobileSoftwareComponent)components.get(i),(ComputationalNode) nodes.get(i)));
 		
 		solutionAttributes = new HashMap<Object,Object>();
 		
@@ -109,23 +112,16 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 		return variables.get(arg0);
 	}
 
-	public void setVariableValue(int index, ComputationalNode node)
-	{
-		Tuple2<MobileSoftwareComponent,ComputationalNode> t = variables.get(index);
-		Tuple2<MobileSoftwareComponent,ComputationalNode> t2 = new Tuple2<MobileSoftwareComponent,ComputationalNode>(t._1(),node);
-		variables.set(index,t2);
-	}
-	
 	public void setVariableValue(int index,Tuple2<MobileSoftwareComponent,ComputationalNode> t)
 	{
-		if(variables.get(index)!=null)
+		if(index < variables.size())
 			variables.set(index,t);
 		else
 			variables.add(index,t);
 	}
 	
 	public void setVariableValue(int index, MobileSoftwareComponent msc ,ComputationalNode node) {
-		if(variables.get(index)!=null)
+		if(index < variables.size())
 			variables.set(index,new Tuple2<MobileSoftwareComponent,ComputationalNode>(msc,node));
 		else
 			variables.add(index,new Tuple2<MobileSoftwareComponent,ComputationalNode>(msc,node));
@@ -141,10 +137,16 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 			s.setVariableValue(i,t._1(),t._2());
 			i++;
 		}
+		s.setDeployment(this.deployment);
 		return s;
 	}
 
-	
+	public String toString(){
+		String str = "";
+		for(Tuple2<MobileSoftwareComponent,ComputationalNode> t : variables)
+			str += "(" + t._1() +"," + t._2() + ")";
+		return str;
+	}
 	
    	public MobileApplication getApplication() {
 		return A;
@@ -158,10 +160,30 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 		return 0.0;
 	}
 	public OffloadScheduling getDeployment() {
-		return deployment;
+		return this.deployment;
 	}
 	public void setDeployment(OffloadScheduling deployment) {
 		this.deployment = deployment;
+	}
+	public void randomInitialize() {
+		TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink> iter 
+			= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(A.taskDependencies);
+		int i = 0;
+		while(iter.hasNext())
+		{
+			MobileSoftwareComponent currTask = iter.next();
+			if(!currTask.isOffloadable())
+				setVariableValue(i,currTask,(ComputationalNode) I.getNodeById(currTask.getUserId()));
+			else 
+			{
+				int idx = RandomUtils.nextInt(I.getAllNodes().size());
+				ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
+				nodes.addAll(I.getAllNodes());
+				ComputationalNode target = nodes.get(idx);
+				setVariableValue(i,currTask,target);
+			}
+			i++;
+		}
 	}
 	
 

@@ -44,13 +44,11 @@ public class RandomScheduler extends OffloadScheduler {
 		ComputationalNode target = null;
 		if(!msc.isOffloadable())
 			return currentInfrastructure.getMobileDevices().get(msc.getUserId());
-		{
-			int idx = RandomUtils.nextInt(currentInfrastructure.getCloudNodes().size());
-			ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
-			nodes.addAll(currentInfrastructure.getCloudNodes().values());
-			target = nodes.get(idx);
-			return target;
-		}
+		int idx = RandomUtils.nextInt(currentInfrastructure.getAllNodes().size());
+		ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
+		nodes.addAll(currentInfrastructure.getAllNodes());
+		target = nodes.get(idx);
+		return target;
 	}
 
 	@Override
@@ -68,19 +66,8 @@ public class RandomScheduler extends OffloadScheduler {
 			= new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(currentApp.taskDependencies);
 		
 		while(iter.hasNext()){
-			
-			if(!scheduledNodes.isEmpty())
-			{
-				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
-				currentRuntime = firstTaskToTerminate.getRunTime();
-				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);;
-				scheduledNodes.remove(firstTaskToTerminate);
-			}
-			
 			MobileSoftwareComponent toSchedule = iter.next();
 			ComputationalNode bestTarget = findTarget(scheduling,toSchedule);
-			if(bestTarget == null)
-				continue;
 			deploy(scheduling,toSchedule,bestTarget);
 			scheduledNodes.add(toSchedule);
 		}

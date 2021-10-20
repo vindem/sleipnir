@@ -46,6 +46,7 @@ import at.ac.tuwien.ec.model.software.mobileapps.NavigatorApp;
 import at.ac.tuwien.ec.model.software.mobileapps.WorkloadGenerator;
 import at.ac.tuwien.ec.provisioning.DefaultCloudPlanner;
 import at.ac.tuwien.ec.provisioning.DefaultNetworkPlanner;
+import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.provisioning.edge.mo.MOEdgePlanning;
@@ -89,6 +90,8 @@ public class OffloadingHelloWorld {
 			return;
 		}
 		processArgs(arg);
+		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
+		setupAreaParameters();
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
 		
@@ -123,17 +126,22 @@ public class OffloadingHelloWorld {
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
 		//we setup parameters relative to the target urban area (useful for mobility)	
-		setupAreaParameters();
+		
 		JavaSparkContext jscontext = new JavaSparkContext(configuration);
 		//we generate a sample for each iteration
-		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
-		//this method is used to define the output file name
-		String filename = setupOutputFileName(dateFormat, date, OffloadingSetup.algoName);
-		File outFile = new File(filename);
-		PrintWriter writer;
 		
-		JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
-				jscontext, inputSamples, OffloadingSetup.algoName);
+		//this method is used to define the output file name
+		
+		for(String algorithm : OffloadingSetup.testAlgorithms)
+		{
+			OffloadingSetup.algoName = algorithm;
+			String filename = setupOutputFileName(dateFormat, date, OffloadingSetup.algoName);
+			File outFile = new File(filename);
+			PrintWriter writer;
+
+
+			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
+					jscontext, inputSamples, OffloadingSetup.algoName);
 			if(!outFile.exists())
 			{
 				outFile.getParentFile().mkdirs();
@@ -155,23 +163,10 @@ public class OffloadingHelloWorld {
 					 * 6) the execution time of the algorithm
 					 */
 					List<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>> results = histogram.collect();
-					double avgRt = 0.0,avgCost = 0.0,avgBL = 0.0,avgET = 0.0;
+					
 					for(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> t : results)
-					{
-						Tuple5<Integer, Double, Double, Double, Double> res = t._2();
-						avgRt += res._2();
-						avgCost += res._3();
-						avgBL += res._4();
-						avgET += res._5();
-					}
-					
-					avgRt = avgRt / results.size();
-					avgCost = avgCost / results.size();
-					avgBL = avgBL / results.size();
-					avgET = avgET / OffloadingSetup.iterations;
-					
-					writer.println(avgRt + "\t" + avgCost + "\t" + avgBL + "\t" + avgET);
-					
+						writer.println(t._1() + "\t" + t._2()._2() + "\t" + t._2()._3() + "\t" + t._2()._4() + "\t" + t._2()._5());
+
 					writer.flush();	
 					writer.close();
 				} 
@@ -181,6 +176,7 @@ public class OffloadingHelloWorld {
 					e.printStackTrace();
 				}
 			}
+		}
 			//We print the fist deployment appearing in the histogram
 		//System.out.println(histogram.first());
 		jscontext.close();
@@ -236,6 +232,11 @@ public class OffloadingHelloWorld {
 							singleSearch = new HEFTCostResearch(inputValues);
 							break;
 						case "ECHO":
+							OffloadingSetup.cloudOnly = false;
+							singleSearch = new HeftEchoResearch(inputValues);
+							break;
+						case "ECHO-NOEDGE":
+							OffloadingSetup.cloudOnly = true;
 							singleSearch = new HeftEchoResearch(inputValues);
 							break;
 						case "MOBJ":
@@ -346,30 +347,31 @@ public class OffloadingHelloWorld {
 
 	private static ArrayList<Tuple2<MobileApplication, MobileCloudInfrastructure>> generateSamples(int iterations) {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
+		MobileWorkload globalWorkload = new MobileWorkload();
+		WorkloadGenerator generator = new WorkloadGenerator();
+		for(int j = 0; j< OffloadingSetup.mobileNum; j++)
+			globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
 		for(int i = 0; i < iterations; i++)
 		{
 			//The workload containing all mobile applications
-			MobileWorkload globalWorkload = new MobileWorkload();
+			//MobileWorkload globalWorkload = new MobileWorkload();
 			//The generator, used to compose workload based on the input distribution
-			WorkloadGenerator generator = new WorkloadGenerator();
 			//For each mobile, we generate a different workload, and aggregate them into a global workload
-			for(int j = 0; j< OffloadingSetup.mobileNum; j++)
-				globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
-			
 			//This object models the sampled infrastructure; from now on, it is modified according to the planners
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			//We set up the cloud nodes according to a CloudPlanner object
 			DefaultCloudPlanner.setupCloudNodes(inf, OffloadingSetup.cloudNum);
 			//We set up edge nodes according to EdgePlanner object (in this case, we place a edge node per cell).
-			EdgeAllCellPlanner.setupEdgeNodes(inf);
+			if(!OffloadingSetup.cloudOnly)
+				EdgeAllCellPlanner.setupEdgeNodes(inf);
 			//We select planner according to mobility
 			if(!OffloadingSetup.mobility)
 				DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
 			else
 				MobileDevicePlannerWithMobility.setupMobileDevices(inf,OffloadingSetup.mobileNum);
 			//Finally, we determine network QoS and connections
-			DefaultNetworkPlanner.setupNetworkConnections(inf);
-			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload,inf);
+			MobilityBasedNetworkPlanner.setupMobileConnections(inf);
+			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload.copy(),inf);
 			samples.add(singleSample);
 		}
 		return samples;

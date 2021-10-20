@@ -60,7 +60,7 @@ public class OffloadScheduling extends Scheduling{
         String result ="";
 
         for (SoftwareComponent s : super.keySet()){
-            result+="["+s.getId()+"->" +super.get(s).getId()+"]" ;
+            result+="["+s.getId()+"->" +super.get(s).getId() + "]" ;
         }
         
         return result;   
@@ -91,12 +91,13 @@ public class OffloadScheduling extends Scheduling{
      * @param n the target computational node
      * @param I the target infrastructure
      */
-    public void addRuntime(MobileSoftwareComponent s, ComputationalNode n, MobileCloudInfrastructure I){
+    public void addRuntime(MobileSoftwareComponent s, double maxPredecessor, ComputationalNode n, MobileCloudInfrastructure I){
     	double nodeComputationTime = s.getRuntimeOnNode(n, I);
-    	double taskTermination = this.runTime + n.getESTforTask(s) + nodeComputationTime;
+    	    	
+    	double taskTermination = maxPredecessor + n.getESTforTask(s) + nodeComputationTime;
     	s.setRunTime(taskTermination);
     	if(taskTermination > this.runTime)
-    	this.runTime = taskTermination;
+    		this.runTime = taskTermination;
     }
     /**
      * Removes runtime of execution of component s on node n and infrastructure I

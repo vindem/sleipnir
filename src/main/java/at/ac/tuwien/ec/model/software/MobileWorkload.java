@@ -3,6 +3,7 @@ package at.ac.tuwien.ec.model.software;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.AbstractBaseGraph;
@@ -22,7 +23,7 @@ public class MobileWorkload extends MobileApplication {
 		this.workload = new ArrayList<MobileApplication>();
 		
 	}
-
+	
 	public MobileWorkload(ArrayList<MobileApplication> workload)
 	{
 		this.componentList  = new LinkedHashMap<String,MobileSoftwareComponent>();
@@ -30,6 +31,19 @@ public class MobileWorkload extends MobileApplication {
 		this.workload = new ArrayList<MobileApplication>();
 		for(MobileApplication app:workload)
 			joinSequentially(app);
+	}
+	
+	public MobileWorkload copy()
+	{
+		MobileWorkload w1 = new MobileWorkload();
+		for(String s : this.componentList.keySet())
+			w1.componentList.put(s,this.componentList.get(s));
+		for(MobileSoftwareComponent msc : taskDependencies.vertexSet())
+			w1.taskDependencies.addVertex(msc);
+		for(ComponentLink edge : taskDependencies.edgeSet())
+			w1.taskDependencies.addEdge(edge.getSource(),edge.getTarget(),edge);
+		w1.workload.addAll(this.workload);
+		return w1;
 	}
 	
 	public void joinParallel(MobileApplication app)

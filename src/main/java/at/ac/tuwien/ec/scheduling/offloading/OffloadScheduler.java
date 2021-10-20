@@ -106,13 +106,18 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 	 * @param s the MobileSoftwareComponent
 	 * @param n the target ComputationalNode
 	 */
-	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
-		n.deploy(s); //updates hardware availability
-		deployment.put(s, n);
-		deployment.addCost(s,n, currentInfrastructure);
-		deployment.addEnergyConsumption(s, n, currentInfrastructure);
-		deployment.addProviderCost(s,n,currentInfrastructure);
-		deployment.addRuntime(s, n, currentInfrastructure);
+	protected synchronized void deploy(OffloadScheduling deployment, MobileSoftwareComponent curr,ComputationalNode n) {
+		n.deploy(curr); //updates hardware availability
+		deployment.put(curr, n);
+		deployment.addCost(curr,n, currentInfrastructure);
+		deployment.addEnergyConsumption(curr, n, currentInfrastructure);
+		deployment.addProviderCost(curr,n,currentInfrastructure);
+		//calculate predecessor with highest runtime
+		double maxP = Double.MIN_VALUE;
+		for(MobileSoftwareComponent p: currentApp.getPredecessors(curr))
+			if(p.getRunTime() > maxP)
+				maxP = p.getRunTime();
+		deployment.addRuntime(curr, maxP, n, currentInfrastructure);
 		
 	}
 

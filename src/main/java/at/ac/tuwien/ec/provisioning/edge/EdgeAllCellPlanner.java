@@ -5,6 +5,7 @@ import at.ac.tuwien.ec.model.availability.AvailabilityModel;
 import at.ac.tuwien.ec.model.availability.ConstantAvailabilityModel;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class EdgeAllCellPlanner extends EdgePlanner {
@@ -16,8 +17,8 @@ public class EdgeAllCellPlanner extends EdgePlanner {
 
 		int k = 0;
 
-		double size_x = SimulationSetup.x_max/MAP_M;
-		double size_y = SimulationSetup.y_max/(MAP_N*2);
+		double size_x = OffloadingSetup.x_max/MAP_M;
+		double size_y = OffloadingSetup.y_max/(MAP_N*2);
 
 		for(int i = 0; i < MAP_M; i++)
 			for(int j = 0; j < MAP_N*2; j++)

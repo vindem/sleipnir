@@ -26,6 +26,7 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.edge.RandomEdgePlanner;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import scala.Tuple2;
 /**
  *
@@ -250,7 +251,8 @@ public class MobileCloudInfrastructure implements Serializable, Cloneable{
 	{
 		ArrayList<ComputationalNode> allNodes = new ArrayList<ComputationalNode>();
 		//allNodes.addAll(mobileDevices.values());
-		allNodes.addAll(edgeNodes.values());
+		if(!OffloadingSetup.cloudOnly)
+			allNodes.addAll(edgeNodes.values());
 		allNodes.addAll(cloudNodes.values());
 		return allNodes;
 	}

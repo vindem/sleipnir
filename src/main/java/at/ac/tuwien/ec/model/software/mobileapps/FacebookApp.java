@@ -45,36 +45,36 @@ public class FacebookApp extends MobileApplication implements Serializable{
 		addComponent("FACEBOOK_GUI"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()				
-				,2.0e3
-        		,5e3
-        		,1e3
+				,2.0e2
+        		,5e2
+        		,1e2
         		,false
 				);
 		addComponent("GET_TOKEN"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,3.0e3
-        		,1e3
-        		,1e3
+				,3.0e2
+        		,1e2
+        		,1e2
 				);
 		addComponent("POST_REQUEST"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3 
-        		,1e3
-        		,5e3
+				,2.0e2 
+        		,1e2
+        		,5e2
         		);
 		addComponent("PROCESS_RESPONSE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3
-        		,1e3
-        		,1e3
+				,2.0e2
+        		,1e2
+        		,1e2
         		);
 		addComponent("FILE_UPLOAD"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,5.0e3 
+				,5.0e2 
         		,img_size
         		,img_size
         		,false
@@ -82,16 +82,16 @@ public class FacebookApp extends MobileApplication implements Serializable{
 		addComponent("APPLY_FILTER"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,8.0e3
+				,8.0e2
         		,img_size
         		,img_size
         		);
 		addComponent("FACEBOOK_POST"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
-				,2.0e3
+				,2.0e2
         		,img_size
-        		,5e3
+        		,5e2
         		,false
         		);
 	}

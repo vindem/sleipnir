@@ -23,8 +23,8 @@ public class DeploymentMutationOperator implements MutationOperator<DeploymentSo
 	
 	@Override
 	public DeploymentSolution execute(DeploymentSolution arg0) {
-		OffloadScheduling d = arg0.getDeployment();
-		UniformIntegerDistribution uDistr = new UniformIntegerDistribution(0,d.size()-1);
+		DeploymentSolution mutated = arg0.copy();		
+		UniformIntegerDistribution uDistr = new UniformIntegerDistribution(0,arg0.getNumberOfVariables()-1);
 		MobileSoftwareComponent n1,n2;
 		int idx1,idx2;
 		boolean ex = false;
@@ -35,25 +35,25 @@ public class DeploymentMutationOperator implements MutationOperator<DeploymentSo
 				while((idx2 = uDistr.sample()) == idx1) 
 					;
 
-				n1 = (MobileSoftwareComponent) d.keySet().toArray()[idx1];
-				n2 = (MobileSoftwareComponent) d.keySet().toArray()[idx2];
+				n1 = (MobileSoftwareComponent) mutated.getVariableValue(idx1)._1();
+				n2 = (MobileSoftwareComponent) mutated.getVariableValue(idx2)._1();
 				ex = n1.isOffloadable() && n2.isOffloadable();
 			}
 			while(!n1.isOffloadable() && !n2.isOffloadable() && !ex);
 
-			ComputationalNode cn1 = (ComputationalNode) d.get(n1);
-			ComputationalNode cn2 = (ComputationalNode) d.get(n2);
+			ComputationalNode cn1 = (ComputationalNode) mutated.getVariableValue(idx1)._2();
+			ComputationalNode cn2 = (ComputationalNode) mutated.getVariableValue(idx2)._2();
 			
-			arg0.setVariableValue(idx1, cn2);
-			arg0.setVariableValue(idx2, cn1);
+			mutated.setVariableValue(idx1, n1, cn2);
+			mutated.setVariableValue(idx2, n2, cn1);
 		}
-		return new DeploymentSolution(d,arg0.getApplication(),arg0.getInfrastructure());
+		return mutated;
 		
 	}
 
 	public double getMutationProbability() {
 		// TODO Auto-generated method stub
-		return 0;
+		return this.mutationProbability;
 	}
 
 }

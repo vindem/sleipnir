@@ -46,34 +46,34 @@ public class ChessApp extends MobileApplication {
 					,new Hardware(1, 1, 1)
 					,getUserId()
 					//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/4.0) + 4.0)
-					,4.0e3
-					,5e+3
-					,5e+3
+					,4.0e2
+					,5e+2
+					,5e+2
 					,false
 					);
 			addComponent("UPDATE_CHESS_"+i+"_"+getWorkloadId()+","+getUserId()
 					,new Hardware(1, 1, 1)
 					,getUserId()
 					//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0) + 2.0)
-					,2.0e3
-					,5e3
-					,5e3
+					,2.0e2
+					,5e2
+					,5e2
 					);
 			addComponent("COMPUTE_MOVE_"+i+"_"+getWorkloadId()+","+getUserId()
 					,new Hardware(1,2,1)
 					,getUserId()
 					//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/SimulationSetup.chess_mi) + SimulationSetup.chess_mi)
 					,OffloadingSetup.chessMI					
-					,5e+3
-					,5e+3
+					,5e+2
+					,5e+2
 					);
 			addComponent("CHESS_OUTPUT_"+i+"_"+getWorkloadId()+","+getUserId()
 					,new Hardware(1, 1, 1)
 					,this.getUserId()
 					//,Math.ceil(ExponentialDistributionGenerator.getNext(1.0/2.0)+1.0)
-					,2.0e3
-					,5e3
-					,5e3
+					,2.0e2
+					,5e2
+					,5e2
 					,false
 					);
 		}

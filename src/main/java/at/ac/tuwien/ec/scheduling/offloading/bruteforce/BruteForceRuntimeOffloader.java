@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 import org.jgrapht.graph.DirectedAcyclicGraph;
 
@@ -13,6 +14,9 @@ import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.DeploymentSolution;
+import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import scala.Tuple2;
@@ -23,7 +27,7 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 	 * 
 	 */
 	private static final long serialVersionUID = 8141744080579698176L;
-	ArrayList<OffloadScheduling> schedulings;
+	ArrayList<BruteForceSolution> schedulings;
 	private HashMap<MobileSoftwareComponent,Boolean> visitedList;
 
 	public BruteForceRuntimeOffloader(MobileApplication app, MobileCloudInfrastructure I)
@@ -47,13 +51,13 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		double start = System.nanoTime();
 		ArrayList<MobileSoftwareComponent> taskList = new ArrayList<MobileSoftwareComponent>();
 		DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> deps = this.getMobileApplication().getTaskDependencies();
-		schedulings = new ArrayList<OffloadScheduling>();
+		schedulings = new ArrayList<BruteForceSolution>();
 		
 		Iterator<MobileSoftwareComponent> it = deps.iterator();
 		while(it.hasNext())
 			taskList.add(it.next());
 		
-		OffloadScheduling current = new OffloadScheduling();
+		BruteForceSolution current = new BruteForceSolution(currentApp,currentInfrastructure);
 		
 		Tree<ComputationalNode> combinations = new Tree<ComputationalNode>();
 		Node<ComputationalNode> root = new Node<ComputationalNode>(currentInfrastructure.getMobileDevices().get(taskList.get(0).getUserId()));
@@ -67,12 +71,17 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		
 		double minRt = Double.MAX_VALUE;
 		OffloadScheduling target = null;
-		for(OffloadScheduling os : schedulings)
+		
+		
+		for(BruteForceSolution bfs : schedulings)
+		{
+			OffloadScheduling os = bfs.evaluate(currentApp,currentInfrastructure);
 			if(os.getRunTime() < minRt)
 			{
 				minRt = os.getRunTime();
 				target = os;
 			}
+		}
 		double end = System.nanoTime();
 		if(target != null)
 		{
@@ -81,24 +90,29 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 		}
 		else
 		{
-			current.setExecutionTime(end - start);
-			toRet.add(current);
+			OffloadScheduling os = current.evaluate(currentApp,currentInfrastructure);
+			os.setExecutionTime(end - start);
+			toRet.add(os);
 		}
+		System.out.println(toRet.get(0).getRunTime());
 		return toRet;
 	}
 
-	private void combUtil(OffloadScheduling sch, Node<ComputationalNode> root, ArrayList<MobileSoftwareComponent> taskList, int currIndex, int size)
+	
+	
+
+	private void combUtil(BruteForceSolution sch, Node<ComputationalNode> root, ArrayList<MobileSoftwareComponent> taskList, int currIndex, int size)
 	{
 		if(root == null)
 			return;
 		if(currIndex == size) 
 		{
-			deploy(sch,taskList.get(currIndex-1),root.getData());
+			sch.addTuple(taskList.get(currIndex-1),root.getData());
 			schedulings.add(sch);
 			return;
 		}
 		
-		OffloadScheduling current = (OffloadScheduling) sch.clone();
+		BruteForceSolution current = sch.copy();
 		
 		MobileSoftwareComponent msc = taskList.get(currIndex);
 		
@@ -114,7 +128,7 @@ public class BruteForceRuntimeOffloader extends OffloadScheduler {
 			visitedList.put(msc, true);
 		}
 		if(root.getData()!=null)
-			deploy(current,msc,root.getData());
+			current.addTuple(msc,root.getData());
 		combUtil(current, root.getChildren(), taskList, currIndex + 1, taskList.size());
 		
 		if(root.getRightSibling()!=null)

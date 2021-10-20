@@ -160,7 +160,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				tmpProfile.sampleQoS();
 				//time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
 					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
-				time += ((dataSize)/BYTES_TO_MEGABYTES)/tmpProfile.getBandwidth() +
+				time += ((dataSize)/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
 						(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
 				n0 = n1;
 			}
@@ -170,7 +170,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		{
 			QoSProfile profile = link.getQoSProfile();
 			profile.sampleQoS();
-			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth())) +
+			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*BYTES_PER_MEGABIT)) +
 					(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
 			//if(u instanceof MobileDevice || v instanceof MobileDevice)
 				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));

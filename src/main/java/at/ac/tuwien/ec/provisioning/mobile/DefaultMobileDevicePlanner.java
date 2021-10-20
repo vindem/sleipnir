@@ -12,16 +12,17 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class DefaultMobileDevicePlanner {
 	
-	static int mobileNum = SimulationSetup.mobileNum;
-	static double mobileEnergyBudget = SimulationSetup.mobileEnergyBudget;
+	static int mobileNum = OffloadingSetup.mobileNum;
+	static double mobileEnergyBudget = OffloadingSetup.mobileEnergyBudget;
 	static HardwareCapabilities defaultMobileDeviceHardwareCapabilities 
-				= SimulationSetup.defaultMobileDeviceHardwareCapabilities;
-	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
-	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
+				= OffloadingSetup.defaultMobileDeviceHardwareCapabilities;
+	static CPUEnergyModel defaultMobileDeviceCPUModel = OffloadingSetup.defaultMobileDeviceCPUModel;
+	static NETEnergyModel defaultMobileDeviceNetModel = OffloadingSetup.defaultMobileDeviceNETModel;
 	
 	
 	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
@@ -31,8 +32,8 @@ public class DefaultMobileDevicePlanner {
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
-			Coordinates randomCoordinates = new Coordinates(SimulationSetup.MAP_M / 2,
-												SimulationSetup.MAP_N);
+			Coordinates randomCoordinates = new Coordinates(OffloadingSetup.MAP_M / 2,
+					OffloadingSetup.MAP_N);
 			device.setCoords(randomCoordinates);
 			inf.addMobileDevice(device);
 			//depending on setup of traffic

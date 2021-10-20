@@ -24,18 +24,19 @@ public class OffloadingSetup {
 	public static double cloudMaxHops = 17.0;
 	
 	//HARDWARE CONFIGURATIONS
-	public static int cloudCoreNum = 128;
-	public static double cloudRam = 1024.0;
+	public static double edgeNodesPerCell = 10;
+	public static int mobileNum = 1;
+	public static int cloudNum = 6;
+	public static int cloudCoreNum = Integer.MAX_VALUE;
+	public static double cloudRam = Double.MAX_VALUE;
 	public static double cloudStorage = Double.MAX_VALUE;
 	public static double cloudMipsPerCore = 25.0e4;
-	public static int edgeCoreNum = 4;
-	public static double edgeRam = 128.0;
-	public static double edgeStorage = 5e9;
+	public static int edgeCoreNum =  (int) (4 * edgeNodesPerCell);
+	public static double edgeRam = 128.0 * edgeNodesPerCell;
+	public static double edgeStorage = 5e9 * edgeNodesPerCell;
 	public static double edgeMipsPerCore = 20.0e4;
 	public static EdgePricingModel edgePricingModel = new EdgePricingModel();
 	public static CPUEnergyModel edgeCPUEnergyModel = new AMDCPUEnergyModel();
-	public static int mobileNum = 1;
-	public static int cloudNum = 6;
 	public static double mobileEnergyBudget = 26640.0;
 	public static HardwareCapabilities defaultMobileDeviceHardwareCapabilities = 
 			new HardwareCapabilities(new Hardware(2,16,(int)16e10),600);
@@ -85,6 +86,7 @@ public class OffloadingSetup {
 	public static int numberOfParallelApps = 1;
 	public static NETEnergyModel edgeNETEnergyModel = new ComputationalNodeNetEnergyModel();
 	
+	public static String[] testAlgorithms;
 	public static String algoName;
 	public static int lambdaLatency = 0;
 	public static double antivirusDistr = 0.2;

@@ -50,12 +50,10 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 	
 	@Override
 	public DeploymentSolution createSolution() {
-		OffloadScheduling dep = new OffloadScheduling();
-		RandomScheduler rs = new RandomScheduler(this.currentApp,this.currentInfrastructure);
-		ArrayList<OffloadScheduling> deps;
-		do deps = rs.findScheduling();
-		while(deps.size()==0);
-		return new DeploymentSolution(deps.get(0),this.currentApp,this.currentInfrastructure);
+		DeploymentSolution sol =  new DeploymentSolution(this.currentApp,this.currentInfrastructure);
+		sol.randomInitialize();
+		
+		return sol;
 	}
 
 	@Override
@@ -64,22 +62,19 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 		
 		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
 		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
-		for(int i = 0; i < currDep.getNumberOfVariables();i++)
+		int i = 0;
+		while(i < currDep.getNumberOfVariables())
 		{
 			//We already have the pairs (MobileSoftwareComponent,ComputationalNode)
 			Tuple2<MobileSoftwareComponent,ComputationalNode> t = currDep.getVariableValue(i);
 			ComputationalNode target = t._2();
-			MobileSoftwareComponent msc = t._1();
-			//Check capacity constraints
-			if(!isValid(d,msc,target)){
-				currDep.setObjective(0, Double.MAX_VALUE);
-				currDep.setObjective(1, Double.MAX_VALUE);
-				currDep.setObjective(2, 0.0);
-				currDep.setAttribute("feasible",false);
-				break;
-			}
-			deploy(d,msc,target);
-			scheduledNodes.add(msc);
+			MobileSoftwareComponent currTask = t._1();
+			
+			deploy(d,currTask,target);
+			scheduledNodes.add(currTask);
+			i++;
+			
+			
 			if(OffloadingSetup.mobility)
 				postTaskScheduling(d);	
 		}
@@ -87,7 +82,6 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 		currDep.setObjective(0, d.getRunTime());
 		currDep.setObjective(1, d.getUserCost());
 		currDep.setObjective(2, d.getBatteryLifetime());
-		currDep.setAttribute("feasible",true);
 		
 	}
 
@@ -194,11 +188,6 @@ public class DeploymentProblem extends OffloadScheduler implements Problem<Deplo
 	public int getNumberOfConstraints() {
 		return 6;
 	}
-
-	protected boolean isValid(OffloadScheduling deployment, MobileSoftwareComponent s, ComputationalNode n) {
-        return n.isCompatible(s) && isOffloadPossibleOn(s, n)
-        		&& checkLinks(deployment,s,n);
-    }
 
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {

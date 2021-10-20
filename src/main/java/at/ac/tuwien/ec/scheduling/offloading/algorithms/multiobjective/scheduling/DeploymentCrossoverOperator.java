@@ -55,10 +55,11 @@ public class DeploymentCrossoverOperator implements CrossoverOperator<Deployment
 				{
 					Tuple2<MobileSoftwareComponent,ComputationalNode> t0 = parent1.getVariableValue(i);
 					Tuple2<MobileSoftwareComponent,ComputationalNode> t1 = parent2.getVariableValue(i);
-					if(parent1.getNumberOfVariables() != parent2.getNumberOfVariables())
-						System.out.println("OH NOOOOOOOOOOOOOOOOOO");
-					offsprings.get(0).setVariableValue(i, t1);
-					offsprings.get(1).setVariableValue(i, t0);
+					if(t0._1().isOffloadable() && t1._1().isOffloadable()) 
+					{
+						offsprings.get(0).setVariableValue(i, t1);
+						offsprings.get(1).setVariableValue(i, t0);
+					}
 				}
 			}
 		}

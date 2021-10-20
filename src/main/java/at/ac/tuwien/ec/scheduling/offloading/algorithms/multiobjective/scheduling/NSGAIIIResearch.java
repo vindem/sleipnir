@@ -35,6 +35,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 
 	DeploymentProblem problem;
 	private final int populationSize = 50;
+	private final int maxIterations = 100;
     Algorithm<List<DeploymentSolution>> algorithm;
     CrossoverOperator<DeploymentSolution> crossover;
     MutationOperator<DeploymentSolution> mutation;
@@ -74,16 +75,11 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
 		List<DeploymentSolution> population = new ArrayList<DeploymentSolution>();
 		try{
-			/*algorithm = new NSGAIIIBuilder<DeploymentSolution>(problem)
-	            .setCrossoverOperator(crossover)
-	            .setMutationOperator(mutation)
-	            .setSelectionOperator(selection)
-	            .setMaxIterations(100)
-	            //.setPopulationSize(10)
-	            .build() ;*/
+			
 
 			NSGAIIBuilder<DeploymentSolution> nsgaBuilder = new NSGAIIBuilder<DeploymentSolution>(problem, crossover, mutation);
-			nsgaBuilder.setMaxIterations(50);
+			nsgaBuilder.setMaxIterations(maxIterations);
+			nsgaBuilder.setPopulationSize(populationSize);
 			algorithm = nsgaBuilder.build();
 			//AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm)
 				//	.execute() ;
@@ -92,15 +88,19 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			population = algorithm.getResult() ;
 			
 			if(population!=null){
-				Collections.sort(population, new RankingAndCrowdingDistanceComparator<>());
+				Collections.sort(population, new RankingAndCrowdingDistanceComparator<DeploymentSolution>());
 				int j = 0;
 				for(int i = 0; i < population.size() ; i++)
 				{
-					OffloadScheduling tmp = population.get(i).getDeployment();
-					tmp.setExecutionTime(end-start);
-					deployments.add(tmp);
+					//if((boolean) population.get(i).getAttribute("feasible"))
+					//{
+						OffloadScheduling tmp = population.get(i).getDeployment();
+						tmp.setExecutionTime(end-start);
+						deployments.add(tmp);
+					//}
 				}
 			}
+			
 		}
 		catch(Throwable T){
 			T.printStackTrace();

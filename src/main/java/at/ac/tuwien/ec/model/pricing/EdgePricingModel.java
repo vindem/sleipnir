@@ -9,6 +9,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
+import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.SimulationSetup;
 
 public class EdgePricingModel implements PricingModel,Serializable{
@@ -26,12 +27,18 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	double minEdgeTime = 10e6;
     	double minEdgeLatency = 10e6;
     	double minCloudLatency = 10e6;
+    	double averageCloudLatency = 700.0;
+    	double averageEdgeLatency = 97.5;
     	
-    	for(NetworkConnection l : i.getOutgoingLinksFrom(src))
+    	for(NetworkConnection l : i.getOutgoingLinksFrom(i.getNodeById(sc.getUserId())))
     	{
     		NetworkedNode n = (NetworkedNode) l.getTarget();
-    		if(i.getCloudNodes().containsValue(n) && l.getLatency() < minCloudLatency)
-    			minCloudLatency = l.getLatency();
+    		if(i.getCloudNodes().containsValue(n)) 
+    		{ 
+    			if(l.getLatency() < minCloudLatency)
+    				minCloudLatency = l.getLatency();
+    			
+    		}
     		else if(i.getEdgeNodes().containsValue(n) && l.getLatency() < minEdgeLatency)
     			minEdgeLatency = l.getLatency();
     	}
@@ -51,16 +58,15 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	
     	double cloudCost = instCloudCost * minCloudTime;
     	/*average cloud latency + average service rate on cloud - average latency edge
-    	  200.0 is the average of normal distribution for Cloud latency
-    	  54.0 the lambda of exponential distribution for latency
-    	*/ 
-    	double timeFactor =  200.0 + (1.0/SimulationSetup.cloudMipsPerCore) - 5.0;
+       	*/ 
     	
-    	double penalty = (timeFactor / SimulationSetup.Eta) 
-    			- Math.sqrt((SimulationSetup.Eta * cloudCost + timeFactor) / 
-    					(Math.pow(SimulationSetup.Eta, 2.0) * 4.0) );
+    	double timeFactor =  averageCloudLatency + (1.0/OffloadingSetup.cloudMipsPerCore) - averageEdgeLatency;
     	
-    	return penalty/1000;
+    	double penalty = (timeFactor / OffloadingSetup.Eta) 
+    			- Math.sqrt((OffloadingSetup.Eta * cloudCost + timeFactor) / 
+    					(Math.pow(OffloadingSetup.Eta, 2.0) * 4.0) );
+    	
+    	return penalty/100000.0;
     }
 
 	@Override

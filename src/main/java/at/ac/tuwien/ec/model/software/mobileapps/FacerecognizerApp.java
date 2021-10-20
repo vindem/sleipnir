@@ -43,32 +43,32 @@ public class FacerecognizerApp extends MobileApplication {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,5.0e3
-				,5e3
-        		,5e3
+				,5.0e2
+				,5e2
+        		,5e2
         		,false
         		);
 		addComponent("FIND_MATCH"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3
-				,5e3
+        		,8.0e2
+				,5e2
         		,img_size
         		);
 		addComponent("FIND_MATCH_INIT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3
-				,5e3
-        		,5e3
+        		,8.0e2
+				,5e2
+        		,5e2
         		);
 		addComponent("DETECT_FACE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,16.0e3
+        		,16.0e2
 				,img_size
         		,img_size
         		);
@@ -76,7 +76,7 @@ public class FacerecognizerApp extends MobileApplication {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3
+        		,8.0e2
 				,img_size
         		,img_size
         		,false
