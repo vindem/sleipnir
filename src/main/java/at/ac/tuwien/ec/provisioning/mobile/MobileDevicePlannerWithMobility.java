@@ -50,7 +50,7 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 		for(int i = 0; i < OffloadingSetup.mobileNum; i++)
 			devIds.add(""+((double)i));
 		try {
-			SumoTraceParser.preSAXParse(inputSumoFile, devIds);
+			SumoTraceParser.preSAXParse(inputSumoFile, devIds, number);
 			
 		} 
 		catch (ParserConfigurationException | SAXException | IOException e1) {

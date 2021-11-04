@@ -73,20 +73,23 @@ public class SumoTraceParser {
 		}
 	}
 
-	public static void preSAXParse(File inputSumoFile, ArrayList<String> deviceIdList) throws ParserConfigurationException, SAXException, IOException
+	public static void preSAXParse(File inputSumoFile, ArrayList<String> deviceIdList, int deviceNumber) throws ParserConfigurationException, SAXException, IOException
 	{
 		if(tracesList == null) {
 			tracesList = new ArrayList<ArrayList<Coordinates>>(); 
 			SAXParserFactory SAXFactory = SAXParserFactory.newInstance();
 			SAXParser saxParser = SAXFactory.newSAXParser();
 
-			for(int i = 0; i < OffloadingSetup.mobileNum; i++)
+			for(int i = 0; i < deviceNumber; i++)
 				tracesList.add(new ArrayList<Coordinates>());
 
 			DefaultHandler handler = new DefaultHandler() 
 			{
+				boolean stopParsing = false;
 				public void startElement(String uri, String localName,String qName, 
 						Attributes attributes) throws SAXException {
+					if(stopParsing)
+						throw new SAXException();
 					switch(qName)
 					{
 					case "vehicle":
@@ -97,7 +100,10 @@ public class SumoTraceParser {
 							double x = Double.parseDouble(attributes.getValue("x"));
 							double y = Double.parseDouble(attributes.getValue("y"));
 							Coordinates coords = new Coordinates(x,y);
-							tracesList.get(((int)Double.parseDouble(currId))).add(coords);
+							int vehicleId = ((int)Double.parseDouble(currId));
+							if(vehicleId <= deviceNumber)
+								tracesList.get(vehicleId).add(coords);
+							
 						}
 
 					}

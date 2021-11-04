@@ -42,6 +42,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
     SelectionOperator<List<DeploymentSolution>, DeploymentSolution> selection;
 	private double crossoverProbability;
 	private double mutationProbability;
+	MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator;
 
 
 	public NSGAIIIResearch(MobileApplication A, MobileCloudInfrastructure I) {
@@ -52,8 +53,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		crossover = new DeploymentCrossoverOperator(crossoverProbability);
 		mutation = new DeploymentMutationOperator(mutationProbability);
 		selection = new BinaryTournamentSelection<DeploymentSolution>(new RankingComparator<DeploymentSolution>());
-		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
-				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
+		 mtSolEvaluator = new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
 	}
 	
 	public NSGAIIIResearch(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
@@ -64,41 +64,67 @@ public class NSGAIIIResearch extends OffloadScheduler{
 		crossover = new DeploymentCrossoverOperator(crossoverProbability);
 		mutation = new DeploymentMutationOperator(mutationProbability);
 		selection = new BinaryTournamentSelection<DeploymentSolution>(new RankingComparator<DeploymentSolution>());
-		MultithreadedSolutionListEvaluator<DeploymentSolution> mtSolEvaluator = 
-				new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
+		mtSolEvaluator = new MultithreadedSolutionListEvaluator<DeploymentSolution>(Runtime.getRuntime().availableProcessors(), problem);
 	}
 
 	
 	@Override
 	public ArrayList<OffloadScheduling> findScheduling() {
 		double start = System.nanoTime();
-		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
+		ArrayList<OffloadScheduling> finalDeployments = new ArrayList<OffloadScheduling>();
+		double maxBatt = Double.MIN_VALUE, minRt = Double.MAX_VALUE, minCost = Double.MAX_VALUE;
 		List<DeploymentSolution> population = new ArrayList<DeploymentSolution>();
 		try{
 			
 
 			NSGAIIBuilder<DeploymentSolution> nsgaBuilder = new NSGAIIBuilder<DeploymentSolution>(problem, crossover, mutation);
+			nsgaBuilder.setSolutionListEvaluator(mtSolEvaluator);
 			nsgaBuilder.setMaxIterations(maxIterations);
 			nsgaBuilder.setPopulationSize(populationSize);
 			algorithm = nsgaBuilder.build();
 			//AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm)
 				//	.execute() ;
 			algorithm.run();
+			mtSolEvaluator.evaluate(population,problem);
 			double end = System.nanoTime();
 			population = algorithm.getResult() ;
+			
 			
 			if(population!=null){
 				Collections.sort(population, new RankingAndCrowdingDistanceComparator<DeploymentSolution>());
 				int j = 0;
 				for(int i = 0; i < population.size() ; i++)
 				{
-					//if((boolean) population.get(i).getAttribute("feasible"))
-					//{
-						OffloadScheduling tmp = population.get(i).getDeployment();
-						tmp.setExecutionTime(end-start);
-						deployments.add(tmp);
-					//}
+					OffloadScheduling tmp = population.get(i).getDeployment();
+					tmp.setExecutionTime(end-start);
+					if(tmp.getBatteryLifetime() > maxBatt && tmp.getBatteryLifetime() != Double.MAX_VALUE
+							&& tmp.getBatteryLifetime() >= 0.0);
+						maxBatt = tmp.getBatteryLifetime();
+					if(tmp.getRunTime() < minRt)
+						minRt = tmp.getRunTime();
+					if(tmp.getUserCost() < minCost)
+						minCost = tmp.getUserCost();
 				}
+				
+				for(int i = 0; i < population.size() ; i++)
+				{
+					OffloadScheduling tmp = population.get(i).getDeployment();
+					if(tmp.getBatteryLifetime() == maxBatt)
+						finalDeployments.add(tmp);
+				}
+				/*
+				if(finalDeployments.size()>1)
+				{
+					for(OffloadScheduling dep: finalDeployments)
+						if(dep.getRunTime() > minRt)
+							finalDeployments.remove(dep);
+				}
+				if(finalDeployments.size()>1)
+				{
+					for(OffloadScheduling dep: finalDeployments)
+						if(dep.getUserCost() > minCost)
+							finalDeployments.remove(dep);
+				}*/
 			}
 			
 		}
@@ -106,7 +132,7 @@ public class NSGAIIIResearch extends OffloadScheduler{
 			T.printStackTrace();
 		}
 		
-		return deployments;
+		return finalDeployments;
 	}
 
 	@Override

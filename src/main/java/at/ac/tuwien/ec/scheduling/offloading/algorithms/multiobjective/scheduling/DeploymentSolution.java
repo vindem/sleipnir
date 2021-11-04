@@ -176,10 +176,13 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 				setVariableValue(i,currTask,(ComputationalNode) I.getNodeById(currTask.getUserId()));
 			else 
 			{
-				int idx = RandomUtils.nextInt(I.getAllNodes().size());
-				ArrayList<ComputationalNode> nodes = new ArrayList<ComputationalNode>();
-				nodes.addAll(I.getAllNodes());
-				ComputationalNode target = nodes.get(idx);
+				ArrayList<ComputationalNode> targetList = new ArrayList<ComputationalNode>();
+				if(OffloadingSetup.cloudOnly)
+					targetList.addAll(I.getCloudNodes().values());
+				else
+					targetList = I.getAllNodes();
+				int idx = RandomUtils.nextInt(targetList.size());
+				ComputationalNode target = targetList.get(idx);
 				setVariableValue(i,currTask,target);
 			}
 			i++;

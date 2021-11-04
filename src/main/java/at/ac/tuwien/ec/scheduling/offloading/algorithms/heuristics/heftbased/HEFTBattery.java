@@ -27,164 +27,36 @@ import scala.Tuple2;
 
 
 
-public class HEFTBattery extends OffloadScheduler {
+public class HEFTBattery extends HEFTResearch {
 	
 	public HEFTBattery(MobileApplication A, MobileCloudInfrastructure I) {
-		super();
-		setMobileApplication(A);
-		setInfrastructure(I);
-		setRank(this.currentApp,this.currentInfrastructure);
+		super(A,I);
 	}
 	
 	public HEFTBattery(Tuple2<MobileApplication,MobileCloudInfrastructure> t) {
-		super();
-		setMobileApplication(t._1());
-		setInfrastructure(t._2());
-		setRank(this.currentApp,this.currentInfrastructure);
+		super(t);
 	}
-	
-	
+
 	@Override
-	public ArrayList<OffloadScheduling> findScheduling() {
-		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
-		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
-		//ArrayList<MobileSoftwareComponent> tasks = new ArrayList<MobileSoftwareComponent>();
-		PriorityQueue<MobileSoftwareComponent> tasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
-		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
-		//Collections.sort(tasks, new NodeRankComparator());
-		ArrayList<OffloadScheduling> deployments = new ArrayList<OffloadScheduling>();
-		
-		tasks.addAll(currentApp.getTaskDependencies().vertexSet());
-		
-		double currentRuntime;
-		MobileSoftwareComponent currTask;
-		OffloadScheduling scheduling = new OffloadScheduling(); 
-		while((currTask = tasks.poll())!=null)
-		{
-			//currTask = tasks.remove(0);
-			
-			if(!scheduledNodes.isEmpty())
+	public ComputationalNode findTarget(OffloadScheduling scheduling, MobileSoftwareComponent currTask) {
+		double maxB = Double.MIN_VALUE;
+		ComputationalNode target = null;
+		if(!currTask.isOffloadable())
+			return currentInfrastructure.getMobileDevices().get(currTask.getUserId());
+		for(ComputationalNode cn : currentInfrastructure.getAllNodes())
+			if( currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+					currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
+					getCPUEnergyModel().computeCPUEnergy(currTask,
+					currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure) > maxB
+					&&	isValid(scheduling,currTask,cn))
 			{
-				MobileSoftwareComponent firstTaskToTerminate = scheduledNodes.remove();
-				currentRuntime = firstTaskToTerminate.getRunTime();
-				//currentApp.removeEdgesFrom(firstTaskToTerminate);
-				//currentApp.removeTask(firstTaskToTerminate);
-				((ComputationalNode) scheduling.get(firstTaskToTerminate)).undeploy(firstTaskToTerminate);
-				//scheduledNodes.remove(firstTaskToTerminate);
-			}
-			double maxB = Double.MIN_VALUE;
-			ComputationalNode target = null;
-			if(!currTask.isOffloadable())
-			{
-				if(isValid(scheduling,currTask,(ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId())))
-				{
-					target = (ComputationalNode) currentInfrastructure.getNodeById(currTask.getUserId());
-					scheduledNodes.add(currTask);
-				}
-				else
-				{
-					if(scheduledNodes.isEmpty())
-						target = null;
-				}
-			}
-			else
-			{
-				if(currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
+				maxB = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
 						currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
 						getCPUEnergyModel().computeCPUEnergy(currTask,
-						currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure) > maxB
-						&& isValid(scheduling,currTask,currentInfrastructure.getMobileDevices().get(currTask.getUserId())))
-				{
-					maxB = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
-							getCPUEnergyModel().computeCPUEnergy(currTask,
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
-					target = currentInfrastructure.getMobileDevices().get(currTask.getUserId());
-				}	
-								
-				
-				for(ComputationalNode cn : currentInfrastructure.getAllNodes())
-					if( currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
-							getCPUEnergyModel().computeCPUEnergy(currTask,
-							currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure) > maxB
-							&&	isValid(scheduling,currTask,cn))
-					{
-						maxB = currentInfrastructure.getMobileDevices().get(currTask.getUserId()).getEnergyBudget() - 
-								currentInfrastructure.getMobileDevices().get(currTask.getUserId()).
-								getCPUEnergyModel().computeCPUEnergy(currTask,
-								currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
-						target = currentInfrastructure.getMobileDevices().get(currTask.getUserId());
-					}
+						currentInfrastructure.getMobileDevices().get(currTask.getUserId()), currentInfrastructure);
+				target = currentInfrastructure.getMobileDevices().get(currTask.getUserId());
 			}
-			if(target != null)
-			{
-				deploy(scheduling,currTask,target);
-				scheduledNodes.add(currTask);
-			}
-			else
-			{
-				if(scheduledNodes.isEmpty())
-					target = null;
-			}
-								
-		}
-		deployments.add(scheduling);
-		return deployments;
-	}
-
-	private void setRank(MobileApplication A, MobileCloudInfrastructure I)
-	{
-		for(MobileSoftwareComponent msc : A.getTaskDependencies().vertexSet())
-			msc.setVisited(false);
-				
-		for(MobileSoftwareComponent msc : A.getTaskDependencies().vertexSet())		
-			upRank(msc,A.getTaskDependencies(),I);
-				
-	}
-
-	private double upRank(MobileSoftwareComponent msc, DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink> dag,
-			MobileCloudInfrastructure I) {
-		double w_cmp = 0.0;
-		if(!msc.isVisited())
-		{
-			msc.setVisited(true);
-			int numberOfNodes = I.getAllNodes().size() + 1;
-			for(ComputationalNode cn : I.getAllNodes())
-				w_cmp += msc.getLocalRuntimeOnNode(cn, I);
-			w_cmp += msc.getLocalRuntimeOnNode((ComputationalNode) I.getNodeById(msc.getUserId()), I);
-			w_cmp = w_cmp / numberOfNodes;
-			
-			if(dag.outgoingEdgesOf(msc).isEmpty())
-				msc.setRank(w_cmp);
-			else
-			{
-								
-				double tmpWRank;
-				double maxSRank = 0;
-				for(ComponentLink neigh : dag.outgoingEdgesOf(msc))
-				{
-					tmpWRank = upRank(neigh.getTarget(),dag,I);
-					double tmpCRank = 0;
-					if(neigh.getTarget().isOffloadable())
-					{
-						for(ComputationalNode cn : I.getAllNodes())
-							tmpCRank += I.getTransmissionTime(neigh.getTarget(), I.getNodeById(msc.getUserId()), cn);
-						tmpCRank = tmpCRank / (I.getAllNodes().size());
-					}
-					double tmpRank = tmpWRank + tmpCRank;
-					maxSRank = (tmpRank > maxSRank)? tmpRank : maxSRank;
-				}
-				msc.setRank(w_cmp + maxSRank);
-			}
-		}
-		return msc.getRank();
-	}
-
-	@Override
-	public ComputationalNode findTarget(OffloadScheduling s, MobileSoftwareComponent msc) {
-		// TODO Auto-generated method stub
-		return null;
+		return target;
 	}
 	
 }

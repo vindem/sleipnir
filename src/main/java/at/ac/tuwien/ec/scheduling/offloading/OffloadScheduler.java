@@ -113,7 +113,7 @@ public abstract class OffloadScheduler extends SimIteration implements Serializa
 		deployment.addEnergyConsumption(curr, n, currentInfrastructure);
 		deployment.addProviderCost(curr,n,currentInfrastructure);
 		//calculate predecessor with highest runtime
-		double maxP = Double.MIN_VALUE;
+		double maxP = 0.0;
 		for(MobileSoftwareComponent p: currentApp.getPredecessors(curr))
 			if(p.getRunTime() > maxP)
 				maxP = p.getRunTime();

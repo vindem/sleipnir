@@ -90,7 +90,8 @@ public class HEFTResearch extends OffloadScheduler {
 		DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> tmpApp = currentApp.getTaskDependencies();
 		//We check until there are nodes available for scheduling
 		
-		while(!applicationTasks.isEmpty())
+		boolean invalid = false;
+		while(!applicationTasks.isEmpty() && !invalid)
 		{
 			double tMin = Double.MAX_VALUE; //Minimum execution time for next task
 			ComputationalNode target = null;
@@ -100,7 +101,7 @@ public class HEFTResearch extends OffloadScheduler {
 				if(tmpApp.incomingEdgesOf(msc).isEmpty())
 					readyTasks.add(msc);
 			
-			while((currTask = readyTasks.peek())!=null) 
+			while((currTask = readyTasks.peek())!=null && !invalid) 
 			{
 				if(!currTask.isOffloadable())
 				{
@@ -134,6 +135,13 @@ public class HEFTResearch extends OffloadScheduler {
 					MobileSoftwareComponent terminated = scheduledNodes.remove();
 					((ComputationalNode) scheduling.get(terminated)).undeploy(terminated);
 				}
+				else
+				{
+					scheduling.setRunTime(Double.MAX_VALUE);
+					scheduling.setBatteryLifetime(Double.MIN_VALUE);
+					scheduling.setUserCost(Double.MAX_VALUE);
+					invalid = true;
+				}
 			}
 			/*
 			 * if simulation considers mobility, perform post-scheduling operations
@@ -145,7 +153,6 @@ public class HEFTResearch extends OffloadScheduler {
 		double end = System.nanoTime();
 		scheduling.setExecutionTime(end-start);
 		deployments.add(scheduling);
-		System.out.println(scheduling.getRunTime());
 		return deployments;
 	}
 

@@ -1,11 +1,13 @@
 package at.ac.tuwien.ec.model.pricing;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.CloudDataCenter;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
+import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
@@ -30,7 +32,15 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	double averageCloudLatency = 700.0;
     	double averageEdgeLatency = 97.5;
     	
-    	for(NetworkConnection l : i.getOutgoingLinksFrom(i.getNodeById(sc.getUserId())))
+    	NetworkedNode reference = i.getNodeById(sc.getUserId());
+    	if(reference == null)
+    	{
+    		ArrayList<MobileDevice> tmp = new ArrayList<MobileDevice>();
+    		tmp.addAll(i.getMobileDevices().values());
+    		reference = tmp.get(0);
+    	}
+   	
+    	for(NetworkConnection l : i.getOutgoingLinksFrom(reference))
     	{
     		NetworkedNode n = (NetworkedNode) l.getTarget();
     		if(i.getCloudNodes().containsValue(n)) 

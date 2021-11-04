@@ -72,7 +72,8 @@ public class OffloadingHelloWorld {
 	
 	public static void main(String[] arg)
 	{
-		ConfigFileParser.parseFile("./config/simulation.json");
+		processArgs(arg);
+		ConfigFileParser.parseFile(OffloadingSetup.configurationJsonFile);
 		if(OffloadingSetup.antivirusDistr + OffloadingSetup.chessDistr+ OffloadingSetup.facebookDistr 
 				+ OffloadingSetup.facerecDistr + OffloadingSetup.navigatorDistr != 1.0)
 		{
@@ -89,7 +90,7 @@ public class OffloadingHelloWorld {
 			printUsageInfo();
 			return;
 		}
-		processArgs(arg);
+		
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
 		setupAreaParameters();
 		Logger.getLogger("org").setLevel(Level.OFF);
@@ -137,60 +138,67 @@ public class OffloadingHelloWorld {
 			OffloadingSetup.algoName = algorithm;
 			String filename = setupOutputFileName(dateFormat, date, OffloadingSetup.algoName);
 			File outFile = new File(filename);
+			
 			PrintWriter writer;
 
 
 			JavaPairRDD<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> histogram = runSparkSimulation(
 					jscontext, inputSamples, OffloadingSetup.algoName);
-			if(!outFile.exists())
+			
+			try 
 			{
-				outFile.getParentFile().mkdirs();
-				try 
-				{
-					outFile.createNewFile();
-					writer  = new PrintWriter(outFile,"UTF-8");
-					writer.println("Algorithm: " + OffloadingSetup.algoName);
-					writer.println(MontecarloStatisticsPrinter.getHeader());
-					//By default, we select the deployment with the highest frequency
-					//Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
-					/* By default, schedulings are saved in the file as a single string, where each value is separated by \t.
-					 * values are:
-					 * 1) the description of the scheduling, with t -> n indicating that task t has been scheduled to node n;
-					 * 2) the frequency of the deployment, meaning the number of times where the deployment occurs in the histrogram;
-					 * 3) the deployment runtime
-					 * 4) the user cost of the deployment
-					 * 5) the battery lifetime of the deployment
-					 * 6) the execution time of the algorithm
-					 */
-					List<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>> results = histogram.collect();
-					
-					for(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> t : results)
-						writer.println(t._1() + "\t" + t._2()._2() + "\t" + t._2()._3() + "\t" + t._2()._4() + "\t" + t._2()._5());
+				if(!outFile.exists())
+					outFile.getParentFile().mkdirs();
+				outFile.createNewFile();
+				writer  = new PrintWriter(outFile,"UTF-8");
+				writer.println("Algorithm: " + OffloadingSetup.algoName);
+				writer.println(MontecarloStatisticsPrinter.getHeader());
+				//By default, we select the deployment with the highest frequency
+				//Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> mostFrequent = histogram.max(new FrequencyComparator());
+				/* By default, schedulings are saved in the file as a single string, where each value is separated by \t.
+				 * values are:
+				 * 1) the description of the scheduling, with t -> n indicating that task t has been scheduled to node n;
+				 * 2) the frequency of the deployment, meaning the number of times where the deployment occurs in the histrogram;
+				 * 3) the deployment runtime
+				 * 4) the user cost of the deployment
+				 * 5) the battery lifetime of the deployment
+				 * 6) the execution time of the algorithm
+				 */
+				List<Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>>> results = histogram.collect();
 
-					writer.flush();	
-					writer.close();
-				} 
-				catch (IOException e) 
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				for(Tuple2<OffloadScheduling, Tuple5<Integer, Double, Double, Double, Double>> t : results)
+					writer.println(t._2()._1() + "\t" + t._2()._2() + "\t" + t._2()._3() + "\t" + t._2()._4() + "\t" + t._2()._5());
+					//writer.println(t._1() + "\t" + t._2()._1() + "\t" + t._2()._2() + "\t" + t._2()._3() + "\t" + t._2()._4() + "\t" + t._2()._5());
+
+				writer.flush();	
+				writer.close();
+			} 
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
+		
 			//We print the fist deployment appearing in the histogram
 		//System.out.println(histogram.first());
 		jscontext.close();
 	}
 
 	private static String setupOutputFileName(DateFormat dateFormat, Date date, String algoName) {
-		return OffloadingSetup.outfile
-				+"/"
+		return 	"../output/"
+				+ algoName+"/"
 				+ dateFormat.format(date)
 				+ "-" + OffloadingSetup.MAP_M
 				+ "X"
 				+ OffloadingSetup.MAP_N
 				+ "-CLOUD=" + OffloadingSetup.cloudNum
 				+ "-EDGE=" + OffloadingSetup.edgeNodes
+				+ "-AV=" + OffloadingSetup.antivirusDistr
+				+ "-CH=" + OffloadingSetup.chessDistr
+				+ "-FB=" + OffloadingSetup.facebookDistr
+				+ "-FR=" + OffloadingSetup.facerecDistr
+				+ "-NV=" + OffloadingSetup.navigatorDistr
 				+ "-" + algoName
 				+ ((OffloadingSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + OffloadingSetup.Eta)
 				+ ".data";
@@ -242,6 +250,10 @@ public class OffloadingHelloWorld {
 						case "MOBJ":
 							singleSearch = new NSGAIIIResearch(inputValues);
 							break;
+						case "MOBJ-NOEDGE":
+							OffloadingSetup.cloudOnly = true;
+							singleSearch = new NSGAIIIResearch(inputValues);
+							break;
 						case "BFORCE":
 							singleSearch = new BruteForceRuntimeOffloader(inputValues);
 							break;
@@ -264,6 +276,8 @@ public class OffloadingHelloWorld {
 								 * 4) the battery lifetime of the deployment
 								 * 5) the execution time of the algorithm
 								 */
+								if(os.getRunTime() != Double.MAX_VALUE && os.getUserCost() != Double.MAX_VALUE
+										&& os.getBatteryLifetime() != Double.MIN_VALUE)
 								output.add(
 										new Tuple2<OffloadScheduling,Tuple5<Integer,Double,Double,Double,Double>>(os,
 												new Tuple5<Integer,Double,Double,Double,Double>(
@@ -436,6 +450,12 @@ public class OffloadingHelloWorld {
 		
 		for(String s : args)
 		{
+			if(s.startsWith("-json="))
+			{
+				String[] tmp = s.split("=");
+				OffloadingSetup.configurationJsonFile = tmp[1];
+				continue;
+			}
 			if(s.startsWith("-mobile="))
 			{
 				String[] tmp = s.split("=");

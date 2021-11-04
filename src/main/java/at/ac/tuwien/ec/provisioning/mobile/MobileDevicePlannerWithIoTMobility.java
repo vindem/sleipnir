@@ -45,10 +45,10 @@ public class MobileDevicePlannerWithIoTMobility implements Serializable{
 		File inputSumoFile = new File(SimulationSetup.mobilityTraceFile);
 		System.out.println("Mobility traces parsing started...");
 		ArrayList<String> devIds = new ArrayList<String>();
-		for(int i = 0; i < SimulationSetup.mobileNum; i++)
+		for(int i = 0; i < number; i++)
 			devIds.add(""+((double)i));
 		try {
-			SumoTraceParser.preSAXParse(inputSumoFile, devIds);
+			SumoTraceParser.preSAXParse(inputSumoFile, devIds, number);
 			
 		} catch (ParserConfigurationException | SAXException | IOException e1) {
 			// TODO Auto-generated catch block

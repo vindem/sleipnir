@@ -79,7 +79,7 @@ public class OffloadingSetup {
 	
 	public static String mobileApplication = "FACEBOOK";
 
-	public static String outfile = "../output/";
+	public static String outfile = "./output";
 	public static int edgeNodes;
 	public static boolean cloudOnly;
 	public static int numberOfApps = 5;
@@ -98,5 +98,7 @@ public class OffloadingSetup {
 	public static double EchoGamma;
 	public static double EchoAlpha;
 	public static double EchoBeta;
+	
+	public static String configurationJsonFile = "./config/simulation.json";
 	
 }

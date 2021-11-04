@@ -135,7 +135,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		if(!containsVertex(u))
 			System.out.println(u.getId());
 		if(u.equals(v))
-			return 0;
+			return 0.0;
 		if(!vertexSet().contains(u))
 			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
 		if(!vertexSet().contains(v))
