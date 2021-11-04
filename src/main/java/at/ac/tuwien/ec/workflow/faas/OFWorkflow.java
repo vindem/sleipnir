@@ -1,10 +1,13 @@
 package at.ac.tuwien.ec.workflow.faas;
 
 import at.ac.tuwien.ec.model.Hardware;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class OFWorkflow extends FaaSWorkflow {
 
+	final double taskMultiplier = 1.0;
+	final double dataMultiplier = 1.0;
+	
 	public OFWorkflow(int wId, String[] publisherTopics, String[] subscribersTopics) {
 		super(wId,publisherTopics, subscribersTopics);
 	}
@@ -15,56 +18,56 @@ public class OFWorkflow extends FaaSWorkflow {
 	}
 
 	public void setupTasks() {
-		double img_size = SimulationSetup.facerecImageSize;
+		double img_size = 5e3;
 		addComponent("IOT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,1.0e3*SimulationSetup.task_multiplier
-				,5e3*SimulationSetup.task_multiplier
-        		,1e3*SimulationSetup.task_multiplier
+				,1.0e3 * taskMultiplier
+				,5e3 * taskMultiplier
+        		,1e3*taskMultiplier
         		);
 		addComponent("ANALYZE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,8.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,8.0e3*taskMultiplier
+				,dataMultiplier*taskMultiplier
+        		,dataMultiplier*taskMultiplier
         		);
 		addComponent("SERVICE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,1.0e3*taskMultiplier
+				,dataMultiplier*taskMultiplier
+        		,dataMultiplier*taskMultiplier
         		,false
         		);
 		addComponent("CREATE_ORDER"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,1.0e3*taskMultiplier
+				,dataMultiplier*taskMultiplier
+        		,dataMultiplier*taskMultiplier
         		);
 		addComponent("ORDER"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,1.0e3*taskMultiplier
+				,dataMultiplier*taskMultiplier
+        		,dataMultiplier*taskMultiplier
         		,false
         		);
 		addComponent("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,1.0e3*SimulationSetup.task_multiplier
-				,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
-        		,SimulationSetup.dataMultiplier*SimulationSetup.task_multiplier
+        		,1.0e3*taskMultiplier
+				,dataMultiplier*taskMultiplier
+        		,dataMultiplier*taskMultiplier
         		);
 		setSource(this.getComponentById("IOT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId()));

@@ -68,6 +68,8 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.Hef
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.RandomScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
 import at.ac.tuwien.ec.scheduling.offloading.bruteforce.BruteForceRuntimeOffloader;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.utils.MontecarloStatisticsPrinter;
 import scala.Tuple2;
 import scala.Tuple4;
@@ -500,19 +502,19 @@ public class ARESMain {
 		String tmp = "";
 		switch(targetApp){
 		case "NAVI": 
-			tmp+="maps_size="+SimulationSetup.navigatorMapSize;
+			tmp+="maps_size="+OffloadingSetup.navigatorMapSize;
 			break;
 		case "ANTIVIRUS":
-			tmp+="file_size="+SimulationSetup.antivirusFileSize;
+			tmp+="file_size="+OffloadingSetup.antivirusFileSize;
 			break;
 		case "FACEREC":
-			tmp+="image_size="+SimulationSetup.facerecImageSize;
+			tmp+="image_size="+OffloadingSetup.facerecImageSize;
 			break;
 		case "CHESS":
-			tmp+="chess_mi="+SimulationSetup.chess_mi;
+			tmp+="chess_mi="+OffloadingSetup.chessMI;
 			break;
 		case "FACEBOOK":
-			tmp+="image_size="+SimulationSetup.facebookImageSize;
+			tmp+="image_size="+OffloadingSetup.facebookImageSize;
 			break;
 		}
 		return tmp;
@@ -567,7 +569,7 @@ public class ARESMain {
 			if(s.startsWith("-battery="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.batteryCapacity = Double.parseDouble(tmp[1]);
+				OffloadingSetup.batteryCapacity = Double.parseDouble(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-cloud="))
@@ -599,48 +601,48 @@ public class ARESMain {
 			if(s.startsWith("-map-size="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-file-size="))
 			{
 				String[] tmp = s.split("=");
 				// 1/input, to be used for lambda of exponential distribution
-				SimulationSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-image-size="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-latency="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
+				OffloadingSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
 				continue;
 			}
 			if(s.startsWith("-chess-mi="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.chess_mi = (1.0/Double.parseDouble(tmp[1]));
+				OffloadingSetup.chessMI = (1.0/Double.parseDouble(tmp[1]));
 				continue;
 			}
 			if(s.startsWith("-alpha="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoAlpha = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoAlpha = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-beta="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoBeta = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoBeta = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-gamma="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoGamma = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoGamma = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-eta="))
 			{
@@ -651,7 +653,7 @@ public class ARESMain {
 			if(s.startsWith("-app="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.mobileApplication = tmp[1];
+				OffloadingSetup.mobileApplication = tmp[1];
 				continue;
 			}
 			if(s.startsWith("-algo="))

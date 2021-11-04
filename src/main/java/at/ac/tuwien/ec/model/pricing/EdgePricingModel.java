@@ -11,11 +11,15 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class EdgePricingModel implements PricingModel,Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7874868242663846430L;
 	private PricingModel cloudPricing = new CloudFixedPricingModel();
 	
 	public double computeCost(SoftwareComponent sc, ComputationalNode cn0, ComputationalNode cn, MobileCloudInfrastructure i) {
@@ -70,11 +74,11 @@ public class EdgePricingModel implements PricingModel,Serializable{
     	/*average cloud latency + average service rate on cloud - average latency edge
        	*/ 
     	
-    	double timeFactor =  averageCloudLatency + (1.0/OffloadingSetup.cloudMipsPerCore) - averageEdgeLatency;
+    	double timeFactor =  averageCloudLatency + (1.0/SimulationSetup.cloudMipsPerCore) - averageEdgeLatency;
     	
-    	double penalty = (timeFactor / OffloadingSetup.Eta) 
-    			- Math.sqrt((OffloadingSetup.Eta * cloudCost + timeFactor) / 
-    					(Math.pow(OffloadingSetup.Eta, 2.0) * 4.0) );
+    	double penalty = (timeFactor / SimulationSetup.Eta) 
+    			- Math.sqrt((SimulationSetup.Eta * cloudCost + timeFactor) / 
+    					(Math.pow(SimulationSetup.Eta, 2.0) * 4.0) );
     	
     	return penalty/100000.0;
     }

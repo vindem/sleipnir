@@ -8,7 +8,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class ConfigFileParser {
 	
@@ -18,12 +19,12 @@ public class ConfigFileParser {
 		try(FileReader reader = new FileReader(fileUrl))
 		{
 			JSONObject obj = (JSONObject) jsonParser.parse(reader);
-			OffloadingSetup.area = (String) obj.get("area");
-			OffloadingSetup.mobileNum = Integer.parseInt((String) obj.get("mobileNum"));
-			OffloadingSetup.cloudNum = Integer.parseInt((String) obj.get("cloudNum"));
-			OffloadingSetup.cloudOnly = Boolean.parseBoolean((String) obj.get("cloudonly"));
-			OffloadingSetup.numberOfApps = Integer.parseInt((String) obj.get("appNum"));
-			OffloadingSetup.Eta = Double.parseDouble((String) obj.get("eta"));
+			SimulationSetup.area = (String) obj.get("area");
+			SimulationSetup.mobileNum = Integer.parseInt((String) obj.get("mobileNum"));
+			SimulationSetup.cloudNum = Integer.parseInt((String) obj.get("cloudNum"));
+			SimulationSetup.cloudOnly = Boolean.parseBoolean((String) obj.get("cloudonly"));
+			SimulationSetup.numberOfApps = Integer.parseInt((String) obj.get("appNum"));
+			SimulationSetup.Eta = Double.parseDouble((String) obj.get("eta"));
 			OffloadingSetup.outfile = (String) obj.get("outfile");
 			OffloadingSetup.navigatorMapSize = Double.parseDouble((String) obj.get("navigatorMapSize"));
 			OffloadingSetup.facerecImageSize = Double.parseDouble((String) obj.get("facerecImageSize"));
@@ -36,7 +37,7 @@ public class ConfigFileParser {
 			OffloadingSetup.antivirusDistr = Double.parseDouble((String) obj.get("antivirusDistr"));
 			OffloadingSetup.chessDistr = Double.parseDouble((String) obj.get("chessDistr"));
 			OffloadingSetup.mobility = Boolean.parseBoolean((String)obj.get("mobility"));
-			OffloadingSetup.iterations = Integer.parseInt((String) obj.get("iter"));
+			SimulationSetup.iterations = Integer.parseInt((String) obj.get("iter"));
 			OffloadingSetup.testAlgorithms = (String[]) ((String) obj.get("algorithm")).split(",");
 			OffloadingSetup.EchoAlpha = Double.parseDouble((String) obj.get("alpha"));
 			OffloadingSetup.EchoBeta = Double.parseDouble((String) obj.get("beta"));

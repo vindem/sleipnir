@@ -12,17 +12,17 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class DefaultMobileDevicePlanner {
 	
-	static int mobileNum = OffloadingSetup.mobileNum;
+	static int mobileNum = SimulationSetup.mobileNum;
 	static double mobileEnergyBudget = OffloadingSetup.mobileEnergyBudget;
 	static HardwareCapabilities defaultMobileDeviceHardwareCapabilities 
-				= OffloadingSetup.defaultMobileDeviceHardwareCapabilities;
-	static CPUEnergyModel defaultMobileDeviceCPUModel = OffloadingSetup.defaultMobileDeviceCPUModel;
-	static NETEnergyModel defaultMobileDeviceNetModel = OffloadingSetup.defaultMobileDeviceNETModel;
+				= SimulationSetup.defaultMobileDeviceHardwareCapabilities;
+	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
+	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
 	
 	
 	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
@@ -32,8 +32,8 @@ public class DefaultMobileDevicePlanner {
 			MobileDevice device = new MobileDevice("mobile_"+i,defaultMobileDeviceHardwareCapabilities.clone(),mobileEnergyBudget);
 			device.setCPUEnergyModel(defaultMobileDeviceCPUModel);
 			device.setNetEnergyModel(defaultMobileDeviceNetModel);
-			Coordinates randomCoordinates = new Coordinates(OffloadingSetup.MAP_M / 2,
-					OffloadingSetup.MAP_N);
+			Coordinates randomCoordinates = new Coordinates(SimulationSetup.MAP_M / 2,
+					SimulationSetup.MAP_N);
 			device.setCoords(randomCoordinates);
 			inf.addMobileDevice(device);
 			//depending on setup of traffic
@@ -54,33 +54,7 @@ public class DefaultMobileDevicePlanner {
 			inf.addMobileDevice(device);
 			//depending on setup of traffic
 			
-			switch(SimulationSetup.traffic)
-			{
-			case "LOW": //subscription only to the closest
-				double minDist = Double.MAX_VALUE;
-				String targetId = "";
-				for(IoTDevice iot : inf.getIotDevices().values())
-				{
-					double tmpDist = nodeDistance(device,iot);
-					if(tmpDist < minDist)
-					{
-						minDist = tmpDist;
-						targetId = iot.getId();
-					}
-						
-				}
-				inf.subscribeDeviceToTopic(device, targetId);
-				break;
-			case "MEDIUM":
-				int startIndex = (i%2==0)? 0 : 1;
-				for(int j = startIndex; j < SimulationSetup.iotDevicesNum; j+=2)
-					inf.subscribeDeviceToTopic(device, "iot"+j);
-				break;
-			case "HIGH":
-				for(int j = 0; j < SimulationSetup.iotDevicesNum; j++)
-					inf.subscribeDeviceToTopic(device, "iot"+j);
-				break;
-			}
+			
 			
 		}
 	}

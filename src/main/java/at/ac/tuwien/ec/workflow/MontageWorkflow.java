@@ -12,7 +12,7 @@ import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class MontageWorkflow extends MobileApplication {

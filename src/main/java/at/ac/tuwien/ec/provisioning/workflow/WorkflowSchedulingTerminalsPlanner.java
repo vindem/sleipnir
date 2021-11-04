@@ -4,7 +4,7 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EntryPoint;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class WorkflowSchedulingTerminalsPlanner {

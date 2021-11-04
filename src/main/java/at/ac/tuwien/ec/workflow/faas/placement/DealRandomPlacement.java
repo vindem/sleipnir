@@ -29,7 +29,8 @@ import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import scala.Tuple2;
@@ -80,7 +81,7 @@ public class DealRandomPlacement extends FaaSPlacementAlgorithm {
 		//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 		ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap();
 		//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-		candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
+		candidateCenters = findCenters(infrastructureMap, IoTFaaSSetup.nCenters);
 	}
 	
 	
@@ -150,7 +151,7 @@ public class DealRandomPlacement extends FaaSPlacementAlgorithm {
 				//ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 				ConnectionMap infrastructureMap = (ConnectionMap) getInfrastructure().getConnectionMap().clone();
 				//infrastructureMap = extractSubgraph(infrastructureMap,publisherDevices,subscriberDevices);
-				candidateCenters = findCenters(infrastructureMap, SimulationSetup.nCenters);
+				candidateCenters = findCenters(infrastructureMap, IoTFaaSSetup.nCenters);
 			}
 			//all of this before should be moved in the constructor
 			MobileSoftwareComponent msc = workflowIterator.next();
@@ -202,7 +203,7 @@ public class DealRandomPlacement extends FaaSPlacementAlgorithm {
 			
 			MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 			MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(getInfrastructure(),
-					SimulationSetup.selectedWorkflow);			
+					IoTFaaSSetup.selectedWorkflow);			
 		}
 		double endTime = System.currentTimeMillis();
 		double time = endTime - startTime;

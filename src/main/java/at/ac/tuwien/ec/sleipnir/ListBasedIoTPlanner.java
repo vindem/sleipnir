@@ -6,6 +6,7 @@ import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class ListBasedIoTPlanner {
 	

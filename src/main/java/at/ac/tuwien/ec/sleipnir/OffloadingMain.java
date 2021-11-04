@@ -51,6 +51,9 @@ import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTBattery;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTCostResearch;
@@ -150,16 +153,16 @@ public class OffloadingMain {
 				+ SimulationSetup.MAP_N
 				+ "-edge-planning="
 				+ SimulationSetup.edgePlanningAlgorithm
-				+ "-" + SimulationSetup.mobileApplication
-				+ "-lambdaLatency=" + SimulationSetup.lambdaLatency
+				+ "-" + OffloadingSetup.mobileApplication
+				+ "-lambdaLatency=" + OffloadingSetup.lambdaLatency
 				+ "-CLOUD=" + SimulationSetup.cloudNum
 				+ "-EDGE=" + SimulationSetup.edgeNodes
-				+ "-" + selectAppArguments(SimulationSetup.mobileApplication)
+				+ "-" + selectAppArguments(OffloadingSetup.mobileApplication)
 				+ "-" + algoName
 						+ ((algoName.equals("weighted"))? 
-								"-alpha="+SimulationSetup.EchoAlpha
-								+"-beta="+SimulationSetup.EchoBeta
-								+"-gamma="+SimulationSetup.EchoGamma
+								"-alpha="+OffloadingSetup.EchoAlpha
+								+"-beta="+OffloadingSetup.EchoBeta
+								+"-gamma="+OffloadingSetup.EchoGamma
 								: "") 
 						+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD":
 							"-eta-" + SimulationSetup.Eta)
@@ -313,19 +316,19 @@ public class OffloadingMain {
 		String tmp = "";
 		switch(targetApp){
 		case "NAVI": 
-			tmp+="maps_size="+SimulationSetup.navigatorMapSize;
+			tmp+="maps_size="+OffloadingSetup.navigatorMapSize;
 			break;
 		case "ANTIVIRUS":
-			tmp+="file_size="+SimulationSetup.antivirusFileSize;
+			tmp+="file_size="+OffloadingSetup.antivirusFileSize;
 			break;
 		case "FACEREC":
-			tmp+="image_size="+SimulationSetup.facerecImageSize;
+			tmp+="image_size="+OffloadingSetup.facerecImageSize;
 			break;
 		case "CHESS":
-			tmp+="chess_mi="+SimulationSetup.chess_mi;
+			tmp+="chess_mi="+OffloadingSetup.chessMI;
 			break;
 		case "FACEBOOK":
-			tmp+="image_size="+SimulationSetup.facebookImageSize;
+			tmp+="image_size="+OffloadingSetup.facebookImageSize;
 			break;
 		}
 		return tmp;
@@ -338,7 +341,7 @@ public class OffloadingMain {
 		case "HERNALS":
 			SimulationSetup.MAP_M = 6;
 			SimulationSetup.MAP_N = 6;
-			SimulationSetup.iotDevicesNum = 36;
+			IoTFaaSSetup.iotDevicesNum = 36;
 			//SimulationSetup.mobileNum = 360;
 			//SimulationSetup.mobileNum = 1;
 			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
@@ -348,7 +351,7 @@ public class OffloadingMain {
 		case "LEOPOLDSTADT":
 			SimulationSetup.MAP_M = 10;
 			SimulationSetup.MAP_N = 10;
-			SimulationSetup.iotDevicesNum = 100;
+			IoTFaaSSetup.iotDevicesNum = 100;
 			SimulationSetup.mobileNum = 1000;
 			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
 			SimulationSetup.x_max = 11098;
@@ -357,7 +360,7 @@ public class OffloadingMain {
 		case "SIMMERING":
 			SimulationSetup.MAP_M = 12;
 			SimulationSetup.MAP_N = 12;
-			SimulationSetup.iotDevicesNum = 144;
+			IoTFaaSSetup.iotDevicesNum = 144;
 			SimulationSetup.mobileNum = 1440;
 			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
 			SimulationSetup.x_max = 6720;
@@ -414,7 +417,7 @@ public class OffloadingMain {
 			if(s.startsWith("-battery="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.batteryCapacity = Double.parseDouble(tmp[1]);
+				OffloadingSetup.batteryCapacity = Double.parseDouble(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-cloud="))
@@ -446,48 +449,48 @@ public class OffloadingMain {
 			if(s.startsWith("-map-size="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.navigatorMapSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-file-size="))
 			{
 				String[] tmp = s.split("=");
 				// 1/input, to be used for lambda of exponential distribution
-				SimulationSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.antivirusFileSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-image-size="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
+				OffloadingSetup.facerecImageSize = (Double.parseDouble(tmp[1]) * 1e3);
 				continue;
 			}
 			if(s.startsWith("-latency="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
+				OffloadingSetup.lambdaLatency = (int) (Double.parseDouble(tmp[1]));
 				continue;
 			}
 			if(s.startsWith("-chess-mi="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.chess_mi = (1.0/Double.parseDouble(tmp[1]));
+				OffloadingSetup.chessMI = (1.0/Double.parseDouble(tmp[1]));
 				continue;
 			}
 			if(s.startsWith("-alpha="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoAlpha = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoAlpha = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-beta="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoBeta = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoBeta = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-gamma="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.EchoGamma = Double.parseDouble(tmp[1]);
+				OffloadingSetup.EchoGamma = Double.parseDouble(tmp[1]);
 			}
 			if(s.startsWith("-eta="))
 			{
@@ -498,7 +501,7 @@ public class OffloadingMain {
 			if(s.startsWith("-app="))
 			{
 				String[] tmp = s.split("=");
-				SimulationSetup.mobileApplication = tmp[1];
+				OffloadingSetup.mobileApplication = tmp[1];
 				continue;
 			}
 			if(s.startsWith("-algo="))

@@ -11,7 +11,7 @@ import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
 import scala.Tuple2;
 
 

@@ -21,7 +21,8 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.software.ComponentLink;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.fgcs.FGCSSetup;
 
 public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, NetworkConnection> implements Serializable{
@@ -66,7 +67,7 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			mips1 = (mips1 == 0)? Double.POSITIVE_INFINITY : mips1;
 			if(nwConn.getBandwidth() == 0.0)
 				setEdgeWeight(nwConn,Double.POSITIVE_INFINITY);
-			setEdgeWeight(nwConn, getDataTransmissionTime(SimulationSetup.dataMultiplier, nwConn.getSource(), nwConn.getTarget()) + 
+			setEdgeWeight(nwConn, getDataTransmissionTime(IoTFaaSSetup.dataMultiplier, nwConn.getSource(), nwConn.getTarget()) + 
 					1.0/Math.min(mips0,mips1));
 		}
 	}

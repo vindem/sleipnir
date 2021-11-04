@@ -35,7 +35,7 @@ import at.ac.tuwien.ec.provisioning.edge.mo.EdgePlanningCrossoverOperator;
 import at.ac.tuwien.ec.provisioning.edge.mo.EdgePlanningMutationOperator;
 import at.ac.tuwien.ec.provisioning.edge.mo.EdgePlanningProblem;
 import at.ac.tuwien.ec.provisioning.edge.mo.EdgePlanningSolution;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import scala.Tuple2;
 
 public class TriobjPlanner extends EdgePlanner{

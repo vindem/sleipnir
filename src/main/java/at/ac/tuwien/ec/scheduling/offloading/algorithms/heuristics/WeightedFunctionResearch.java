@@ -22,8 +22,8 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRank
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.simulation.SimIteration;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import scala.Tuple2;
 
 

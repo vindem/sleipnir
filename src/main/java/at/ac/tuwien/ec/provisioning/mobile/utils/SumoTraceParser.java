@@ -20,8 +20,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 
 

@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.model.software.mobileapps;
 
 import at.ac.tuwien.ec.model.Hardware;
 import at.ac.tuwien.ec.model.software.MobileApplication;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
 
 public class FacerecognizerApp extends MobileApplication {
 

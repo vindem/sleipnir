@@ -23,7 +23,8 @@ import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduler;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
 import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import scala.Tuple2;
 
 
@@ -74,7 +75,7 @@ public class HEFTCostResearch extends OffloadScheduler {
 				//scheduledNodes.remove(firstTaskToTerminate);
 			}
 			double minCost = Double.MAX_VALUE;
-			double batteryThreshold = SimulationSetup.mobileEnergyBudget * 0.2;
+			double batteryThreshold = OffloadingSetup.mobileEnergyBudget * 0.2;
 			ComputationalNode target = null;
 			if(!currTask.isOffloadable())
 			{

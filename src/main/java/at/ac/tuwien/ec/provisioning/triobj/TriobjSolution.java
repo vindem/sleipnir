@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.uma.jmetal.solution.Solution;
 
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 
 public class TriobjSolution implements Solution<Boolean>{

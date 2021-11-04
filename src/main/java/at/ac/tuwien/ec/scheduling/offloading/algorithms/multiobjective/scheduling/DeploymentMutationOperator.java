@@ -9,7 +9,7 @@ import org.uma.jmetal.operator.MutationOperator;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.ComputationalNode;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 
 public class DeploymentMutationOperator implements MutationOperator<DeploymentSolution>{

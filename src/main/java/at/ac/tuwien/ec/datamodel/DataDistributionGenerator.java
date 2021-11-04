@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 
 import at.ac.tuwien.ec.model.Hardware;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 
 public class DataDistributionGenerator implements Serializable{
@@ -24,14 +25,14 @@ public class DataDistributionGenerator implements Serializable{
 	{
 		generatedData = new ArrayList<DataEntry>();
 		this.entryNum = entryNum;
-		if(SimulationSetup.workloadType.equals("POLLUTION"))
+		if(IoTFaaSSetup.workloadType.equals("POLLUTION"))
 		{
 			miDistr = new ExponentialDistribution(250); //cpu-bound
 			inData = new ExponentialDistribution(32); //cpu-bound
 			outData = new ExponentialDistribution(32); //cpu-bound
 			coreD = new ExponentialDistribution(1); //cpu-bound
 		}		
-		else if(SimulationSetup.workloadType.equals("TRAFFIC"))
+		else if(IoTFaaSSetup.workloadType.equals("TRAFFIC"))
 		{
 			miDistr = new ExponentialDistribution(4000); //data-bound
 			inData = new ExponentialDistribution(64800); //data-bound
@@ -115,10 +116,10 @@ public class DataDistributionGenerator implements Serializable{
 					new DataEntry("entry"+i,
 							new Hardware(coreNum, 1, inD + outD),
 							mi,
-							"iot"+(i%SimulationSetup.iotDevicesNum),
+							"iot"+(i%IoTFaaSSetup.iotDevicesNum),
 							inD,
 							outD,
-							SimulationSetup.topics[i % SimulationSetup.topics.length])
+							IoTFaaSSetup.topics[i % IoTFaaSSetup.topics.length])
 					);
 		}
 	}

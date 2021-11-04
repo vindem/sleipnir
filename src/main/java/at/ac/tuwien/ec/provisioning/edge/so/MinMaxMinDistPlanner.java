@@ -2,7 +2,7 @@ package at.ac.tuwien.ec.provisioning.edge.so;
 
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.sleipnir.ARESMain;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import lpsolve.*;
 
 public class MinMaxMinDistPlanner {

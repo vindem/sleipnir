@@ -9,17 +9,17 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.pricing.EdgePricingModel;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class EdgePlanner {
 	
-	protected static int MAP_M = OffloadingSetup.MAP_M;
-	protected static int MAP_N = OffloadingSetup.MAP_N;
-	protected static HardwareCapabilities defaultHardwareCapabilities = OffloadingSetup.defaultEdgeNodeCapabilities;
-	protected static EdgePricingModel defaultEdgePricingModel = OffloadingSetup.edgePricingModel;
-	protected static CPUEnergyModel defaultCPUEnergyModel = OffloadingSetup.edgeCPUEnergyModel;
-	protected static NETEnergyModel defaultNETEnergyModel = OffloadingSetup.edgeNETEnergyModel;
+	protected static int MAP_M = SimulationSetup.MAP_M;
+	protected static int MAP_N = SimulationSetup.MAP_N;
+	protected static HardwareCapabilities defaultHardwareCapabilities = SimulationSetup.defaultEdgeNodeCapabilities;
+	protected static EdgePricingModel defaultEdgePricingModel = SimulationSetup.edgePricingModel;
+	protected static CPUEnergyModel defaultCPUEnergyModel = SimulationSetup.edgeCPUEnergyModel;
+	protected static NETEnergyModel defaultNETEnergyModel = SimulationSetup.edgeNETEnergyModel;
 	
 	public static void addEdgeNodeAt(MobileCloudInfrastructure inf, int i, int j)
 	{

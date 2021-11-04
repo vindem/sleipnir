@@ -60,6 +60,8 @@ import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEF
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTCostResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HEFTResearch;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.heftbased.HeftEchoResearch;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
 
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.multiobjective.scheduling.NSGAIIIResearch;
@@ -73,7 +75,7 @@ public class OffloadingHelloWorld {
 	public static void main(String[] arg)
 	{
 		processArgs(arg);
-		ConfigFileParser.parseFile(OffloadingSetup.configurationJsonFile);
+		ConfigFileParser.parseFile(SimulationSetup.configurationJsonFile);
 		if(OffloadingSetup.antivirusDistr + OffloadingSetup.chessDistr+ OffloadingSetup.facebookDistr 
 				+ OffloadingSetup.facerecDistr + OffloadingSetup.navigatorDistr != 1.0)
 		{
@@ -91,7 +93,7 @@ public class OffloadingHelloWorld {
 			return;
 		}
 		
-		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(OffloadingSetup.iterations);
+		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> inputSamples = generateSamples(SimulationSetup.iterations);
 		setupAreaParameters();
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
@@ -189,18 +191,18 @@ public class OffloadingHelloWorld {
 		return 	"../output/"
 				+ algoName+"/"
 				+ dateFormat.format(date)
-				+ "-" + OffloadingSetup.MAP_M
+				+ "-" + SimulationSetup.MAP_M
 				+ "X"
-				+ OffloadingSetup.MAP_N
-				+ "-CLOUD=" + OffloadingSetup.cloudNum
-				+ "-EDGE=" + OffloadingSetup.edgeNodes
+				+ SimulationSetup.MAP_N
+				+ "-CLOUD=" + SimulationSetup.cloudNum
+				+ "-EDGE=" + SimulationSetup.edgeNodes
 				+ "-AV=" + OffloadingSetup.antivirusDistr
 				+ "-CH=" + OffloadingSetup.chessDistr
 				+ "-FB=" + OffloadingSetup.facebookDistr
 				+ "-FR=" + OffloadingSetup.facerecDistr
 				+ "-NV=" + OffloadingSetup.navigatorDistr
 				+ "-" + algoName
-				+ ((OffloadingSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + OffloadingSetup.Eta)
+				+ ((SimulationSetup.cloudOnly)? "-ONLYCLOUD": "-eta-" + SimulationSetup.Eta)
 				+ ".data";
 	}
 
@@ -240,18 +242,18 @@ public class OffloadingHelloWorld {
 							singleSearch = new HEFTCostResearch(inputValues);
 							break;
 						case "ECHO":
-							OffloadingSetup.cloudOnly = false;
+							SimulationSetup.cloudOnly = false;
 							singleSearch = new HeftEchoResearch(inputValues);
 							break;
 						case "ECHO-NOEDGE":
-							OffloadingSetup.cloudOnly = true;
+							SimulationSetup.cloudOnly = true;
 							singleSearch = new HeftEchoResearch(inputValues);
 							break;
 						case "MOBJ":
 							singleSearch = new NSGAIIIResearch(inputValues);
 							break;
 						case "MOBJ-NOEDGE":
-							OffloadingSetup.cloudOnly = true;
+							SimulationSetup.cloudOnly = true;
 							singleSearch = new NSGAIIIResearch(inputValues);
 							break;
 						case "BFORCE":
@@ -363,8 +365,8 @@ public class OffloadingHelloWorld {
 		ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>> samples = new ArrayList<Tuple2<MobileApplication,MobileCloudInfrastructure>>();
 		MobileWorkload globalWorkload = new MobileWorkload();
 		WorkloadGenerator generator = new WorkloadGenerator();
-		for(int j = 0; j< OffloadingSetup.mobileNum; j++)
-			globalWorkload.joinParallel(generator.setupWorkload(OffloadingSetup.numberOfApps, "mobile_"+j));
+		for(int j = 0; j< SimulationSetup.mobileNum; j++)
+			globalWorkload.joinParallel(generator.setupWorkload(SimulationSetup.numberOfApps, "mobile_"+j));
 		for(int i = 0; i < iterations; i++)
 		{
 			//The workload containing all mobile applications
@@ -374,15 +376,15 @@ public class OffloadingHelloWorld {
 			//This object models the sampled infrastructure; from now on, it is modified according to the planners
 			MobileCloudInfrastructure inf = new MobileCloudInfrastructure();
 			//We set up the cloud nodes according to a CloudPlanner object
-			DefaultCloudPlanner.setupCloudNodes(inf, OffloadingSetup.cloudNum);
+			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			//We set up edge nodes according to EdgePlanner object (in this case, we place a edge node per cell).
-			if(!OffloadingSetup.cloudOnly)
+			if(!SimulationSetup.cloudOnly)
 				EdgeAllCellPlanner.setupEdgeNodes(inf);
 			//We select planner according to mobility
-			if(!OffloadingSetup.mobility)
-				DefaultMobileDevicePlanner.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+			if(!SimulationSetup.mobility)
+				DefaultMobileDevicePlanner.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			else
-				MobileDevicePlannerWithMobility.setupMobileDevices(inf,OffloadingSetup.mobileNum);
+				MobileDevicePlannerWithMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			//Finally, we determine network QoS and connections
 			MobilityBasedNetworkPlanner.setupMobileConnections(inf);
 			Tuple2<MobileApplication,MobileCloudInfrastructure> singleSample = new Tuple2<MobileApplication,MobileCloudInfrastructure>(globalWorkload.copy(),inf);
@@ -416,28 +418,28 @@ public class OffloadingHelloWorld {
 
 	private static void setupAreaParameters()
 	{
-		switch(OffloadingSetup.area)
+		switch(SimulationSetup.area)
 		{
 		case "HERNALS":
-			OffloadingSetup.MAP_M = 6;
-			OffloadingSetup.MAP_N = 6;
-			OffloadingSetup.mobilityTraceFile = "traces/hernals.coords";
-			OffloadingSetup.x_max = 3119;
-			OffloadingSetup.y_max = 3224;
+			SimulationSetup.MAP_M = 6;
+			SimulationSetup.MAP_N = 6;
+			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
+			SimulationSetup.x_max = 3119;
+			SimulationSetup.y_max = 3224;
 			break;
 		case "LEOPOLDSTADT":
-			OffloadingSetup.MAP_M = 10;
-			OffloadingSetup.MAP_N = 10;
-			OffloadingSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
-			OffloadingSetup.x_max = 11098;
-			OffloadingSetup.y_max = 9099;
+			SimulationSetup.MAP_M = 10;
+			SimulationSetup.MAP_N = 10;
+			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
+			SimulationSetup.x_max = 11098;
+			SimulationSetup.y_max = 9099;
 			break;
 		case "SIMMERING":
-			OffloadingSetup.MAP_M = 12;
-			OffloadingSetup.MAP_N = 12;
-			OffloadingSetup.mobilityTraceFile = "traces/simmering.coords";
-			OffloadingSetup.x_max = 6720;
-			OffloadingSetup.y_max = 5623;
+			SimulationSetup.MAP_M = 12;
+			SimulationSetup.MAP_N = 12;
+			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
+			SimulationSetup.x_max = 6720;
+			SimulationSetup.y_max = 5623;
 			break;
 		}
 	}
@@ -453,38 +455,38 @@ public class OffloadingHelloWorld {
 			if(s.startsWith("-json="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.configurationJsonFile = tmp[1];
+				SimulationSetup.configurationJsonFile = tmp[1];
 				continue;
 			}
 			if(s.startsWith("-mobile="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.mobileNum = Integer.parseInt(tmp[1]);
+				SimulationSetup.mobileNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-mobility="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.mobility = Boolean.parseBoolean(tmp[1]);
+				SimulationSetup.mobility = Boolean.parseBoolean(tmp[1]);
 				continue;
 			}
 			if(s.startsWith("-outfile="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.outfile = tmp[1];
+				SimulationSetup.outfile = tmp[1];
 				continue;
 			}
 			if(s.startsWith("-iter="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.iterations = Integer.parseInt(tmp[1]);
+				SimulationSetup.iterations = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			
 			if(s.startsWith("-cloud="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.cloudNum = Integer.parseInt(tmp[1]);
+				SimulationSetup.cloudNum = Integer.parseInt(tmp[1]);
 				continue;
 			}
 			
@@ -494,7 +496,7 @@ public class OffloadingHelloWorld {
 				int[] wlRuns = new int[input.length];
 				for(int i = 0; i < input.length; i++)
 					wlRuns[i] = Integer.parseInt(input[i]);
-				OffloadingSetup.numberOfApps = wlRuns[0];
+				SimulationSetup.numberOfApps = wlRuns[0];
 				continue;
 			}
 			
@@ -527,12 +529,12 @@ public class OffloadingHelloWorld {
 			if(s.startsWith("-eta="))
 			{
 				String[] tmp = s.split("=");
-				OffloadingSetup.Eta = Double.parseDouble(tmp[1]);
+				SimulationSetup.Eta = Double.parseDouble(tmp[1]);
 				continue;
 			}
 						
 			if(s.equals("-cloudonly"))
-				OffloadingSetup.cloudOnly = true;
+				SimulationSetup.cloudOnly = true;
 		}
 	}
 

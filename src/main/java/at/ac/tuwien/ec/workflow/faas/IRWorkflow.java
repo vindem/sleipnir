@@ -1,7 +1,8 @@
 package at.ac.tuwien.ec.workflow.faas;
 
 import at.ac.tuwien.ec.model.Hardware;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class IRWorkflow extends FaaSWorkflow {
 
@@ -15,7 +16,7 @@ public class IRWorkflow extends FaaSWorkflow {
 	}
 
 	public void setupTasks() {
-		double img_size = SimulationSetup.dataMultiplier;
+		double img_size = IoTFaaSSetup.dataMultiplier;
 		addComponent("EXTRACT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)

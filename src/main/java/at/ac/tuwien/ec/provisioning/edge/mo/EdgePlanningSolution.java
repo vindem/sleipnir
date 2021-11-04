@@ -13,7 +13,8 @@ import org.uma.jmetal.solution.Solution;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileCloudInfrastructure;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 
 public class EdgePlanningSolution implements PermutationSolution<Boolean>{
@@ -102,7 +103,7 @@ public class EdgePlanningSolution implements PermutationSolution<Boolean>{
 				cost = arg1;
 				break;
 		case 2: D.setBatteryLifetime(arg1);
-				battery = SimulationSetup.batteryCapacity - arg1;
+				battery = OffloadingSetup.batteryCapacity - arg1;
 				break;
 		case 3: D.setProviderCost(arg1);
 				providerCost = arg1;

@@ -8,7 +8,9 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.datamodel.DataEntry;
 import at.ac.tuwien.ec.model.Coordinates;
 import at.ac.tuwien.ec.model.Hardware;
@@ -40,7 +42,7 @@ public class MobileDevice extends ComputationalNode {
 		numberOfTransactions = 0;
 		cost = 0;
 		globalRuntime = 0;
-		energyBudget = SimulationSetup.mobileEnergyBudget;
+		energyBudget = OffloadingSetup.mobileEnergyBudget;
 		quantileRuntime = 0.0;
 		quantileCost = 0.0;
 		quantileEnergyBudget = 0.0;
@@ -48,7 +50,7 @@ public class MobileDevice extends ComputationalNode {
 	}
 	
 	public double getAverageLatency() {
-		return averageLatency / (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum);
+		return averageLatency / (IoTFaaSSetup.iotDevicesNum * IoTFaaSSetup.dataRate * SimulationSetup.mobileNum);
 	}
 
 	
@@ -98,7 +100,7 @@ public class MobileDevice extends ComputationalNode {
 	}
 
 	public void setCost(double tmpCost) {
-		this.cost = tmpCost * (averageLatency / (SimulationSetup.iotDevicesNum * SimulationSetup.dataRate * SimulationSetup.mobileNum));		
+		this.cost = tmpCost * (averageLatency / (IoTFaaSSetup.iotDevicesNum * IoTFaaSSetup.dataRate * SimulationSetup.mobileNum));		
 	}
 	
 	public double getCost() 

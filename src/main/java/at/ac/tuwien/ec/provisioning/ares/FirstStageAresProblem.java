@@ -26,7 +26,7 @@ import at.ac.tuwien.ec.provisioning.DefaultNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.edge.mo.EdgePlanningSolution;
 import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.sleipnir.ListBasedIoTPlanner;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class FirstStageAresProblem implements Problem<FirstStageAresSolution> {
 	

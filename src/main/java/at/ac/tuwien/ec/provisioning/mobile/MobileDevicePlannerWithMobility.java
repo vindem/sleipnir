@@ -25,8 +25,8 @@ import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.NETEnergyModel;
 import at.ac.tuwien.ec.model.mobility.SumoTraceMobility;
 import at.ac.tuwien.ec.provisioning.mobile.utils.SumoTraceParser;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class MobileDevicePlannerWithMobility implements Serializable{
 	
@@ -35,19 +35,19 @@ public class MobileDevicePlannerWithMobility implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -4303079692763732917L;
-	static int mobileNum = OffloadingSetup.mobileNum;
+	static int mobileNum = SimulationSetup.mobileNum;
 	static double mobileEnergyBudget = OffloadingSetup.mobileEnergyBudget;
 	static HardwareCapabilities defaultMobileDeviceHardwareCapabilities 
-				= OffloadingSetup.defaultMobileDeviceHardwareCapabilities;
-	static CPUEnergyModel defaultMobileDeviceCPUModel = OffloadingSetup.defaultMobileDeviceCPUModel;
-	static NETEnergyModel defaultMobileDeviceNetModel = OffloadingSetup.defaultMobileDeviceNETModel;
+				= SimulationSetup.defaultMobileDeviceHardwareCapabilities;
+	static CPUEnergyModel defaultMobileDeviceCPUModel = SimulationSetup.defaultMobileDeviceCPUModel;
+	static NETEnergyModel defaultMobileDeviceNetModel = SimulationSetup.defaultMobileDeviceNETModel;
 	
 	public static void setupMobileDevices(MobileCloudInfrastructure inf, int number)
 	{
-		File inputSumoFile = new File(OffloadingSetup.mobilityTraceFile);
+		File inputSumoFile = new File(SimulationSetup.mobilityTraceFile);
 		System.out.println("Mobility traces parsing started...");
 		ArrayList<String> devIds = new ArrayList<String>();
-		for(int i = 0; i < OffloadingSetup.mobileNum; i++)
+		for(int i = 0; i < SimulationSetup.mobileNum; i++)
 			devIds.add(""+((double)i));
 		try {
 			SumoTraceParser.preSAXParse(inputSumoFile, devIds, number);

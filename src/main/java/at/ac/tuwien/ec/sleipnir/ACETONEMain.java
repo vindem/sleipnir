@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +30,11 @@ import at.ac.tuwien.ec.provisioning.edge.EdgeAllCellPlanner;
 import at.ac.tuwien.ec.provisioning.edge.RandomEdgePlanner;
 import at.ac.tuwien.ec.provisioning.mobile.DefaultMobileDevicePlanner;
 import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
-import at.ac.tuwien.ec.workflow.faas.FaaSTestWorkflow;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.utils.ConfigFileParser;
+
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 import at.ac.tuwien.ec.workflow.faas.OFWorkflow;
@@ -71,14 +76,31 @@ public class ACETONEMain {
 			}
 
 		}
-
 		processArgs(arg);
+		ConfigFileParser.parseFile(SimulationSetup.configurationJsonFile);
+		if(OffloadingSetup.antivirusDistr + OffloadingSetup.chessDistr+ OffloadingSetup.facebookDistr 
+				+ OffloadingSetup.facerecDistr + OffloadingSetup.navigatorDistr != 1.0)
+		{
+			System.out.println("ERROR: App frequency must sum to 1!");
+			return;
+		}
+		if(OffloadingSetup.antivirusDistr < 0.0 || OffloadingSetup.chessDistr < 0.0 || OffloadingSetup.facebookDistr 
+				< 0.0 || OffloadingSetup.facerecDistr < 0.0 || OffloadingSetup.navigatorDistr < 0.0)
+		{
+			System.out.println("ERROR: App frequencies must be positive!");
+			return;
+		}
+		if(Arrays.asList(arg).contains("-h") || Arrays.asList(arg).contains("-?")) {
+			printUsageInfo();
+			return;
+		}
+		
 		switch(SimulationSetup.area)
 		{
 		case "HERNALS":
 			SimulationSetup.MAP_M = 6;
 			SimulationSetup.MAP_N = 6;
-			SimulationSetup.iotDevicesNum = 36;
+			IoTFaaSSetup.iotDevicesNum = 36;
 			SimulationSetup.mobileNum = 360;
 			SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
 			SimulationSetup.x_max = 3119;
@@ -87,7 +109,7 @@ public class ACETONEMain {
 		case "LEOPOLDSTADT":
 			SimulationSetup.MAP_M = 10;
 			SimulationSetup.MAP_N = 10;
-			SimulationSetup.iotDevicesNum = 100;
+			IoTFaaSSetup.iotDevicesNum = 100;
 			SimulationSetup.mobileNum = 1000;
 			SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
 			SimulationSetup.x_max = 11098;
@@ -96,14 +118,14 @@ public class ACETONEMain {
 		case "SIMMERING":
 			SimulationSetup.MAP_M = 12;
 			SimulationSetup.MAP_N = 12;
-			SimulationSetup.iotDevicesNum = 144;
+			IoTFaaSSetup.iotDevicesNum = 144;
 			SimulationSetup.mobileNum = 1440;
 			SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
 			SimulationSetup.x_max = 6720;
 			SimulationSetup.y_max = 5623;
 			break;
 		}
-		SimulationSetup.dataEntryNum = (int) (SimulationSetup.iotDevicesNum * SimulationSetup.mobileNum * SimulationSetup.dataRate);
+		IoTFaaSSetup.dataEntryNum = (int) (IoTFaaSSetup.iotDevicesNum * SimulationSetup.mobileNum * IoTFaaSSetup.dataRate);
 		SparkConf configuration = new SparkConf();
 		configuration.setMaster("local");
 		configuration.setAppName("Sleipnir");
@@ -280,7 +302,7 @@ public class ACETONEMain {
 					+tuple._2()._4()+"\t \t \n"));
 			*/
 			
-			histogram.saveAsTextFile(SimulationSetup.filename);;
+			histogram.saveAsTextFile(SimulationSetup.outfile);;
 			//histogram.foreach((VoidFunction<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>>) tuple ->
 			//placements.add(tuple));
 
@@ -367,7 +389,7 @@ public class ACETONEMain {
 		FaaSWorkflow faasWorkflowNew = null;
 		for(int i = 0; i < SimulationSetup.numberOfApps; i++)
 		{
-			switch(SimulationSetup.selectedWorkflow)
+			switch(IoTFaaSSetup.selectedWorkflow)
 			{
 				case "IR":
 					faasWorkflowNew = new IRWorkflow(i,workflowPub, workflowSub);
@@ -393,7 +415,7 @@ public class ACETONEMain {
 			DefaultCloudPlanner.setupCloudNodes(inf, SimulationSetup.cloudNum);
 			//RandomEdgePlanner.setupEdgeNodes(inf);
 			EdgeAllCellPlanner.setupEdgeNodes(inf);
-			DefaultIoTPlanner.setupIoTNodes(inf, SimulationSetup.iotDevicesNum);
+			DefaultIoTPlanner.setupIoTNodes(inf, IoTFaaSSetup.iotDevicesNum);
 			MobileDevicePlannerWithIoTMobility.setupMobileDevices(inf,SimulationSetup.mobileNum);
 			MobilityBasedNetworkPlanner.setupNetworkConnections(inf);
 			MobilityBasedNetworkPlanner.setupMobileConnections(inf);
@@ -411,7 +433,7 @@ public class ACETONEMain {
 			if(arg.startsWith("-dataSize="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.dataMultiplier = Double.valueOf(pars[1]);
+				IoTFaaSSetup.dataMultiplier = Double.valueOf(pars[1]);
 			}
 			if(arg.startsWith("-placement="))
 			{
@@ -421,7 +443,7 @@ public class ACETONEMain {
 			if(arg.startsWith("-filename="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.filename = pars[1];
+				SimulationSetup.outfile = pars[1];
 			}
 			if(arg.startsWith("-area="))
 			{
@@ -432,7 +454,7 @@ public class ACETONEMain {
 				case "HERNALS":
 					SimulationSetup.MAP_M = 6;
 					SimulationSetup.MAP_N = 6;
-					SimulationSetup.iotDevicesNum = 36;
+					IoTFaaSSetup.iotDevicesNum = 36;
 					SimulationSetup.mobileNum = 360;
 					SimulationSetup.mobilityTraceFile = "traces/hernals.coords";
 					SimulationSetup.x_max = 3119;
@@ -441,7 +463,7 @@ public class ACETONEMain {
 				case "LEOPOLDSTADT":
 					SimulationSetup.MAP_M = 10;
 					SimulationSetup.MAP_N = 10;
-					SimulationSetup.iotDevicesNum = 100;
+					IoTFaaSSetup.iotDevicesNum = 100;
 					SimulationSetup.mobileNum = 1000;
 					SimulationSetup.mobilityTraceFile = "traces/leopoldstadt.coords";
 					SimulationSetup.x_max = 11098;
@@ -450,7 +472,7 @@ public class ACETONEMain {
 				case "SIMMERING":
 					SimulationSetup.MAP_M = 12;
 					SimulationSetup.MAP_N = 12;
-					SimulationSetup.iotDevicesNum = 144;
+					IoTFaaSSetup.iotDevicesNum = 144;
 					SimulationSetup.mobileNum = 1440;
 					SimulationSetup.mobilityTraceFile = "traces/simmering.coords";
 					SimulationSetup.x_max = 6720;
@@ -461,12 +483,12 @@ public class ACETONEMain {
 			if(arg.startsWith("-traffic="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.traffic = pars[1];
+				IoTFaaSSetup.traffic = pars[1];
 			}
 			if(arg.startsWith("-workload="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.workloadType = pars[1];
+				IoTFaaSSetup.workloadType = pars[1];
 			}
 			if(arg.startsWith("-iter="))
 			{
@@ -476,22 +498,22 @@ public class ACETONEMain {
 			if(arg.startsWith("-dr="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.dataRate = Double.parseDouble(pars[1]);
+				IoTFaaSSetup.dataRate = Double.parseDouble(pars[1]);
 			}
 			if(arg.startsWith("-radius="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.nCenters = Integer.parseInt(pars[1]);
+				IoTFaaSSetup.nCenters = Integer.parseInt(pars[1]);
 			}
 			if(arg.startsWith("-updateTime=") || arg.startsWith("-uT"))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.updateTime = Double.parseDouble(pars[1]);
+				IoTFaaSSetup.updateTime = Double.parseDouble(pars[1]);
 			}
 			if(arg.startsWith("-workflow="))
 			{
 				String[] pars = arg.split("=");
-				SimulationSetup.selectedWorkflow = pars[1];
+				IoTFaaSSetup.selectedWorkflow = pars[1];
 			}
 			if(arg.startsWith("-nApps="))
 			{
@@ -499,6 +521,49 @@ public class ACETONEMain {
 				SimulationSetup.numberOfApps = Integer.parseInt(pars[1]);
 			}
 		}
+	}
+	
+	private static void printUsageInfo() {
+		// We print usage information
+		System.out.println("\n"
+				+ "-h, -?\t"
+				+ "Prints usage information\n"
+				+ "-mobile=n\t"
+				+ "Instantiates n mobile devices\n"
+				+ "-cloud=n\t"
+				+ "Instantiates n cloud nodes\n"
+				+ "-nApps=n\t"
+				+ "Each workflows has n applications\n"
+				+ "-cloudonly\t"
+				+ "Simulation uses only Cloud nodes\n"
+				+ "-area=name\t"
+				+ "Urban area where the offloading is performed (possible choices: HERNALS, LEOPOLDSTADT, SIMMERING)\n"
+				+ "-eta=n\t"
+				+ "Sets the eta parameter, which is necessary to set offloading cost (the higher the eta, the lower the cost).\n"
+				+ "-outfile=string\t"
+				+ "Saves output in file filename\n"
+				+ "-iter=n\t"
+				+ "Executes simulation for n iterations\n"
+				+ "-navigatorMapSize=#\t"
+				+ "Lambda parameter for size of navigator MAP (in kb)\n"
+				+ "-antivirusFileSize=#\t"
+				+ "Lambda parameter for size of antivirus file (in kb)\n"
+				+ "-facerecImageSize=#\t"
+				+ "Lambda parameter for size of image file (in kb) for Facerec app\n"
+				+ "-chessMi=#\t"
+				+ "Lambda parameter for computational size of Chess app \n"
+				+ "-navigatorDistr=#\t"
+				+ "Probability of NAVIGATOR app in workflow (must be between 0 and 1).\n"
+				+ "-antivirusDistr=#\t"
+				+ "Probability of ANTIVIRUS app in workflow (must be between 0 and 1).\n"
+				+ "-facerecDistr=#\t"
+				+ "Probability of FACEREC app in workflow (must be between 0 and 1).\n"
+				+ "-chessDistr=#\t"
+				+ "Probability of CHESS app in workflow (must be between 0 and 1).\n"
+				+ "-facebookDistr=#\t"
+				+ "Probability of FACEBOOK app in workflow (must be between 0 and 1).\n"
+				+ "\n"
+				+ "");
 	}
 	
 		

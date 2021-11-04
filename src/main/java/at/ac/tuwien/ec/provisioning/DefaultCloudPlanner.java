@@ -9,12 +9,12 @@ import at.ac.tuwien.ec.model.infrastructure.energy.AMDCPUEnergyModel;
 import at.ac.tuwien.ec.model.infrastructure.energy.CPUEnergyModel;
 import at.ac.tuwien.ec.model.pricing.CloudFixedPricingModel;
 import at.ac.tuwien.ec.model.pricing.PricingModel;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class DefaultCloudPlanner {
 	
-	static HardwareCapabilities defaultCloudNodesCapabilities = OffloadingSetup.defaultCloudCapabilities;
+	static HardwareCapabilities defaultCloudNodesCapabilities = SimulationSetup.defaultCloudCapabilities;
 			
 	static PricingModel defaultCloudPricindModel = new CloudFixedPricingModel();
 	static Timezone[] defaultTimezones = 

@@ -19,8 +19,8 @@ import at.ac.tuwien.ec.model.software.MobileApplication;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
-import at.ac.tuwien.ec.sleipnir.OffloadingSetup;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import scala.Tuple2;
 
 
@@ -177,7 +177,7 @@ public class DeploymentSolution implements PermutationSolution<Tuple2<MobileSoft
 			else 
 			{
 				ArrayList<ComputationalNode> targetList = new ArrayList<ComputationalNode>();
-				if(OffloadingSetup.cloudOnly)
+				if(SimulationSetup.cloudOnly)
 					targetList.addAll(I.getCloudNodes().values());
 				else
 					targetList = I.getAllNodes();

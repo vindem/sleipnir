@@ -23,7 +23,7 @@ import at.ac.tuwien.ec.scheduling.Scheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadScheduling;
 import at.ac.tuwien.ec.scheduling.offloading.OffloadSchedulingHistogram;
 import at.ac.tuwien.ec.scheduling.offloading.algorithms.heuristics.WeightedFunctionResearch;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 import static java.util.Arrays.asList;
 

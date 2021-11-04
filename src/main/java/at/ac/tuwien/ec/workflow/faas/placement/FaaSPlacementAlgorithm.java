@@ -10,7 +10,8 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.scheduling.Scheduling;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
 
@@ -34,10 +35,10 @@ public abstract class FaaSPlacementAlgorithm  {
 	protected boolean updateCondition()
 	{
 		//return true;
-		if(SimulationSetup.updateTime == 0.0)
+		if(IoTFaaSSetup.updateTime == 0.0)
 			return false;
-		updateCounter = getCurrentTime() - (updateIntervals * SimulationSetup.updateTime);
-		if(updateCounter >= SimulationSetup.updateTime)
+		updateCounter = getCurrentTime() - (updateIntervals * IoTFaaSSetup.updateTime);
+		if(updateCounter >= IoTFaaSSetup.updateTime)
 		{
 			updateIntervals++;
 			updateCounter = 0.0;

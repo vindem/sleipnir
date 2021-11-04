@@ -1,7 +1,8 @@
 package at.ac.tuwien.ec.workflow.faas;
 
 import at.ac.tuwien.ec.model.Hardware;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class IntrasafedWorkflow extends FaaSWorkflow {
 
@@ -20,24 +21,24 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
 				,95
-				,SimulationSetup.dataMultiplier
-        		,SimulationSetup.dataMultiplier
+				,IoTFaaSSetup.dataMultiplier
+        		,IoTFaaSSetup.dataMultiplier
         		);
 		addComponent("LOAD_MODEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,108
-				,SimulationSetup.dataMultiplier
-        		,SimulationSetup.dataMultiplier
+				,IoTFaaSSetup.dataMultiplier
+        		,IoTFaaSSetup.dataMultiplier
         		);
 		addComponent("AGGREGATE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,320
-				,SimulationSetup.dataMultiplier
-        		,SimulationSetup.dataMultiplier
+				,IoTFaaSSetup.dataMultiplier
+        		,IoTFaaSSetup.dataMultiplier
         		,false
         		);
 		addComponent("ANALYZE"+"_"+getWorkloadId()+","+getUserId(),
@@ -45,16 +46,16 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
         		,497
-				,SimulationSetup.dataMultiplier
-        		,SimulationSetup.dataMultiplier
+				,IoTFaaSSetup.dataMultiplier
+        		,IoTFaaSSetup.dataMultiplier
         		);
 		addComponent("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
         		,85
-				,SimulationSetup.dataMultiplier
-        		,SimulationSetup.dataMultiplier
+				,IoTFaaSSetup.dataMultiplier
+        		,IoTFaaSSetup.dataMultiplier
         		);
 		setSource(this.getComponentById("IOT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId()));
