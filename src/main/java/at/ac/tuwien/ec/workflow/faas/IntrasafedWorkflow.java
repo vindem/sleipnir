@@ -20,42 +20,42 @@ public class IntrasafedWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,95
-				,IoTFaaSSetup.dataMultiplier
-        		,IoTFaaSSetup.dataMultiplier
+				,95e2
+				,IoTFaaSSetup.IntraSafedParameter
+        		,IoTFaaSSetup.IntraSafedParameter
         		);
 		addComponent("LOAD_MODEL"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,108
-				,IoTFaaSSetup.dataMultiplier
-        		,IoTFaaSSetup.dataMultiplier
+        		,108e2
+        		,IoTFaaSSetup.IntraSafedParameter
+        		,IoTFaaSSetup.IntraSafedParameter
         		);
 		addComponent("AGGREGATE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,320
-				,IoTFaaSSetup.dataMultiplier
-        		,IoTFaaSSetup.dataMultiplier
+        		,320e2
+        		,IoTFaaSSetup.IntraSafedParameter
+        		,IoTFaaSSetup.IntraSafedParameter
         		,false
         		);
 		addComponent("ANALYZE"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,497
-				,IoTFaaSSetup.dataMultiplier
-        		,IoTFaaSSetup.dataMultiplier
+        		,497e2
+        		,IoTFaaSSetup.IntraSafedParameter
+        		,IoTFaaSSetup.IntraSafedParameter
         		);
 		addComponent("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,85
-				,IoTFaaSSetup.dataMultiplier
-        		,IoTFaaSSetup.dataMultiplier
+        		,85e2
+        		,IoTFaaSSetup.IntraSafedParameter
+        		,IoTFaaSSetup.IntraSafedParameter
         		);
 		setSource(this.getComponentById("IOT"+"_"+getWorkloadId()+","+getUserId()));
 		setSink(this.getComponentById("SEND_ALERT"+"_"+getWorkloadId()+","+getUserId()));

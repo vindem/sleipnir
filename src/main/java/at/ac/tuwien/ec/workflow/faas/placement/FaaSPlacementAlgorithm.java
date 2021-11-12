@@ -34,8 +34,8 @@ public abstract class FaaSPlacementAlgorithm  {
 	
 	protected boolean updateCondition()
 	{
-		//return true;
-		if(IoTFaaSSetup.updateTime == 0.0)
+		return true;
+		/*if(IoTFaaSSetup.updateTime == 0.0)
 			return false;
 		updateCounter = getCurrentTime() - (updateIntervals * IoTFaaSSetup.updateTime);
 		if(updateCounter >= IoTFaaSSetup.updateTime)
@@ -44,7 +44,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			updateCounter = 0.0;
 			return true;
 		}
-		return false;
+		return false;*/
 		//return Math.floor(getCurrentTime()) % SimulationSetup.updateTime == 0.0;
 	}
 
@@ -109,13 +109,16 @@ public abstract class FaaSPlacementAlgorithm  {
 			for(IoTDevice publisher : publishers) 
 			{
 				double currTTime = computeTransmissionTime(publisher,trg);
-				if(Double.isFinite(currTTime) && currTTime > maxLatency)
+				if(Double.isFinite(currTTime) && currTTime > maxLatency) 
 					maxLatency = currTTime;
-				msc.addInData(publisher.getOutData());
+				
+				//msc.addInData(publisher.getOutData());
 			}
 			trg.setOutData(msc.getOutData());
+			
 			currentExecutionLatency = maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure());
 			//placement.addAverageLatency(currentExecutionLatency);
+			
 			setCurrentTime(currentExecutionLatency);
 			msc.setRunTime(getCurrentTime());
 		}
@@ -126,11 +129,14 @@ public abstract class FaaSPlacementAlgorithm  {
 			for(MobileDevice subscriber : subscribers) 
 			{
 				double currTTime = computeTransmissionTime(trg,subscriber);
-				if(Double.isFinite(currTTime) && currTTime > maxLatency)
+				
+				if(Double.isFinite(currTTime) && currTTime > maxLatency) 
 					maxLatency = currTTime;
+				
 			}
 			trg.setOutData(msc.getOutData());
-			currentExecutionLatency += maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure());
+			
+			currentExecutionLatency = maxLatency + msc.getLocalRuntimeOnNode(trg, getInfrastructure());
 			setCurrentTime(currentExecutionLatency);
 			msc.setRunTime(getCurrentTime());
 			placement.addAverageLatency(currentExecutionLatency / SimulationSetup.numberOfApps);
@@ -143,6 +149,7 @@ public abstract class FaaSPlacementAlgorithm  {
 			{
 				NetworkedNode prevTarget = placement.get(pred);
 				double currTime = computeTransmissionTime(prevTarget,trg) + pred.getRunTime();
+				//System.out.println("Transmission: "+ computeTransmissionTime(prevTarget,trg) + " RT: "+pred.getRunTime());
 				if(Double.isFinite(currTime) && currTime > predTime) 
 				{
 					predTime = currTime;
@@ -150,12 +157,14 @@ public abstract class FaaSPlacementAlgorithm  {
 				}
 			}
 			trg.setOutData(msc.getOutData());
+			
 			currentExecutionLatency += 
 					computeTransmissionTime(maxTrg,trg) + msc.getLocalRuntimeOnNode(trg, getInfrastructure());
 			//placement.addAverageLatency(currentExecutionLatency);
 			setCurrentTime(currentExecutionLatency);
 			msc.setRunTime(getCurrentTime());
 		}
+		//System.out.println(msc.getId()+":"+currentExecutionLatency);
 		//System.out.println(currentTime);
 	}
 
@@ -164,6 +173,7 @@ public abstract class FaaSPlacementAlgorithm  {
 		if(src == null || trg == null)
 			return 0.0;
 		double transmissionTime = connections.getDataTransmissionTime(src.getOutData(), src, trg);
+		
 		return transmissionTime;
 	}
 	

@@ -117,6 +117,7 @@ public abstract class ComputationalNode extends NetworkedNode implements Seriali
 		}
 	}
 	
+	
 	public abstract void sampleNode();
 
 	public double getBandwidth() {

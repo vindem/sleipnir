@@ -29,14 +29,17 @@ public class SimulationSetup {
 	public static int edgeNodeLimit = 900;
 
 	//HARDWARE CONFIGURATIONS
-	public static double edgeNodesPerCell = 10;
+	public static int edgeNodesPerCell = 8;
 	public static int mobileNum = 1;
 	public static int cloudNum = 6;
-	public static int cloudCoreNum = Integer.MAX_VALUE;
+	//public static int cloudCoreNum = Integer.MAX_VALUE;
+	public static int cloudCoreNum = 32;
 	public static double cloudRam = Double.MAX_VALUE;
 	public static double cloudStorage = Double.MAX_VALUE;
+	//public static double cloudMipsPerCore = 25.0e4;
 	public static double cloudMipsPerCore = 25.0e4;
-	public static int edgeCoreNum =  (int) (4 * edgeNodesPerCell);
+	//public static int edgeCoreNum =  (int) (4 * edgeNodesPerCell);
+	public static int edgeCoreNum = 4 * edgeNodesPerCell;
 	public static double edgeRam = 128.0 * edgeNodesPerCell;
 	public static double edgeStorage = 5e9 * edgeNodesPerCell;
 	public static double edgeMipsPerCore = 20.0e4;
@@ -70,7 +73,7 @@ public class SimulationSetup {
 	
 	public static String configurationJsonFile = "./config/simulation.json";
 		
-	public static int numberOfApps = 5;
+	public static int numberOfApps = 1;
 	public static int numberOfParallelApps = 1;
 	
 	public static ArrayList<Coordinates> admissibleEdgeCoordinates;
@@ -78,7 +81,7 @@ public class SimulationSetup {
 	public static ArrayList<Double> failureProbList;
 	public static String edgePlanningAlgorithm = "ares";
 	public static String electricityTraceFile;
-	public static String outfile = "../output/";
+	public static String outfile = "./output/test";
 	public static boolean mobility = true;
 	public static String timezoneData;
 	public static double wifiAvailableProbability;

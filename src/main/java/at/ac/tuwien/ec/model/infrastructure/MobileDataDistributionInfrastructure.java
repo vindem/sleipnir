@@ -20,6 +20,9 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.EdgeNode;
 import at.ac.tuwien.ec.model.infrastructure.network.ConnectionMap;
 import at.ac.tuwien.ec.model.infrastructure.network.NetworkConnection;
 import at.ac.tuwien.ec.model.software.SoftwareComponent;
+import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
+import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
 
 public class MobileDataDistributionInfrastructure extends MobileCloudInfrastructure implements Serializable,Cloneable {
 	
@@ -137,6 +140,25 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 	{
 		return (MobileDataDistributionInfrastructure) super.clone();
 		
+	}
+	
+	public MobileDataDistributionInfrastructure lookupAtTimestamp(double timestamp)
+	{
+		MobileDataDistributionInfrastructure future = null;
+		try {
+			future = clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(MobileDevice d : future.getMobileDevices().values()) 
+			d.updateCoordsWithMobility((double) timestamp);
+		//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+		
+		MobilityBasedNetworkPlanner.setupMobileConnections(future);
+		MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(future,
+				IoTFaaSSetup.selectedWorkflow);
+		return future;
 	}
 	
 }

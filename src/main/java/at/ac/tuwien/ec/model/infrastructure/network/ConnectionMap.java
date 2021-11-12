@@ -131,15 +131,15 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 
 	}
 	
-	public double getDataTransmissionTime(double dataSize, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
+	public double getDataTransmissionTime(double dataSize, double connectedNodes , NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
 	{
 		if(!containsVertex(u))
 			System.out.println(u.getId());
 		if(u.equals(v))
 			return 0.0;
-		if(!vertexSet().contains(u))
+		if(!containsVertex(u))
 			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
-		if(!vertexSet().contains(v))
+		if(!containsVertex(v))
 			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
 		NetworkConnection link = getEdge(u,v);
 		//QoSProfile profile = null;
@@ -161,8 +161,10 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 				tmpProfile.sampleQoS();
 				//time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
 					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
-				time += ((dataSize)/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
-						(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
+				//time += ((dataSize)/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
+					//	(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
+				time += (dataSize/BYTES_TO_MEGABYTES)/((tmpProfile.getBandwidth()) * (1.0 - (connectedNodes / incomingEdgesOf(n1).size())+0.01))+
+							(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS);
 				n0 = n1;
 			}
 			return time;
@@ -171,8 +173,96 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 		{
 			QoSProfile profile = link.getQoSProfile();
 			profile.sampleQoS();
-			return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*BYTES_PER_MEGABIT)) +
-					(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
+			return ((dataSize/BYTES_TO_MEGABYTES)/((profile.getBandwidth())*(1.0 - (connectedNodes / incomingEdgesOf(v).size())+0.01))) +
+						(profile.getLatency()/MILLISECONDS_PER_SECONDS);
+			//return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*BYTES_PER_MEGABIT)) +
+				//	(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
+			//if(u instanceof MobileDevice || v instanceof MobileDevice)
+				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));
+			/*return (((dataSize)/(profile.getBandwidth()) + 
+					((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );*/
+			
+		}	/*if(u instanceof MobileDevice || v instanceof MobileDevice) 
+			{
+				NetworkedNode src = (u instanceof MobileDevice) ? u : v;
+				for(NetworkConnection conn : outgoingEdgesOf(src))
+				{
+					if(conn.getTarget() instanceof EdgeNode)
+					{
+						profile = conn.getQoSProfile();
+						break;
+					}
+
+				}
+			}
+			else
+				return Double.POSITIVE_INFINITY;*/
+		/*
+		else	
+			profile = getEdge(u,v).qosProfile;
+		if(profile == null)
+			System.out.println(u +"," + v);
+		profile.sampleQoS();
+		
+				
+		return (((dataSize)/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) );
+				*/
+
+	}
+	
+	public double getDataTransmissionTime(double dataSize, NetworkedNode u, NetworkedNode v) throws IllegalArgumentException
+	{
+		if(!containsVertex(u))
+			System.out.println(u.getId());
+		if(u.equals(v))
+			return 0.0;
+		if(!containsVertex(u))
+			throw new IllegalArgumentException("Node " + u.getId() + " does not exists.");
+		if(!containsVertex(v))
+			throw new IllegalArgumentException("Node " + v.getId() + " does not exists.");
+		NetworkConnection link = getEdge(u,v);
+		//QoSProfile profile = null;
+		
+		if(link == null) {
+			if(networkMap == null)
+				this.networkMap = new FloydWarshallShortestPaths<NetworkedNode, NetworkConnection>(this);
+			
+			GraphPath<NetworkedNode, NetworkConnection> path = this.networkMap.getPath(u, v);
+			ArrayList<NetworkedNode> verticesOnPath = (ArrayList<NetworkedNode>) path.getVertexList();
+
+
+			NetworkedNode n0 = verticesOnPath.get(0);
+			double time = 0.0;
+			for(int i = 1; i < verticesOnPath.size(); i++)
+			{
+				NetworkedNode n1 = verticesOnPath.get(i);
+				QoSProfile tmpProfile = getEdge(n0,n1).qosProfile;
+				tmpProfile.sampleQoS();
+				//time += dataSize/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
+					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
+				//time += ((dataSize)/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
+					//	(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
+				time += (dataSize/BYTES_TO_MEGABYTES)/((tmpProfile.getBandwidth()) * (1.0 - (n1.getChannelUtilization()+0.01)))+
+							(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS);
+				n0 = n1;
+			}
+			
+			return time;
+		}
+		else
+		{
+			
+			QoSProfile profile = link.getQoSProfile();
+			profile.sampleQoS();
+			double time = (dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*(1.0 - (((v.getId().contains("vehicle"))? 0.01 :v.getChannelUtilization())+0.01)) +
+						(profile.getLatency()/MILLISECONDS_PER_SECONDS));
+			if(v.getId().contains("vehicle") && time>10.0) 
+				System.out.println("Transmission Time: "+time+ " "+u.getId()+"->"+v.getId()+" latency="+(profile.getLatency()/MILLISECONDS_PER_SECONDS)
+						+" Data size: "+(dataSize/BYTES_TO_MEGABYTES)+ " BW: "+ profile.getBandwidth()+ " UTILIZATION: "+ ((1.0 - v.getChannelUtilization())+0.01));
+			return time;
+			//return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*BYTES_PER_MEGABIT)) +
+				//	(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
 			//if(u instanceof MobileDevice || v instanceof MobileDevice)
 				//System.out.println(u.getId() + "," + v.getId() + "=" + computeDistance(u,v));
 			/*return (((dataSize)/(profile.getBandwidth()) + 
@@ -263,21 +353,27 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 		//System.out.println(u.getId() + "," + v.getId() + " : " + profile.getLatency() + " , " + profile.getBandwidth() );
 		//profile.sampleQoS();
+		//return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
+			//	(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
 		return ((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT)) + 
-				(profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS;
+					(profile.getLatency())/MILLISECONDS_PER_SECONDS;
 	}
 	
 	public double getInDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile){
 		profile.sampleQoS();
+		//return (((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 		return (((msc.getInData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
-				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
+					(profile.getLatency()/MILLISECONDS_PER_SECONDS)) ); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
 	public double getOutDataTransmissionTime(MobileSoftwareComponent msc, NetworkedNode u, NetworkedNode v, QoSProfile profile)
 	{
 		profile.sampleQoS();
+		//return ((msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
+			//	((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
 		return ((msc.getOutData())/(profile.getBandwidth()*BYTES_PER_MEGABIT) + 
-				((profile.getLatency()*computeDistance(u,v))/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
+					(profile.getLatency()/MILLISECONDS_PER_SECONDS)); //*SimulationConstants.offloadable_part_repetitions;
 	}
 	
 	public double computeDistance(NetworkedNode u, NetworkedNode v)

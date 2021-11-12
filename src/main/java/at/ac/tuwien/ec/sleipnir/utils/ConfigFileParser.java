@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
 import at.ac.tuwien.ec.sleipnir.configurations.OffloadingSetup;
 import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
@@ -25,7 +26,7 @@ public class ConfigFileParser {
 			SimulationSetup.cloudOnly = Boolean.parseBoolean((String) obj.get("cloudonly"));
 			SimulationSetup.numberOfApps = Integer.parseInt((String) obj.get("appNum"));
 			SimulationSetup.Eta = Double.parseDouble((String) obj.get("eta"));
-			OffloadingSetup.outfile = (String) obj.get("outfile");
+			SimulationSetup.outfile = (String) obj.get("outfile");
 			OffloadingSetup.navigatorMapSize = Double.parseDouble((String) obj.get("navigatorMapSize"));
 			OffloadingSetup.facerecImageSize = Double.parseDouble((String) obj.get("facerecImageSize"));
 			OffloadingSetup.facebookImageSize = Double.parseDouble((String) obj.get("facebookImageSize"));
@@ -42,6 +43,11 @@ public class ConfigFileParser {
 			OffloadingSetup.EchoAlpha = Double.parseDouble((String) obj.get("alpha"));
 			OffloadingSetup.EchoBeta = Double.parseDouble((String) obj.get("beta"));
 			OffloadingSetup.EchoGamma = Double.parseDouble((String) obj.get("gamma"));
+			IoTFaaSSetup.placementAlgorithms = (String[]) ((String) obj.get("FaaSPlacement")).split(",");
+			IoTFaaSSetup.selectedWorkflow = (String) obj.get("FaaSWorkflow");
+			IoTFaaSSetup.IRParameter = Double.parseDouble((String) obj.get("IRParameter"));
+			IoTFaaSSetup.IntraSafedParameter = Double.parseDouble((String) obj.get("IntraSafedParameter"));
+			IoTFaaSSetup.dataRate = Double.parseDouble((String) obj.get("dataRate"));
 			reader.close();
 		} 
 		catch (FileNotFoundException e){

@@ -40,6 +40,11 @@ public abstract class NetworkedNode implements Serializable{
 		return this.id;
 	}
 	
+	public double getChannelUtilization()
+	{
+		return capabilities.getCPUUtilization();
+	}
+	
 	public void setCapabilities(HardwareCapabilities capabilities)
 	{
 		this.capabilities = capabilities;

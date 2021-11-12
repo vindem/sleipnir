@@ -47,6 +47,7 @@ import at.ac.tuwien.ec.workflow.faas.placement.DealPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealRandomPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
+import at.ac.tuwien.ec.workflow.faas.placement.OracleFaaSPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.PEFTFaaSScheduler;
 import scala.Tuple2;
 import scala.Tuple3;
@@ -147,7 +148,7 @@ public class ACETONEMain {
 			e1.printStackTrace();
 		}*/			
 
-		for(String currAlgorithm : SimulationSetup.algorithms)
+		for(String currAlgorithm : IoTFaaSSetup.placementAlgorithms)
 		{
 			
 			JavaPairRDD<FaaSWorkflowPlacement,Tuple4<Integer,Double, Double,Double>> results = input.flatMapToPair(new 
@@ -183,6 +184,9 @@ public class ACETONEMain {
 						break;
 					case "FFD":
 						search = new FFDPRODPlacement(inputValues);
+						break;
+					case "ORACLE":
+						search = new OracleFaaSPlacement(inputValues);
 						break;
 					case "COSTLESS":
 						search = new FaaSCostlessPlacement(inputValues);
@@ -302,7 +306,7 @@ public class ACETONEMain {
 					+tuple._2()._4()+"\t \t \n"));
 			*/
 			
-			histogram.saveAsTextFile(SimulationSetup.outfile);;
+			histogram.saveAsTextFile(SimulationSetup.outfile+"_"+currAlgorithm);
 			//histogram.foreach((VoidFunction<Tuple2<FaaSWorkflowPlacement, Tuple4<Integer, Double, Double, Double>>>) tuple ->
 			//placements.add(tuple));
 

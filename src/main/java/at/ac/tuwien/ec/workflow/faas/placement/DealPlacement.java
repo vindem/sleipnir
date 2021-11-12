@@ -117,6 +117,7 @@ public class DealPlacement extends FaaSPlacementAlgorithm {
 		
 	@Override
 	public ArrayList<? extends Scheduling> findScheduling() {
+		System.out.println("Executing DEAL!");
 		double startTime = System.currentTimeMillis();
 		int currentTimestamp = 0;
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
@@ -209,7 +210,7 @@ public class DealPlacement extends FaaSPlacementAlgorithm {
 			deploy(scheduling,msc,trg, publisherDevices, subscriberDevices);
 			
 			currentTimestamp = (int) Math.round(getCurrentTime());
-			//System.out.println("TIMESTAMP: "+currentTimestamp);
+			System.out.println("TIMESTAMP: "+currentTimestamp);
 			for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
 				d.updateCoordsWithMobility((double)currentTimestamp);
 			//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());

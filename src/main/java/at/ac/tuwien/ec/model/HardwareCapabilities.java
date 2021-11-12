@@ -91,6 +91,11 @@ public class HardwareCapabilities implements Serializable{
 		capabilities.ram += cmp.getHardwareRequirements().ram;
 		capabilities.storage += cmp.getHardwareRequirements().storage;
 	}
+	
+	public double getCPUUtilization()
+	{
+		return capabilities.cores / maxCores;
+	}
 
 	public Hardware getHardware()
 	{

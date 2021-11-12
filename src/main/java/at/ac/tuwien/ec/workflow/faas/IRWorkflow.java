@@ -16,12 +16,12 @@ public class IRWorkflow extends FaaSWorkflow {
 	}
 
 	public void setupTasks() {
-		double img_size = IoTFaaSSetup.dataMultiplier;
+		double img_size = IoTFaaSSetup.IRParameter;
 		addComponent("EXTRACT"+"_"+getWorkloadId()+","+getUserId(),
 				new Hardware(1, 1, 1)
 				//,5.0 + ExponentialDistributionGenerator.getNext(1.0/5.0)
         		,this.getUserId()
-				,94
+				,94e2
 				,img_size
         		,img_size
         		);
@@ -29,7 +29,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,96
+        		,96e2
 				,img_size
         		,img_size
         		);
@@ -37,7 +37,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,8.0 + ExponentialDistributionGenerator.getNext(1.0/8.0)
-        		,475
+        		,475e2
 				,img_size
         		,img_size
         		);
@@ -45,7 +45,7 @@ public class IRWorkflow extends FaaSWorkflow {
 				new Hardware(1, 1, 1)
 				,this.getUserId()
 				//,16.0 + ExponentialDistributionGenerator.getNext(1.0/16.0)
-        		,174
+        		,174e2
 				,img_size
         		,img_size
         		);

@@ -206,12 +206,14 @@ public class PEFTFaaSScheduler extends FaaSPlacementAlgorithm {
 				deploy(scheduling,currTask,target,publisherDevices,subscriberDevices);
 				
 				currentTimestamp = (int) Math.round(getCurrentTime());
-				for(MobileDevice d : this.getInfrastructure().getMobileDevices().values())
+				System.out.println("TIMESTAMP: "+currentTimestamp);
+				for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
 					d.updateCoordsWithMobility((double)currentTimestamp);
+				//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+				
 				MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
-				//MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
 				MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(getInfrastructure(),
-						IoTFaaSSetup.selectedWorkflow);
+						IoTFaaSSetup.selectedWorkflow);			
 				scheduledNodes.add(currTask);
 				if(schedulingGraph.containsVertex(currTask))
 				{

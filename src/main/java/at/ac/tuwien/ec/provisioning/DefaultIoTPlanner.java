@@ -7,7 +7,11 @@ import at.ac.tuwien.ec.model.HardwareCapabilities;
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.IoTDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
+import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
 import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
+import at.ac.tuwien.ec.workflow.faas.IRWorkflow;
+import at.ac.tuwien.ec.workflow.faas.IntrasafedWorkflow;
+import at.ac.tuwien.ec.workflow.faas.OFWorkflow;
 
 public class DefaultIoTPlanner {
 	
@@ -24,6 +28,20 @@ public class DefaultIoTPlanner {
 			device.setCoords(randomCoordinates);
 			String topics[] = new String[1];
 			topics[0] = "iot-"+randomCoordinates.getLatitude()+","+randomCoordinates.getLongitude();
+			/*double data = 0.0;
+			switch(IoTFaaSSetup.selectedWorkflow)
+			{
+				case "IR":
+					data = IoTFaaSSetup.IRParameter;
+					break;
+				case "OF":
+					data = 10.0;
+					break;
+				case "IntraSafed":
+					data = IoTFaaSSetup.IntraSafedParameter;
+					break;
+			}
+			device.setOutData(data * IoTFaaSSetup.dataRate);*/
 			device.setTopics(topics);
 			inf.addIoTDevice(device);			
 		}
