@@ -47,6 +47,7 @@ import at.ac.tuwien.ec.workflow.faas.placement.DealPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.DealRandomPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FFDPRODPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.FaaSPlacementAlgorithm;
+import at.ac.tuwien.ec.workflow.faas.placement.KalmanFaaSPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.OracleFaaSPlacement;
 import at.ac.tuwien.ec.workflow.faas.placement.PEFTFaaSScheduler;
 import scala.Tuple2;
@@ -187,6 +188,9 @@ public class ACETONEMain {
 						break;
 					case "ORACLE":
 						search = new OracleFaaSPlacement(inputValues);
+						break;
+					case "KALMAN":
+						search = new KalmanFaaSPlacement(inputValues);
 						break;
 					case "COSTLESS":
 						search = new FaaSCostlessPlacement(inputValues);

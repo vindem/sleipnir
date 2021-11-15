@@ -93,6 +93,12 @@ public class MobileDevice extends ComputationalNode {
 		Coordinates newCoords = mobilityTrace.getCoordinatesForTimestep(timestep);
 		this.setCoords(newCoords);
 	}
+	
+	public void predictCoordinatesAt(double timestep)
+	{
+		Coordinates newCoords = mobilityTrace.predictCoordinatesForTimestep(timestep);
+		this.setCoords(newCoords);
+	}
 
 	public double computeCost(SoftwareComponent sc, MobileCloudInfrastructure i)
 	{

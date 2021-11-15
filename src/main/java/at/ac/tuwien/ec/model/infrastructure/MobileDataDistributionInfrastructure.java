@@ -161,4 +161,23 @@ public class MobileDataDistributionInfrastructure extends MobileCloudInfrastruct
 		return future;
 	}
 	
+	public MobileDataDistributionInfrastructure predictAtTimestamp(double timestamp)
+	{
+		MobileDataDistributionInfrastructure future = null;
+		try {
+			future = clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(MobileDevice d : future.getMobileDevices().values()) 
+			d.predictCoordinatesAt((double) timestamp);
+		//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
+		
+		MobilityBasedNetworkPlanner.setupMobileConnections(future);
+		MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(future,
+				IoTFaaSSetup.selectedWorkflow);
+		return future;
+	}
+	
 }

@@ -29,7 +29,7 @@ class SumoTraceParserTest {
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
 	 */
-	@Test
+	
 	void testPreParse() throws ParserConfigurationException, SAXException, IOException {
 		File testFile = new File("./traces/simmering.coords");
 		ArrayList<String> ids = new ArrayList<String>();

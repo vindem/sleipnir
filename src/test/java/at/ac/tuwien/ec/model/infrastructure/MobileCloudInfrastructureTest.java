@@ -18,7 +18,7 @@ import at.ac.tuwien.ec.model.infrastructure.computationalnodes.MobileDevice;
 import at.ac.tuwien.ec.model.infrastructure.computationalnodes.NetworkedNode;
 import at.ac.tuwien.ec.model.infrastructure.costs.ElectricityPriceTrace;
 import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
-import at.ac.tuwien.ec.sleipnir.SimulationSetup;
+import at.ac.tuwien.ec.sleipnir.configurations.SimulationSetup;
 
 public class MobileCloudInfrastructureTest {
 
