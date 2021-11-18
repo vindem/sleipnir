@@ -271,9 +271,9 @@ public class MobilityBasedNetworkPlanner {
 			
 			ArrayList<EdgeNode> proximity = new ArrayList<EdgeNode>();
 			
-			for(EdgeNode en : inf.getEdgeNodes().values()) 
-				if(computeDistance(d,en) <= 1.0)
-					proximity.add(en);
+			//for(EdgeNode en : inf.getEdgeNodes().values()) 
+				//if(computeDistance(d,en) <= 1.0)
+					//proximity.add(en);
 			
 			UniformRealDistribution distr = new UniformRealDistribution(0.0,1.0);
 			double conn = distr.sample();

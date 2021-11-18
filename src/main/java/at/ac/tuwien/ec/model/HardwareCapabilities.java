@@ -69,8 +69,8 @@ public class HardwareCapabilities implements Serializable{
 	public boolean deploy(ContainerInstance vm){
 		if(!supports(new Hardware(vm.getCapabilities().maxCores, vm.getCapabilities().maxRam, vm.getCapabilities().maxStorage)))
 			return false;
-		//capabilities.cores -= vm.getCapabilities().maxCores;
-		//capabilities.ram -= vm.getCapabilities().maxRam;
+		capabilities.cores -= vm.getCapabilities().maxCores;
+		capabilities.ram -= vm.getCapabilities().maxRam;
 		capabilities.storage -= vm.getCapabilities().maxStorage;
 		return true;
 		
@@ -92,9 +92,9 @@ public class HardwareCapabilities implements Serializable{
 		capabilities.storage += cmp.getHardwareRequirements().storage;
 	}
 	
-	public double getCPUUtilization()
+	public double getAvailableCPUResources()
 	{
-		return capabilities.cores / maxCores;
+		return (double)capabilities.cores / (double)maxCores;
 	}
 
 	public Hardware getHardware()

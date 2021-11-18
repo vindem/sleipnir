@@ -42,7 +42,7 @@ public abstract class NetworkedNode implements Serializable{
 	
 	public double getChannelUtilization()
 	{
-		return capabilities.getCPUUtilization();
+		return capabilities.getAvailableCPUResources();
 	}
 	
 	public void setCapabilities(HardwareCapabilities capabilities)

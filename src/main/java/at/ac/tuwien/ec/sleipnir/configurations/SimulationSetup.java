@@ -36,8 +36,8 @@ public class SimulationSetup {
 	public static int cloudCoreNum = 32;
 	public static double cloudRam = Double.MAX_VALUE;
 	public static double cloudStorage = Double.MAX_VALUE;
-	//public static double cloudMipsPerCore = 25.0e4;
 	public static double cloudMipsPerCore = 25.0e4;
+	//public static double cloudMipsPerCore = 22.0e4;
 	//public static int edgeCoreNum =  (int) (4 * edgeNodesPerCell);
 	public static int edgeCoreNum = 4 * edgeNodesPerCell;
 	public static double edgeRam = 128.0 * edgeNodesPerCell;

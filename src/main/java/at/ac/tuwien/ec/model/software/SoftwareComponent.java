@@ -58,7 +58,7 @@ public class SoftwareComponent implements Serializable{
 	}
 
 	public double getLocalRuntimeOnNode(ComputationalNode n, MobileCloudInfrastructure i) {
-		return (millionsOfInstruction/n.getMipsPerCore());
+		return (millionsOfInstruction/(n.getMipsPerCore()*(n.getChannelUtilization() <= 0.0? 0.01 : n.getChannelUtilization() )));
 	}
 	
 

@@ -100,6 +100,10 @@ public class SumoTraceParser {
 							double x = Double.parseDouble(attributes.getValue("x"));
 							double y = Double.parseDouble(attributes.getValue("y"));
 							Coordinates coords = new Coordinates(x,y);
+							double angle = Double.parseDouble(attributes.getValue("angle"));
+							double speed = Double.parseDouble(attributes.getValue("speed"));
+							coords.setAngle(angle);
+							coords.setSpeed(speed);
 							int vehicleId = ((int)Double.parseDouble(currId));
 							if(vehicleId <= deviceNumber)
 								tracesList.get(vehicleId).add(coords);

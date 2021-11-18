@@ -8,7 +8,12 @@ package at.ac.tuwien.ec.model;
 import java.io.Serializable;
 
 public class Coordinates implements Serializable{
-    private double lat, lng;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2016575881393139663L;
+	private double lat, lng;
+	private double angle, speed;
 
     public Coordinates (double lat, double lng){
         this.lat = lat;
@@ -51,4 +56,21 @@ public class Coordinates implements Serializable{
     public String toString(){
         return "("+ this.lat + ", " + this.lng + ")";
     }
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return super.hashCode();
+	}
+	public double getAngle() {
+		return angle;
+	}
+	public void setAngle(double angle) {
+		this.angle = angle;
+	}
+	public double getSpeed() {
+		return speed;
+	}
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
 }

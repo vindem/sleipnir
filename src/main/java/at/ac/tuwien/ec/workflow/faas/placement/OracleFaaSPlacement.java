@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Set;
 
+import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import at.ac.tuwien.ec.model.infrastructure.MobileDataDistributionInfrastructure;
@@ -19,6 +21,8 @@ import at.ac.tuwien.ec.model.software.MobileSoftwareComponent;
 import at.ac.tuwien.ec.provisioning.MobilityBasedNetworkPlanner;
 import at.ac.tuwien.ec.provisioning.mobile.MobileDevicePlannerWithIoTMobility;
 import at.ac.tuwien.ec.scheduling.Scheduling;
+import at.ac.tuwien.ec.scheduling.offloading.algorithms.heftbased.utils.NodeRankComparator;
+import at.ac.tuwien.ec.scheduling.utils.RuntimeComparator;
 import at.ac.tuwien.ec.sleipnir.configurations.IoTFaaSSetup;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflow;
 import at.ac.tuwien.ec.workflow.faas.FaaSWorkflowPlacement;
@@ -59,46 +63,92 @@ public class OracleFaaSPlacement extends FaaSPlacementAlgorithm {
 		int currentTimestamp = 0;
 		HashMap<String,Tuple2<ComputationalNode,Double>> preComputedSchedule = new HashMap<String,Tuple2<ComputationalNode,Double>>();
 		ArrayList<FaaSWorkflowPlacement> schedulings = new ArrayList<FaaSWorkflowPlacement>();
-		
+
 		FaaSWorkflowPlacement scheduling = new FaaSWorkflowPlacement(this.getCurrentWorkflow(),this.getInfrastructure());
+		PriorityQueue<MobileSoftwareComponent> scheduledNodes 
+		= new PriorityQueue<MobileSoftwareComponent>(new RuntimeComparator());
+		DirectedAcyclicGraph<MobileSoftwareComponent,ComponentLink> schedulingGraph 
+		= (DirectedAcyclicGraph<MobileSoftwareComponent, ComponentLink>) this.getCurrentWorkflow().getTaskDependencies().clone();
+		/*
+		 * readyTasks contains tasks that have to be scheduled for execution.
+		 * Tasks are selected according to their upRank (at least in HEFT)
+		 */
+		PriorityQueue<MobileSoftwareComponent> readyTasks = new PriorityQueue<MobileSoftwareComponent>(new NodeRankComparator());
+		// All tasks in the workflow
+		ArrayList<MobileSoftwareComponent> applicationTasks = new ArrayList<MobileSoftwareComponent>(getCurrentWorkflow().getTaskDependencies().vertexSet());
 		
-		this.workflowIterator = new TopologicalOrderIterator<MobileSoftwareComponent,ComponentLink>(getCurrentWorkflow().getTaskDependencies());
-				
-		while(workflowIterator.hasNext())
-		{
-			MobileSoftwareComponent currTask = workflowIterator.next();
-			String nodeIdPrefix = currTask.getId().substring(currTask.getId().indexOf("_"));
-			ComputationalNode target = null;
-			if(!preComputedSchedule.containsKey(nodeIdPrefix))
+		MobileSoftwareComponent currTask = workflowIterator.next();
+		readyTasks.addAll(readyTasks(schedulingGraph));
+		
+		while(!applicationTasks.isEmpty()) {
+			
+			while((currTask = readyTasks.poll()) !=null)
 			{
-				//We did not find a good target for this node type yet, so we compute it now
-				Tuple2<ComputationalNode, Double> nodeAndLatency = findTarget(currTask, getInfrastructure(), scheduling);
-				preComputedSchedule.put(nodeIdPrefix, nodeAndLatency);
-				target = nodeAndLatency._1();
-			}
-			else
-				target = preComputedSchedule.get(nodeIdPrefix)._1();
 				
-			if(updateCondition())
-			{
-				//We have a node, but will it still be good in a while?
-				Tuple2<ComputationalNode,Double> preComputed = preComputedSchedule.get(nodeIdPrefix);
-				double currentLatency = preComputed._2();
-				ComputationalNode previousTarget = preComputed._1();
-				double predictedLatency = predictLatencyAtTimeStep(currTask, previousTarget, getInfrastructure(), scheduling , getCurrentTime() + 2.0);
-				if(predictedLatency > currentLatency)
+				String nodeIdPrefix = currTask.getId().substring(currTask.getId().indexOf("_"));
+				ComputationalNode target = null;
+				if(!preComputedSchedule.containsKey(nodeIdPrefix))
 				{
-					Tuple2<ComputationalNode, Double> newPair = findTargetForTimestep(currTask, getInfrastructure(), scheduling, getCurrentTime() + 2.0);
-					preComputedSchedule.remove(nodeIdPrefix);
-					preComputedSchedule.put(nodeIdPrefix,newPair);
+					//We did not find a good target for this node type yet, so we compute it now
+					Tuple2<ComputationalNode, Double> nodeAndLatency = findTarget(currTask, getInfrastructure(), scheduling);
+					preComputedSchedule.put(nodeIdPrefix, nodeAndLatency);
+					target = nodeAndLatency._1();
 				}
-				
-					
-			}
-			
-			deploy(scheduling,currTask,target,publisherDevices,subscriberDevices);
-			
-			mobilityManagement();			
+				else 
+				{ 
+					target = preComputedSchedule.get(nodeIdPrefix)._1();
+					//Has the node enough resources?
+					if(!isValid(scheduling, currTask, target))
+					{
+						Tuple2<ComputationalNode, Double> nodeAndLatency = findTarget(currTask, getInfrastructure(), scheduling);
+						preComputedSchedule.put(nodeIdPrefix, nodeAndLatency);
+						target = nodeAndLatency._1();
+					}
+				}
+				if(updateCondition())
+				{
+					//We have a node, but will it still be good in a while?
+					Tuple2<ComputationalNode,Double> preComputed = preComputedSchedule.get(nodeIdPrefix);
+					double currentLatency = preComputed._2();
+					ComputationalNode previousTarget = preComputed._1();
+					double predictedLatency = predictLatencyAtTimeStep(currTask, previousTarget, getInfrastructure(), scheduling , getCurrentTime() + 2.0);
+					if(predictedLatency > currentLatency)
+					{
+						Tuple2<ComputationalNode, Double> newPair = findTargetForTimestep(currTask, getInfrastructure(), scheduling, getCurrentTime() + 2.0);
+						preComputedSchedule.remove(nodeIdPrefix);
+						preComputedSchedule.put(nodeIdPrefix,newPair);
+					}
+				}
+				if(target!=null) 
+				{
+					//System.out.println("Timestep: "+currentTimestamp+ ", target:"+target.getId()+" Utilization: "+target.getChannelUtilization());
+					deploy(scheduling,currTask,target,publisherDevices,subscriberDevices);
+					applicationTasks.remove(currTask);
+					schedulingGraph.removeVertex(currTask);
+					readyTasks.remove(currTask);
+					scheduledNodes.add(currTask);
+					if(!scheduledNodes.isEmpty())
+					{
+						MobileSoftwareComponent firstScheduled = scheduledNodes.peek();
+						while(firstScheduled != null && target.getESTforTask(currTask)>=firstScheduled.getRunTime())
+						{
+							scheduledNodes.remove(firstScheduled);
+							((ComputationalNode) scheduling.get(firstScheduled)).undeploy(firstScheduled);
+							firstScheduled = scheduledNodes.peek();
+						}
+					}
+					else if(!scheduledNodes.isEmpty())
+					{
+						MobileSoftwareComponent firstScheduled = scheduledNodes.peek();
+						scheduledNodes.remove(firstScheduled);
+						((ComputationalNode) scheduling.get(firstScheduled)).undeploy(firstScheduled);
+						firstScheduled = scheduledNodes.peek();
+					}
+					readyTasks.addAll(readyTasks(schedulingGraph));
+					currentTimestamp = (int) Math.round(getCurrentTime());
+					mobilityManagement();
+				}
+		}
 		}
 		double endTime = System.currentTimeMillis();
 		scheduling.setExecutionTime(endTime - startTime);
@@ -109,7 +159,6 @@ public class OracleFaaSPlacement extends FaaSPlacementAlgorithm {
 	private double computeAverageLatency(MobileSoftwareComponent msc, ComputationalNode target, 
 			MobileDataDistributionInfrastructure targetInfrastructure, FaaSWorkflowPlacement placement)
 	{
-		double startTime = System.currentTimeMillis();
 		double averageLatency;
 		double maxLatency = Double.MIN_VALUE;
 		ConnectionMap map = targetInfrastructure.getConnectionMap();
@@ -178,26 +227,13 @@ public class OracleFaaSPlacement extends FaaSPlacementAlgorithm {
 		MobileDataDistributionInfrastructure future = infrastructure.lookupAtTimestamp(d);
 		for(ComputationalNode c : future.getAllNodes())
 		{
-			if((tmp = computeAverageLatency(msc, c, future, placement)) < avgLatency)
+			if((tmp = computeAverageLatency(msc, c, future, placement)) < avgLatency && isValid(placement, msc, c))
 			{
 				out = new Tuple2<ComputationalNode, Double>(c,tmp);
 				avgLatency = tmp;
 			}
 		}
 		return out;
-	}
-
-	private void mobilityManagement() {
-		int currentTimestamp;
-		currentTimestamp = (int) Math.round(getCurrentTime());
-		System.out.println("TIMESTAMP: "+currentTimestamp);
-		for(MobileDevice d : this.getInfrastructure().getMobileDevices().values()) 
-			d.updateCoordsWithMobility((double)currentTimestamp);
-		//System.out.println("ID: " + d.getId() + "COORDS: " + d.getCoords());
-		
-		MobilityBasedNetworkPlanner.setupMobileConnections(getInfrastructure());
-		MobileDevicePlannerWithIoTMobility.updateDeviceSubscriptions(getInfrastructure(),
-				IoTFaaSSetup.selectedWorkflow);
 	}
 
 	private void setupPubSubRegistry() {

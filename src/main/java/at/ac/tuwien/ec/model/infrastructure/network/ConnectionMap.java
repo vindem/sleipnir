@@ -243,7 +243,8 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 					//	(tmpProfile.getLatency()*computeDistance(n0,n1))/MILLISECONDS_PER_SECONDS;
 				//time += ((dataSize)/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth()*BYTES_PER_MEGABIT) +
 					//	(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(n0,n1);
-				time += (dataSize/BYTES_TO_MEGABYTES)/((tmpProfile.getBandwidth()) * (1.0 - (n1.getChannelUtilization()+0.01)))+
+				
+				time += ((dataSize/BYTES_TO_MEGABYTES)/(tmpProfile.getBandwidth() * (n1.getChannelUtilization()+0.01)))+
 							(tmpProfile.getLatency()/MILLISECONDS_PER_SECONDS);
 				n0 = n1;
 			}
@@ -255,11 +256,12 @@ public class ConnectionMap extends DefaultDirectedWeightedGraph<NetworkedNode, N
 			
 			QoSProfile profile = link.getQoSProfile();
 			profile.sampleQoS();
-			double time = (dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*(1.0 - (((v.getId().contains("vehicle"))? 0.01 :v.getChannelUtilization())+0.01)) +
-						(profile.getLatency()/MILLISECONDS_PER_SECONDS));
-			if(v.getId().contains("vehicle") && time>10.0) 
-				System.out.println("Transmission Time: "+time+ " "+u.getId()+"->"+v.getId()+" latency="+(profile.getLatency()/MILLISECONDS_PER_SECONDS)
-						+" Data size: "+(dataSize/BYTES_TO_MEGABYTES)+ " BW: "+ profile.getBandwidth()+ " UTILIZATION: "+ ((1.0 - v.getChannelUtilization())+0.01));
+			
+			double time = ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()* ((v.getId().contains("vehicle"))? 1.0 :v.getChannelUtilization()+0.01))) +
+						(profile.getLatency()/MILLISECONDS_PER_SECONDS);
+			//if(v.getId().contains("vehicle") && time>10.0) 
+				//System.out.println("Transmission Time: "+time+ " "+u.getId()+"->"+v.getId()+" latency="+(profile.getLatency()/MILLISECONDS_PER_SECONDS)
+					//	+" Data size: "+(dataSize/BYTES_TO_MEGABYTES)+ " BW: "+ profile.getBandwidth()+ " UTILIZATION: "+ ((1.0 - v.getChannelUtilization())+0.01));
 			return time;
 			//return ((dataSize/BYTES_TO_MEGABYTES)/(profile.getBandwidth()*BYTES_PER_MEGABIT)) +
 				//	(profile.getLatency()/MILLISECONDS_PER_SECONDS)*computeDistance(u,v);
