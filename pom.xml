@@ -15,7 +15,7 @@
   <dependencies>
 		<dependency>
 		<groupId>org.apache.spark</groupId>
-		<artifactId>spark-core_2.12</artifactId>
+		<artifactId>spark-core_3.3</artifactId>
 		<version>3.0.1</version>
 		<scope>provided</scope>
 		</dependency>
